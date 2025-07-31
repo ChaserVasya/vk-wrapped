@@ -5,15 +5,15 @@ import { ValidatorService } from './services/validator';
 import { LoggerService } from './services/logger';
 import { getCurrentTimestamp, createFullId } from './utils';
 
-// Инициализация сервисов
-const vkApiService = new VKApiService();
-const dbService = new DatabaseService();
-const statusProcessor = new StatusProcessorService(dbService);
-
 // Универсальный handler для timer и HTTP триггеров
 export async function handler(event: any, context: any): Promise<any> {
   try {
     LoggerService.logPollingStart();
+    
+    // Создаем сервисы внутри функции для возможности мокирования в тестах
+    const vkApiService = new VKApiService();
+    const dbService = new DatabaseService();
+    const statusProcessor = new StatusProcessorService(dbService);
     
     const status = await vkApiService.getStatus();
     await statusProcessor.processStatus(status);
@@ -30,7 +30,7 @@ export async function handler(event: any, context: any): Promise<any> {
 
 // Создание успешного ответа
 function createSuccessResponse(status: any): any {
-  const hasValidMusic = status.status_audio && ValidatorService.isValidAudioStatus(status.status_audio);
+  const hasValidMusic = !!(status.status_audio && ValidatorService.isValidAudioStatus(status.status_audio));
   
   return {
     statusCode: 200,
