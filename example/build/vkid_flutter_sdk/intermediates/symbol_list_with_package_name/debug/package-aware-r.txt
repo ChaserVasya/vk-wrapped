@@ -1,0 +1,1 @@
+com.vk.vkid.flutter.vkid_flutter_sdk
