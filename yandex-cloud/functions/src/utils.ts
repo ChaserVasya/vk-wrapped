@@ -4,6 +4,7 @@ export function getCurrentTimestamp(): string {
   return new Date().toISOString();
 }
 
+// Формирует id который является аргументом для audio.getById
 export function createFullId(ownerId: number, trackId: number): string {
   return `${ownerId}_${trackId}`;
 }
