@@ -1,0 +1,7 @@
+# VK API Configuration
+USER_ID=206942551
+SERVICE_TOKEN=e505d8ece505d8ece505d8ec7fe6321bbbee505e505d8ec8d8e9859a4d66773c2f64955
+VK_API_VERSION=5.131
+VK_API_FIELDS=status
+# Fake to imitate browser request for status
+USER_AGENT=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 

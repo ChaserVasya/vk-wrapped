@@ -1,0 +1,23 @@
+{
+  "name": "vk-wrapped-yandex-functions",
+  "version": "1.0.0",
+  "description": "VK Wrapped functions for Yandex Cloud",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "deploy": "./deploy.sh",
+    "test": "jest"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "typescript": "^5.0.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+} 
