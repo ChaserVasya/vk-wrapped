@@ -2,46 +2,52 @@
 
 export class LoggerService {
   static logActiveMusic(artist: string, title: string, fullId: string): void {
-    console.log(`🎵 Active music: ${artist} - ${title} (${fullId})`);
+    console.log('[INFO] Active music:', `${artist} - ${title} (${fullId})`);
   }
 
   static logSessionSaved(): void {
-    console.log('✅ Session saved to database');
+    console.log('[INFO] Session saved to database');
   }
 
   static logSessionCreated(fullId: string): void {
-    console.log(`✅ New session created for: ${fullId}`);
+    console.log('[INFO] New session created for:', fullId);
   }
 
   static logSessionUpdated(fullId: string): void {
-    console.log(`🔄 Session updated for: ${fullId}`);
+    console.log('[INFO] Session updated for:', fullId);
   }
 
   static logAllSessionsFinished(): void {
-    console.log('🏁 All active sessions finished');
+    console.log('[INFO] All active sessions finished');
   }
 
   static logSessionError(error: any): void {
-    console.error('❌ Error saving session:', error);
+    console.error('[ERROR] Error saving session:', LoggerService.formatError(error));
   }
 
   static logNoActiveMusic(reason: string): void {
-    console.log(`⏳ No active music (${reason})`);
+    console.log('[INFO] No active music:', reason);
   }
 
   static logInvalidAudioStatus(status: any): void {
-    console.log('⚠️ Invalid audio status format:', JSON.stringify(status));
+    console.warn('[WARN] Invalid audio status format:', JSON.stringify(status));
   }
 
   static logPollingStart(): void {
-    console.log('🔄 Starting VK status polling...');
+    console.log('[INFO] Starting VK status polling...');
   }
 
   static logPollingComplete(): void {
-    console.log('✅ VK status polling completed');
+    console.log('[INFO] VK status polling completed');
   }
 
   static logPollingError(error: any): void {
-    console.error('❌ Error in VK status polling:', error);
+    console.error('[ERROR] Error in VK status polling:', LoggerService.formatError(error));
+  }
+
+  private static formatError(error: any): string {
+    if (error instanceof Error) return error.message;
+    if (typeof error === 'object') return JSON.stringify(error, null, 2);
+    return String(error);
   }
 } 

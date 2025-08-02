@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { LoggerService } from './logger';
 
 export interface ActiveSession {
   full_id: string;
@@ -23,14 +24,14 @@ export class DatabaseService {
       WHERE full_id = "${fullId}"
       LIMIT 1
     `;
-    
+
     const result = await this.executeQuery(query);
     const rows = result.rows || [];
-    
+
     if (rows.length === 0) {
       return null;
     }
-    
+
     const row = rows[0];
     return {
       full_id: row.full_id,
@@ -46,7 +47,7 @@ export class DatabaseService {
       UPSERT INTO active_sessions (full_id, start, last_updated)
       VALUES ("${fullId}", DateTime("${now.toISOString()}"), DateTime("${now.toISOString()}"))
     `;
-    
+
     await this.executeQuery(query);
   }
 
@@ -58,7 +59,7 @@ export class DatabaseService {
       SET last_updated = DateTime("${now.toISOString()}")
       WHERE full_id = "${fullId}"
     `;
-    
+
     await this.executeQuery(query);
   }
 
@@ -69,10 +70,10 @@ export class DatabaseService {
       SELECT full_id, start, last_updated
       FROM active_sessions
     `;
-    
+
     const result = await this.executeQuery(query);
     const rows = result.rows || [];
-    
+
     if (rows.length === 0) {
       return; // Нет активных сессий
     }
@@ -88,7 +89,7 @@ export class DatabaseService {
         UPSERT INTO listening_sessions (full_id, start, end)
         VALUES ("${fullId}", DateTime("${start.toISOString()}"), DateTime("${lastUpdated.toISOString()}"))
       `;
-      
+
       await this.executeQuery(insertQuery);
     }
 
@@ -96,7 +97,7 @@ export class DatabaseService {
     const deleteQuery = `
       DELETE FROM active_sessions
     `;
-    
+
     await this.executeQuery(deleteQuery);
   }
 
@@ -116,10 +117,9 @@ export class DatabaseService {
           }
         }
       );
-      
       return response.data;
     } catch (error) {
-      console.error('Database query error:', error);
+      LoggerService.logSessionError(error);
       throw error;
     }
   }

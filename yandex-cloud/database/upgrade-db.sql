@@ -15,7 +15,8 @@ CREATE TABLE listening_sessions (
 
 -- Создаем таблицу активных сессий прослушивания
 CREATE TABLE active_sessions (
-    full_id String PRIMARY KEY,   -- "owner_id_track_id" (уникальный ключ)
+    full_id String,               -- "owner_id_track_id" (уникальный ключ)
     start Timestamp,              -- время начала сессии
-    last_updated Timestamp        -- время последнего обновления
+    last_updated Timestamp,       -- время последнего обновления
+    PRIMARY KEY (full_id)
 ); 
