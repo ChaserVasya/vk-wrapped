@@ -1,6 +1,7 @@
 import axios from 'axios';
-import { VKStatus } from '../types';
 import { CONFIG } from '../config';
+import { VKStatus } from '../types';
+import { LoggerService } from './logger';
 
 export class VKApiService {
   // Получение статуса VK
@@ -21,7 +22,7 @@ export class VKApiService {
 
       return response.data.response[0];
     } catch (error) {
-      console.error('Error getting VK status:', error);
+      LoggerService.logPollingError(error);
       throw error;
     }
   }

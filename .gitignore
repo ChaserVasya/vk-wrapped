@@ -114,6 +114,8 @@ dist/
 build/
 *.js.map
 *.d.ts.map
+*.zip
+dist.zip
 
 # Yandex Cloud
 .yc/
