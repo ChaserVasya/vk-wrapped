@@ -1,0 +1,402 @@
+// Мокаем модули перед импортом
+jest.mock('../services/vk-api');
+jest.mock('../services/database');
+
+import { handler } from '../index';
+import { createMockServices, setupMockImplementations, MockServices } from './test-utils';
+
+describe('Session Logic Tests', () => {
+  let mocks: MockServices;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    
+    // Создаем моки сервисов
+    mocks = createMockServices();
+    setupMockImplementations(mocks);
+  });
+
+  describe('Логика создания и обновления активных сессий', () => {
+    test('Первый поллинг трека - создается новая активная сессия', async () => {
+      // Arrange
+      const mockStatus = {
+        status_audio: {
+          id: 456240381,
+          owner_id: 456240381,
+          artist: 'The Weeknd',
+          title: 'Blinding Lights'
+        }
+      };
+
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
+      mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии
+      mocks.databaseService.createActiveSession.mockResolvedValue();
+
+      // Act
+      const result = await handler({}, {});
+
+      // Assert
+      expect(result.statusCode).toBe(200);
+      expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
+      expect(mocks.databaseService.createActiveSession).toHaveBeenCalledWith('456240381_456240381');
+      expect(mocks.databaseService.updateActiveSession).not.toHaveBeenCalled();
+    });
+
+    test('Второй поллинг того же трека - обновляется активная сессия', async () => {
+      // Arrange
+      const mockStatus = {
+        status_audio: {
+          id: 456240381,
+          owner_id: 456240381,
+          artist: 'The Weeknd',
+          title: 'Blinding Lights'
+        }
+      };
+
+      const existingActiveSession = {
+        full_id: '456240381_456240381',
+        start: new Date('2024-01-15T10:15:00Z'),
+        last_updated: new Date('2024-01-15T10:15:00Z')
+      };
+
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
+      mocks.databaseService.getActiveSession.mockResolvedValue(existingActiveSession); // Есть активная сессия
+      mocks.databaseService.updateActiveSession.mockResolvedValue();
+
+      // Act
+      const result = await handler({}, {});
+
+      // Assert
+      expect(result.statusCode).toBe(200);
+      expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
+      expect(mocks.databaseService.updateActiveSession).toHaveBeenCalledWith('456240381_456240381');
+      expect(mocks.databaseService.createActiveSession).not.toHaveBeenCalled();
+    });
+
+    test('Третий поллинг того же трека - снова обновляется активная сессия', async () => {
+      // Arrange
+      const mockStatus = {
+        status_audio: {
+          id: 456240381,
+          owner_id: 456240381,
+          artist: 'The Weeknd',
+          title: 'Blinding Lights'
+        }
+      };
+
+      const existingActiveSession = {
+        full_id: '456240381_456240381',
+        start: new Date('2024-01-15T10:15:00Z'),
+        last_updated: new Date('2024-01-15T10:16:00Z')
+      };
+
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
+      mocks.databaseService.getActiveSession.mockResolvedValue(existingActiveSession);
+      mocks.databaseService.updateActiveSession.mockResolvedValue();
+
+      // Act
+      const result = await handler({}, {});
+
+      // Assert
+      expect(result.statusCode).toBe(200);
+      expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
+      expect(mocks.databaseService.updateActiveSession).toHaveBeenCalledWith('456240381_456240381');
+      expect(mocks.databaseService.createActiveSession).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Логика смены треков', () => {
+    test('Смена трека - создается новая активная сессия', async () => {
+      // Arrange
+      const mockStatus = {
+        status_audio: {
+          id: 789123456,
+          owner_id: 789123456,
+          artist: 'Dua Lipa',
+          title: 'Levitating'
+        }
+      };
+
+      // Предыдущая сессия была для другого трека
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
+      mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии для нового трека
+      mocks.databaseService.createActiveSession.mockResolvedValue();
+
+      // Act
+      const result = await handler({}, {});
+
+      // Assert
+      expect(result.statusCode).toBe(200);
+      expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('789123456_789123456');
+      expect(mocks.databaseService.createActiveSession).toHaveBeenCalledWith('789123456_789123456');
+      expect(mocks.databaseService.updateActiveSession).not.toHaveBeenCalled();
+    });
+
+    test('Возврат к предыдущему треку - создается новая активная сессия', async () => {
+      // Arrange
+      const mockStatus = {
+        status_audio: {
+          id: 456240381,
+          owner_id: 456240381,
+          artist: 'The Weeknd',
+          title: 'Blinding Lights'
+        }
+      };
+
+      // Возвращаемся к первому треку
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
+      mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии
+      mocks.databaseService.createActiveSession.mockResolvedValue();
+
+      // Act
+      const result = await handler({}, {});
+
+      // Assert
+      expect(result.statusCode).toBe(200);
+      expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
+      expect(mocks.databaseService.createActiveSession).toHaveBeenCalledWith('456240381_456240381');
+    });
+  });
+
+  describe('Завершение сессий при отсутствии музыки', () => {
+    test('Нет музыки - завершаются все активные сессии', async () => {
+      // Arrange
+      const mockStatus = {
+        status_audio: undefined
+      };
+
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
+      mocks.databaseService.finishAllActiveSessions.mockResolvedValue();
+
+      // Act
+      const result = await handler({}, {});
+
+      // Assert
+      expect(result.statusCode).toBe(200);
+      expect(mocks.databaseService.getActiveSession).not.toHaveBeenCalled();
+      expect(mocks.databaseService.createActiveSession).not.toHaveBeenCalled();
+      expect(mocks.databaseService.updateActiveSession).not.toHaveBeenCalled();
+      expect(mocks.databaseService.finishAllActiveSessions).toHaveBeenCalledTimes(1);
+    });
+
+    test('Невалидные данные - завершаются все активные сессии', async () => {
+      // Arrange
+      const mockStatus: any = {
+        status_audio: {
+          id: 'not_a_number',
+          owner_id: 456240381,
+          artist: 'The Weeknd',
+          title: 'Blinding Lights'
+        }
+      };
+
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
+      mocks.databaseService.finishAllActiveSessions.mockResolvedValue();
+
+      // Act
+      const result = await handler({}, {});
+
+      // Assert
+      expect(result.statusCode).toBe(200);
+      expect(mocks.databaseService.getActiveSession).not.toHaveBeenCalled();
+      expect(mocks.databaseService.createActiveSession).not.toHaveBeenCalled();
+      expect(mocks.databaseService.updateActiveSession).not.toHaveBeenCalled();
+      expect(mocks.databaseService.finishAllActiveSessions).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Переходы состояний', () => {
+    test('Есть музыка → Нет музыки → Есть та же музыка (возврат к треку)', async () => {
+      // Arrange - сначала есть музыка
+      const mockStatusWithMusic = {
+        status_audio: {
+          id: 456240381,
+          owner_id: 456240381,
+          artist: 'The Weeknd',
+          title: 'Blinding Lights'
+        }
+      };
+
+      const mockStatusNoMusic = {
+        status_audio: undefined
+      };
+
+      // Первый поллинг - есть музыка
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatusWithMusic);
+      mocks.databaseService.getActiveSession.mockResolvedValue(null);
+      mocks.databaseService.createActiveSession.mockResolvedValue();
+
+      await handler({}, {});
+
+      // Второй поллинг - нет музыки
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatusNoMusic);
+      mocks.databaseService.finishAllActiveSessions.mockResolvedValue();
+      jest.clearAllMocks();
+
+      await handler({}, {});
+
+      // Третий поллинг - снова есть та же музыка
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatusWithMusic);
+      mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии (завершилась)
+      mocks.databaseService.createActiveSession.mockResolvedValue();
+
+      const result = await handler({}, {});
+
+      // Assert
+      expect(result.statusCode).toBe(200);
+      expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
+      expect(mocks.databaseService.createActiveSession).toHaveBeenCalledWith('456240381_456240381');
+    });
+
+    test('Есть музыка → Нет музыки → Есть другая музыка (смена трека)', async () => {
+      // Arrange - сначала есть музыка
+      const mockStatusFirstMusic = {
+        status_audio: {
+          id: 456240381,
+          owner_id: 456240381,
+          artist: 'The Weeknd',
+          title: 'Blinding Lights'
+        }
+      };
+
+      const mockStatusNoMusic = {
+        status_audio: undefined
+      };
+
+      const mockStatusSecondMusic = {
+        status_audio: {
+          id: 789123456,
+          owner_id: 789123456,
+          artist: 'Dua Lipa',
+          title: 'Levitating'
+        }
+      };
+
+      // Первый поллинг - есть музыка
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatusFirstMusic);
+      mocks.databaseService.getActiveSession.mockResolvedValue(null);
+      mocks.databaseService.createActiveSession.mockResolvedValue();
+
+      await handler({}, {});
+
+      // Второй поллинг - нет музыки
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatusNoMusic);
+      mocks.databaseService.finishAllActiveSessions.mockResolvedValue();
+      jest.clearAllMocks();
+
+      await handler({}, {});
+
+      // Третий поллинг - есть другая музыка
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatusSecondMusic);
+      mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии
+      mocks.databaseService.createActiveSession.mockResolvedValue();
+
+      const result = await handler({}, {});
+
+      // Assert
+      expect(result.statusCode).toBe(200);
+      expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('789123456_789123456');
+      expect(mocks.databaseService.createActiveSession).toHaveBeenCalledWith('789123456_789123456');
+    });
+
+    test('Нет музыки → Есть музыка (начало прослушивания)', async () => {
+      // Arrange - сначала нет музыки
+      const mockStatusNoMusic = {
+        status_audio: undefined
+      };
+
+      const mockStatusWithMusic = {
+        status_audio: {
+          id: 456240381,
+          owner_id: 456240381,
+          artist: 'The Weeknd',
+          title: 'Blinding Lights'
+        }
+      };
+
+      // Первый поллинг - нет музыки
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatusNoMusic);
+      mocks.databaseService.finishAllActiveSessions.mockResolvedValue();
+      await handler({}, {});
+
+      // Второй поллинг - есть музыка
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatusWithMusic);
+      mocks.databaseService.getActiveSession.mockResolvedValue(null);
+      mocks.databaseService.createActiveSession.mockResolvedValue();
+
+      const result = await handler({}, {});
+
+      // Assert
+      expect(result.statusCode).toBe(200);
+      expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
+      expect(mocks.databaseService.createActiveSession).toHaveBeenCalledWith('456240381_456240381');
+    });
+  });
+
+  describe('Обработка ошибок БД', () => {
+    test('Ошибка при получении активной сессии - функция не падает', async () => {
+      // Arrange
+      const mockStatus = {
+        status_audio: {
+          id: 456240381,
+          owner_id: 456240381,
+          artist: 'The Weeknd',
+          title: 'Blinding Lights'
+        }
+      };
+
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
+      mocks.databaseService.getActiveSession.mockRejectedValue(new Error('DB Error'));
+
+      // Act
+      const result = await handler({}, {});
+
+      // Assert
+      expect(result.statusCode).toBe(200);
+      expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
+      expect(mocks.databaseService.createActiveSession).not.toHaveBeenCalled();
+      expect(mocks.databaseService.updateActiveSession).not.toHaveBeenCalled();
+    });
+
+    test('Ошибка при создании активной сессии - функция не падает', async () => {
+      // Arrange
+      const mockStatus = {
+        status_audio: {
+          id: 456240381,
+          owner_id: 456240381,
+          artist: 'The Weeknd',
+          title: 'Blinding Lights'
+        }
+      };
+
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
+      mocks.databaseService.getActiveSession.mockResolvedValue(null);
+      mocks.databaseService.createActiveSession.mockRejectedValue(new Error('DB Error'));
+
+      // Act
+      const result = await handler({}, {});
+
+      // Assert
+      expect(result.statusCode).toBe(200);
+      expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
+      expect(mocks.databaseService.createActiveSession).toHaveBeenCalledWith('456240381_456240381');
+    });
+
+    test('Ошибка при завершении всех сессий - функция не падает', async () => {
+      // Arrange
+      const mockStatus = {
+        status_audio: undefined
+      };
+
+      mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
+      mocks.databaseService.finishAllActiveSessions.mockRejectedValue(new Error('DB Error'));
+
+      // Act
+      const result = await handler({}, {});
+
+      // Assert
+      expect(result.statusCode).toBe(200);
+      expect(mocks.databaseService.finishAllActiveSessions).toHaveBeenCalledTimes(1);
+    });
+  });
+}); 

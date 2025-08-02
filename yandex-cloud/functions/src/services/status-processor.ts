@@ -2,7 +2,7 @@ import { VKStatus } from '../types';
 import { DatabaseService } from './database';
 import { ValidatorService } from './validator';
 import { LoggerService } from './logger';
-import { createFullId, createSession } from '../utils';
+import { createFullId } from '../utils';
 
 export class StatusProcessorService {
   constructor(private dbService: DatabaseService) {}
@@ -12,7 +12,7 @@ export class StatusProcessorService {
     if (status.status_audio && ValidatorService.isValidAudioStatus(status.status_audio)) {
       await this.handleActiveMusic(status.status_audio);
     } else {
-      this.handleNoActiveMusic(status.status_audio);
+      await this.handleNoActiveMusic();
     }
   }
 
@@ -23,21 +23,32 @@ export class StatusProcessorService {
     LoggerService.logActiveMusic(artist, title, fullId);
     
     try {
-      const session = createSession(fullId);
-      await this.dbService.saveListeningSession(session);
-      LoggerService.logSessionSaved();
+      // Проверяем, есть ли уже активная сессия для этого трека
+      const activeSession = await this.dbService.getActiveSession(fullId);
+      
+      if (activeSession) {
+        // Обновляем время последнего обновления существующей сессии
+        await this.dbService.updateActiveSession(fullId);
+        LoggerService.logSessionUpdated(fullId);
+      } else {
+        // Создаем новую активную сессию
+        await this.dbService.createActiveSession(fullId);
+        LoggerService.logSessionCreated(fullId);
+      }
     } catch (error) {
       LoggerService.logSessionError(error);
     }
   }
 
-  private handleNoActiveMusic(statusAudio: any): void {
-    if (!statusAudio) {
-      LoggerService.logNoActiveMusic('status_audio is null/undefined');
-    } else if (!ValidatorService.isValidAudioStatus(statusAudio)) {
-      LoggerService.logInvalidAudioStatus(statusAudio);
-    } else {
-      LoggerService.logNoActiveMusic('unknown reason');
+  private async handleNoActiveMusic(): Promise<void> {
+    LoggerService.logNoActiveMusic('status_audio is null/undefined');
+    
+    try {
+      // Завершаем все активные сессии при отсутствии музыки
+      await this.dbService.finishAllActiveSessions();
+      LoggerService.logAllSessionsFinished();
+    } catch (error) {
+      LoggerService.logSessionError(error);
     }
   }
 } 

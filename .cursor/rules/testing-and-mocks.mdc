@@ -1,0 +1,866 @@
+---
+alwaysApply: true
+---
+
+# Правила тестирования и моков для Mobi Trainer Client
+
+## Основные принципы
+
+### Структура файлов тестов
+
+**Unit-тесты конкретных классов ДОЛЖНЫ следовать принципу зеркальной структуры**
+
+- ✅ **Тот же путь + суффикс `_test`** - для связи с тестируемым объектом
+- ✅ **Зеркальная структура папок** - тест в той же иерархии что и основной файл
+- ✅ **Импорт из основного файла** - для прямого тестирования
+
+### Примеры правильной структуры
+
+✅ **Правильно - зеркальная структура:**
+
+```
+lib/
+  domain/
+    use_cases/
+      birthday_use_case.dart
+      get_client_code_from_nfc_use_case.dart
+
+test/
+  domain/
+    use_cases/
+      birthday_use_case_test.dart
+      get_client_code_from_nfc_use_case_test.dart
+```
+
+### Централизованное создание моков
+
+**ВСЕ моки ДОЛЖНЫ создаваться в файле `test/all.dart`**
+
+- ✅ **Единая точка создания моков** - все моки в одном месте
+- ✅ **Использование `@GenerateNiceMocks`** - для автоматической генерации
+- ✅ **Импорт моков из `all.mocks.dart`** - в тестовых файлах
+- ❌ **Создание моков в отдельных файлах тестов** - запрещено
+- ❌ **Дублирование моков** - недопустимо
+
+### Алгоритм добавления новых моков
+
+1. **Добавить в `test/all.dart`** - новый `MockSpec<ClassName>()`
+2. **Запустить генерацию** - `fvm dart run build_runner build`
+3. **Импортировать из `all.mocks.dart`** - в тестовом файле
+4. **Использовать готовый мок** - без создания в тесте
+
+### Примеры правильного использования
+
+✅ **Правильно - добавление в all.dart:**
+
+```dart
+@GenerateNiceMocks([
+  // Существующие моки...
+  MockSpec<NewService>(), // Новый мок
+])
+void _annotationAnchor() {}
+```
+
+✅ **Правильно - использование в тесте:**
+
+```dart
+import 'package:mobi_trainer/test/all.mocks.dart';
+
+void main() {
+  late MockNewService mockService;
+
+  setUp(() {
+    mockService = MockNewService();
+  });
+}
+```
+
+❌ **Неправильно - создание в тесте:**
+
+```dart
+@GenerateMocks([NewService]) // НЕ СОЗДАВАТЬ ЗДЕСЬ
+void main() {
+  // ...
+}
+```
+
+## Инициализация моков в тестах
+
+### ЗАПРЕТ дублирования инициализации моков
+
+**НЕ создавать моки в каждом тесте отдельно**
+
+❌ **Неправильно - дублирование:**
+
+```dart
+void main() {
+  group('Test group 1', () {
+    test('Test 1', () {
+      final mockService = MockService(); // ПЛОХО
+      final mockLogger = MockLogger();   // ПЛОХО
+      // ...
+    });
+
+    test('Test 2', () {
+      final mockService = MockService(); // ПЛОХО - ДУБЛИРОВАНИЕ
+      final mockLogger = MockLogger();   // ПЛОХО - ДУБЛИРОВАНИЕ
+      // ...
+    });
+  });
+}
+```
+
+✅ **Правильно - единая инициализация:**
+
+```dart
+void main() {
+  final mockService = MockService();
+  final mockLogger = MockLogger();
+
+  setUp(() {
+    reset(mockService);
+    reset(mockLogger);
+  });
+
+  test('Test 1', () {
+    when(mockService.doSomething()).thenReturn('result');
+    // ...
+  });
+
+  test('Test 2', () {
+    when(mockService.doOther()).thenReturn('other');
+    // ...
+  });
+}
+```
+
+### Использование reset() для очистки моков
+
+**ВСЕГДА использовать `reset()` в `setUp()` для очистки состояния моков**
+
+✅ **Правильно:**
+
+```dart
+void main() {
+  final mockService = MockService();
+  final mockLogger = MockLogger();
+
+  setUp(() {
+    reset(mockService);
+    reset(mockLogger);
+  });
+}
+```
+
+## Создание новых инстансов в тестах
+
+### ОБЯЗАТЕЛЬНО создавать новые инстансы сервисов в setUp()
+
+**НЕ использовать один инстанс между тестами - это приводит к кешированию состояния**
+
+❌ **Неправильно - кеширование между тестами:**
+
+```dart
+void main() {
+  final mockAdapter = MockAdapter();
+  final service = MyService(mockAdapter); // ПЛОХО - один инстанс для всех тестов
+
+  setUp(() {
+    reset(mockAdapter);
+  });
+}
+```
+
+✅ **Правильно - новый инстанс для каждого теста:**
+
+```dart
+void main() {
+  final mockAdapter = MockAdapter();
+  late MyService service; // late для инициализации в setUp
+
+  setUp(() {
+    reset(mockAdapter);
+    service = MyService(mockAdapter); // ХОРОШО - новый инстанс каждый раз
+  });
+}
+```
+
+### Почему это критически важно
+
+1. **Кеширование состояния** - сервисы могут кешировать данные между тестами
+2. **Независимость тестов** - каждый тест должен работать изолированно
+3. **Непредсказуемые результаты** - один тест может влиять на другой
+4. **Сложная отладка** - трудно понять почему тест падает
+
+### Примеры проблем с кешированием
+
+```dart
+// ПРОБЛЕМА: сервис кеширует токен из первого теста
+test('Should emit firebase token', () async {
+  // service уже имеет токен 'test_token' из init()
+  tokenController.add('new_token');
+  // Получаем 'test_token' вместо 'new_token'
+});
+```
+
+### Алгоритм исправления
+
+1. **Объявить переменную как `late`** - `late MyService service;`
+2. **Создать инстанс в `setUp()`** - `service = MyService(...);`
+3. **Сбросить моки в `setUp()`** - `reset(mockDependency);`
+4. **Проверить что тесты изолированы** - каждый тест работает независимо
+
+## Запрет бесполезных тестов
+
+### НЕ тестировать очевидные вещи
+
+**ЗАПРЕЩЕНО писать тесты, которые проверяют очевидные вещи**
+
+❌ **Бесполезные тесты - НЕ писать:**
+
+```dart
+// НЕ ПИСАТЬ - проверка на null для non-nullable типов
+test('Should create service instance', () {
+  final service = MyService();
+  expect(service, isNotNull); // БЕСПОЛЕЗНО
+});
+
+// НЕ ПИСАТЬ - проверка типов для статически типизированных переменных
+test('Should provide stream', () {
+  final stream = service.dataStream;
+  expect(stream, isA<Stream<Data>>()); // БЕСПОЛЕЗНО
+});
+
+// НЕ ПИСАТЬ - тесты "предоставляет что-то"
+test('Should provide token stream', () {
+  final stream = service.tokenStream;
+  expect(stream, isNotNull); // БЕСПОЛЕЗНО
+});
+```
+
+### Что МОЖНО тестировать
+
+✅ **Полезные тесты:**
+
+```dart
+// ХОРОШО - тестирование поведения
+test('Should emit token when service initializes', () async {
+  when(mockAdapter.getToken()).thenAnswer((_) async => 'test_token');
+
+  await service.init();
+
+  final token = await service.tokenStream.first;
+  expect(token.token, equals('test_token'));
+});
+
+// ХОРОШО - тестирование бизнес-логики
+test('Should increment counter when message received', () async {
+  const message = TestMessage(id: '123');
+
+  await handler.handle(message);
+
+  expect(controller.counter.value, equals(1));
+});
+
+// ХОРОШО - тестирование взаимодействий
+test('Should call logger when processing message', () async {
+  const message = TestMessage(id: '123');
+
+  await processor.process(message);
+
+  verify(mockLogger.d(any)).called(1);
+});
+```
+
+### Принципы полезных тестов
+
+1. **Тестировать поведение**, а не структуру
+2. **Тестировать бизнес-логику**, а не геттеры/сеттеры
+3. **Тестировать взаимодействия**, а не типы
+4. **Тестировать изменения состояния**, а не константы
+5. **Тестировать обработку ошибок**, а не happy path только
+
+## Тестирование потоков (Streams)
+
+### ОБЯЗАТЕЛЬНО проверять эмиссию значений в потоках
+
+**НЕ достаточно проверить что поток создается - нужно проверить что он эмитит значения**
+
+❌ **Бесполезные тесты потоков - НЕ писать:**
+
+```dart
+// НЕ ПИСАТЬ - только проверка создания потока
+test('Should provide token stream', () {
+  final stream = service.tokenStream;
+  expect(stream, isNotNull); // БЕСПОЛЕЗНО
+  expect(stream, isA<Stream<Token>>()); // БЕСПОЛЕЗНО
+});
+
+// НЕ ПИСАТЬ - только подписка без проверки эмиссии
+test('Should handle stream subscription', () {
+  final stream = service.tokenStream;
+  final subscription = stream.listen((_) {});
+  subscription.cancel(); // БЕСПОЛЕЗНО - не проверяет эмиссию
+});
+```
+
+✅ **Правильные тесты потоков:**
+
+```dart
+// ХОРОШО - проверка эмиссии значений с expectLater
+test('Should emit token when service initializes', () async {
+  final tokenController = BehaviorSubject<String>();
+  when(mockAdapter.getTokenStream).thenAnswer((_) => tokenController.stream);
+
+  final stream = service.tokenStream;
+
+  final expectation = expectLater(stream, emits('test_token'));
+
+  tokenController.add('test_token');
+
+  await expectation;
+  await tokenController.close();
+});
+
+// ХОРОШО - проверка множественных эмиссий с expectLater
+test('Should emit updated values when data changes', () async {
+  final stream = controller.dataStream;
+
+  final expectation = expectLater(
+    stream,
+    emitsInOrder(['value1', 'value2']),
+  );
+
+  controller.updateData('value1');
+  controller.updateData('value2');
+
+  await expectation;
+});
+
+// ХОРОШО - проверка немедленной эмиссии для BehaviorSubject
+test('Should emit current value immediately to new subscribers', () async {
+  controller.setValue('initial_value');
+
+  final stream = controller.valueStream;
+
+  final expectation = expectLater(stream, emits('initial_value'));
+
+  await expectation;
+});
+```
+
+### Правила тестирования потоков
+
+1. **Всегда проверять эмиссию** - не достаточно создать поток
+2. **Использовать контроллеры** - BehaviorSubject, StreamController для мокирования
+3. **Проверять немедленную эмиссию** - для BehaviorSubject и подобных
+4. **Тестировать множественные подписки** - один поток, несколько слушателей
+5. **Очищать ресурсы** - cancel subscriptions, close controllers
+6. **Использовать expectLater** - вместо Future.delayed для гарантированной проверки
+
+### Гарантированная проверка эмиссии потоков
+
+**ОБЯЗАТЕЛЬНО использовать expectLater вместо Future.delayed**
+
+❌ **Ненадежно - НЕ использовать:**
+
+```dart
+// ПЛОХО - Future.delayed не гарантирует эмиссию
+test('Should emit token', () async {
+  final controller = BehaviorSubject<String>();
+  final stream = service.tokenStream;
+
+  String? receivedToken;
+  final subscription = stream.listen((token) {
+    receivedToken = token;
+  });
+
+  controller.add('test_token');
+  await Future.delayed(const Duration(milliseconds: 10)); // НЕ ГАРАНТИРУЕТ
+
+  expect(receivedToken, equals('test_token')); // Может упасть
+
+  await subscription.cancel();
+});
+```
+
+✅ **Надежно - использовать expectLater:**
+
+```dart
+// ХОРОШО - expectLater гарантирует эмиссию
+test('Should emit token', () async {
+  final controller = BehaviorSubject<String>();
+  when(mockAdapter.getTokenStream).thenAnswer((_) => controller.stream);
+
+  final stream = service.tokenStream;
+
+  // Ждем конкретное значение
+  final expectation = expectLater(
+    stream,
+    emits('test_token'),
+  );
+
+  // Эмитим значение
+  controller.add('test_token');
+
+  // Гарантированно ждем эмиссию
+  await expectation;
+  await controller.close();
+});
+
+// ХОРОШО - для множественных потоков
+test('Should emit to multiple streams', () async {
+  final controller = BehaviorSubject<String>();
+  when(mockAdapter.getTokenStream).thenAnswer((_) => controller.stream);
+
+  final stream1 = service.tokenStream;
+  final stream2 = service.tokenStream;
+
+  // Ждем эмиссию в оба потока
+  final expectations = [
+    expectLater(stream1, emits('shared_token')),
+    expectLater(stream2, emits('shared_token')),
+  ];
+
+  controller.add('shared_token');
+
+  // Ждем все эмиссии
+  await Future.wait(expectations);
+  await controller.close();
+});
+```
+
+### Варианты expectLater
+
+```dart
+// Ждем конкретное значение
+expectLater(stream, emits('expected_value'))
+
+// Ждем последовательность значений
+expectLater(stream, emitsInOrder(['value1', 'value2', 'value3']))
+
+// Ждем любое значение
+expectLater(stream, emits(anything))
+
+// Ждем завершение потока
+expectLater(stream, emitsDone)
+
+// Ждем ошибку
+expectLater(stream, emitsError(isA<Exception>()))
+
+// Комбинированные проверки
+expectLater(stream, emitsInOrder([
+  'first_value',
+  'second_value',
+  emitsDone,
+]))
+```
+
+### Почему expectLater лучше Future.delayed
+
+1. **Гарантия эмиссии** - ждет именно того значения которое нужно
+2. **Таймаут** - автоматически падает если значение не пришло
+3. **Точность** - проверяет конкретное значение, а не просто ждет время
+4. **Читаемость** - ясно видно что именно ожидается
+5. **Надежность** - не зависит от тайминга системы
+
+### Типичные ошибки в тестах потоков
+
+❌ **Не проверять эмиссию значений**
+❌ **Не использовать await для асинхронных операций**
+❌ **Не закрывать контроллеры и подписки**
+❌ **Проверять только типы вместо значений**
+❌ **Не тестировать множественные эмиссии**
+
+## Язык описаний тестов
+
+**ВСЕ описания тестов ДОЛЖНЫ быть на английском языке**
+
+- ✅ **Английский язык** - для всех описаний тестов
+- ❌ **Русский язык** - запрещен в коде тестов
+- ❌ **Смешение языков** - недопустимо
+
+**Приоритет:** Это правило имеет приоритет над общим правилом общения на русском языке.
+
+## Описания тестов
+
+### Человеко-читаемые описания
+
+**ВСЕ описания тестов ДОЛЖНЫ быть человеко-читаемыми**
+
+- ✅ **Описание поведения** - что тестируется, а не название класса
+- ✅ **Бизнес-логика** - описание сценария тестирования
+- ✅ **Результат** - что должно произойти
+- ✅ **Названия групп** - тоже должны быть человеко-читаемыми
+- ❌ **Названия классов/методов** - не использовать в описании
+- ❌ **Технические детали** - избегать в описании
+
+### Формат описаний
+
+```
+describe('когда пользователь нажимает кнопку сохранения', () {
+  test('должен сохранить данные в базу', () {
+    // тест
+  });
+
+  test('должен показать сообщение об успехе', () {
+    // тест
+  });
+});
+```
+
+### Примеры правильных описаний
+
+✅ **Правильно:**
+
+```dart
+describe('when push notification arrives', () {
+  test('should process notification data', () {
+    // test
+  });
+
+  test('should show local notification', () {
+    // test
+  });
+});
+
+describe('when user authorizes', () {
+  test('should save token to storage', () {
+    // test
+  });
+});
+```
+
+❌ **Неправильно:**
+
+```dart
+describe('NotificationManager', () { // NOT CLASS NAME
+  test('test handleNotification', () { // NOT METHOD NAME
+    // test
+  });
+});
+
+describe('messageFromFirebase', () { // NOT HUMAN READABLE
+  test('Should convert Firebase training notification', () { // TECHNICAL DESCRIPTION
+    // test
+  });
+});
+```
+
+### Правила для названий групп
+
+- ✅ **Human readable scenarios** - `'when push notification arrives'`
+- ✅ **Business logic** - `'when user authorizes'`
+- ✅ **Behavior description** - `'when processing training notification'`
+- ❌ **Method names** - `'messageFromFirebase'`
+- ❌ **Class names** - `'NotificationConverter'`
+- ❌ **Technical terms** - `'toFirebaseFormat'`
+
+## Начинать с заглавной буквы
+
+**ВСЕ description ДОЛЖНЫ начинаться с заглавной буквы**
+
+- ✅ **"Когда пользователь..."** - правильный формат
+- ✅ **"Если приходит..."** - правильный формат
+- ❌ **"когда пользователь..."** - неправильный формат
+- ❌ **"если приходит..."** - неправильный формат
+
+### Примеры правильного форматирования
+
+✅ **Правильно:**
+
+```dart
+describe('Когда приходит push-уведомление', () {
+  test('Должен обработать данные уведомления', () {
+    // тест
+  });
+});
+
+describe('Если пользователь не авторизован', () {
+  test('Должен перенаправить на экран входа', () {
+    // тест
+  });
+});
+```
+
+❌ **Неправильно:**
+
+```dart
+describe('когда приходит push-уведомление', () { // строчная
+  test('должен обработать данные уведомления', () { // строчная
+    // тест
+  });
+});
+```
+
+## Запрет комментариев в коде
+
+**НЕ писать комментарии в коде тестов**
+
+- ❌ **Объясняющие комментарии** - код должен быть самодокументируемым
+- ❌ **Комментарии о том, что делает код** - очевидно из названий
+- ❌ **Комментарии TODO** - использовать задачи в системе
+- ✅ **Только бизнес-логика** - если необходимо объяснить сложную логику
+
+### Примеры правильного кода
+
+✅ **Правильно - без комментариев:**
+
+```dart
+test('Должен сохранить токен в хранилище', () async {
+  final token = 'test_token';
+  when(mockStorage.saveToken(token)).thenAnswer((_) async {});
+
+  await authService.saveToken(token);
+
+  verify(mockStorage.saveToken(token)).called(1);
+});
+```
+
+❌ **Неправильно - с комментариями:**
+
+```dart
+test('Должен сохранить токен в хранилище', () async {
+  // Создаем тестовый токен
+  final token = 'test_token';
+
+  // Настраиваем мок
+  when(mockStorage.saveToken(token)).thenAnswer((_) async {});
+
+  // Вызываем метод
+  await authService.saveToken(token);
+
+  // Проверяем что метод вызвался
+  verify(mockStorage.saveToken(token)).called(1);
+});
+```
+
+## Использование I*Const коллекций
+
+**Для константных коллекций использовать I*Const из fast_immutable_collections**
+
+- ✅ **`const IListConst`** - для неизменяемых списков
+- ✅ **`const ISetConst`** - для неизменяемых множеств
+- ✅ **`const IMapConst`** - для неизменяемых карт
+- ❌ **`const List`** - не использовать для константных коллекций
+- ❌ **`const Set`** - не использовать для константных коллекций
+- ❌ **`const Map`** - не использовать для константных коллекций
+
+### Примеры правильного использования
+
+✅ **Правильно:**
+
+```dart
+test('Должен обработать список уведомлений', () {
+  final notifications = const IListConst([
+    NotificationData(id: '1', title: 'Test 1'),
+    NotificationData(id: '2', title: 'Test 2'),
+  ]);
+
+  when(mockService.getNotifications()).thenReturn(notifications);
+
+  final result = service.processNotifications();
+
+  expect(result.length, equals(2));
+});
+```
+
+❌ **Неправильно:**
+
+```dart
+test('Должен обработать список уведомлений', () {
+  final notifications = const [
+    NotificationData(id: '1', title: 'Test 1'),
+    NotificationData(id: '2', title: 'Test 2'),
+  ]; // НЕ ИСПОЛЬЗОВАТЬ const List
+
+  // ...
+});
+```
+
+## Инициализация моков в тестах
+
+**ИСПОЛЬЗОВАТЬ `final` с `reset()` вместо `late` с `setUp()`**
+
+- ✅ **`final MockClass c = MockClass();`** - правильная инициализация
+- ✅ **`setUp(() { reset(c); });`** - правильный сброс состояния
+- ❌ **`late MockClass c; setUp(() { c = MockClass(); });`** - запрещено
+
+### Примеры правильного использования
+
+✅ **Правильно:**
+
+```dart
+void main() {
+  final mockDependency = MockDependency();
+  final service = MyService(mockDependency);
+
+  setUp(() {
+    reset(mockDependency);
+  });
+
+  test('Should call dependency', () {
+    when(mockDependency.doSomething()).thenReturn('result');
+
+    final result = service.process();
+
+    verify(mockDependency.doSomething()).called(1);
+  });
+}
+```
+
+❌ **Неправильно - late с setUp:**
+
+```dart
+void main() {
+  late MockDependency mockDependency;
+  late MyService service;
+
+  setUp(() {
+    mockDependency = MockDependency();
+    service = MyService(mockDependency);
+  });
+}
+```
+
+❌ **Неправильно - пересоздание в setUp:**
+
+```dart
+void main() {
+  final mockDependency = MockDependency();
+  late MyService service;
+
+  setUp(() {
+    reset(mockDependency);
+    service = MyService(mockDependency); // НЕ НУЖНО если service не меняется
+  });
+}
+```
+
+## Сравнение объектов в тестах
+
+**ПРЕДПОЧТИТЕЛЬНО сравнивать объекты целиком вместо вербозных expect**
+
+### Для freezed моделей
+
+**ИСПОЛЬЗОВАТЬ прямое сравнение объектов вместо проверки отдельных полей**
+
+- ✅ **`expect(result, expectedObject)`** - для freezed моделей с deep equality
+- ✅ **Создание ожидаемого объекта** - с нужными полями
+- ❌ **Множественные `expect(result.field, equals(value))`** - вербозно и неэффективно
+- ❌ **Проверка каждого поля отдельно** - для freezed моделей
+
+### Примеры правильного использования
+
+✅ **Правильно - сравнение объектов:**
+
+```dart
+test('description', () {
+  const message = AppRemoteMessage(
+    data: IMapConst({'slotId': '123', 'locationId': '456'}),
+  );
+
+  final result = extractor.extractTrainingRequestParams(message);
+
+  const expectedResult = (slotId: '123', locationId: '456');
+  expect(result, expectedResult);
+});
+```
+
+✅ **Правильно - для сложных объектов:**
+
+```dart
+test('description', () {
+  const params = LocalNotificationParams(
+    id: 123,
+    title: 'Training',
+    body: 'Test body',
+  );
+
+  final result = converter.toHuaweiFormat(params);
+
+  const expectedResult = {
+    huawei.HMSLocalNotificationAttr.ID: 123,
+    huawei.HMSLocalNotificationAttr.TITLE: 'Training',
+    huawei.HMSLocalNotificationAttr.MESSAGE: 'Test body',
+  };
+  expect(result, equals(expectedResult));
+});
+```
+
+❌ **Неправильно - вербозные проверки:**
+
+```dart
+test('Должен извлечь параметры тренировки', () {
+  final message = const AppRemoteMessage(
+    data: IMapConst({'slotId': '123', 'locationId': '456'}),
+  );
+
+  final result = extractor.extractTrainingRequestParams(message);
+
+  expect(result, isNotNull);
+  expect(result!.slotId, equals('123'));
+  expect(result.locationId, equals('456'));
+});
+```
+
+### Исключения для динамических полей
+
+**Для полей с динамическими значениями (sentTime, timestamps) использовать проверку отдельных полей**
+
+✅ **Правильно - для динамических полей:**
+
+```dart
+test('Должен конвертировать timestamp', () {
+  final now = DateTime.now();
+  final timestamp = now.millisecondsSinceEpoch;
+  final message = HuaweiRemoteMessage(
+    messageId: 'test',
+    sentTime: timestamp,
+  );
+
+  final result = converter.messageFromHuawei(message);
+
+  expect(result.messageId, equals('test'));
+  expect(result.sentTime, isNotNull);
+  expect(result.sentTime!.millisecondsSinceEpoch, equals(timestamp));
+});
+```
+
+✅ **Правильно - смешанный подход для сложных объектов с динамическими полями:**
+
+```dart
+test('Должен конвертировать сообщение с timestamp', () {
+  final now = DateTime.now();
+  final message = HuaweiRemoteMessage(
+    messageId: 'test',
+    sentTime: now.millisecondsSinceEpoch,
+    notification: const Notification(title: 'Test'),
+  );
+
+  final result = converter.messageFromHuawei(message);
+
+  // Динамические поля проверяем отдельно
+  expect(result.sentTime!.millisecondsSinceEpoch, equals(now.millisecondsSinceEpoch));
+
+  // Остальные поля сравниваем объектами
+  final expectedNotification = const AppNotification(title: 'Test');
+  expect(result.notification, expectedNotification);
+});
+```
+
+### Преимущества подхода
+
+- **Лаконичность** - один expect вместо множественных
+- **Читаемость** - сразу видно что ожидается
+- **Поддержка** - легче изменять тесты
+- **Надежность** - проверяются все поля автоматически
+- **Производительность** - меньше вызовов expect
+
+## Приоритет
+
+**КРИТИЧЕСКИ ВЫСОКИЙ ПРИОРИТЕТ** - всегда следовать этим правилам для поддержания качества тестов и консистентности кода.
+
+## Исключения
+
+Нет исключений - правила должны соблюдаться всегда для всех тестов в проекте.

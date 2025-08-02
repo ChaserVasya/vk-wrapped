@@ -1,0 +1,48 @@
+---
+alwaysApply: true
+---
+
+# Code Style Guidelines for Mobi Trainer Client
+
+## Variable Declaration Rules
+
+### Const vs Final Usage
+
+**ПРАВИЛО:** Если конструктор `const`, то переменная ДОЛЖНА быть `const`
+
+- ✅ **Правильно:** `const converter = NotificationConverter();`
+- ❌ **Неправильно:** `final converter = const NotificationConverter();`
+
+### Type Inference Preference
+
+**ПРАВИЛО:** Предпочитать неявную типизацию (type inference)
+
+- ✅ **Правильно:** `const converter = NotificationConverter();`
+- ❌ **Неправильно:** `const NotificationConverter converter = const NotificationConverter();`
+
+### Algorithm for Variable Declaration
+
+1. **Конструктор const?** → переменная `const`
+2. **Конструктор не const?** → переменная `final`
+3. **Тип можно вывести?** → не указывать тип
+4. **Тип нельзя вывести?** → указать тип
+
+### Examples
+
+```dart
+// ✅ Правильно
+const converter = NotificationConverter();
+final service = Service(dependency);
+final list = <String>[];
+
+// ❌ Неправильно  
+const NotificationConverter converter = const NotificationConverter();
+final Service service = Service(dependency);
+```
+
+## CRITICAL: Always Apply These Rules
+
+- **These rules apply to ALL code modifications** - no exceptions
+- **Even during urgent bug fixes or migrations** - rules must be followed
+- **Even for "temporary" or "work-in-progress" code** - rules must be followed
+- **Review ALL variable declarations before finalizing code changes**

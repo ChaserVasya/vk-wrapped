@@ -1,0 +1,88 @@
+---
+alwaysApply: true
+---
+# Правило использования FVM для Flutter проектов
+
+## Основное требование
+
+**ВСЕГДА использовать FVM для Flutter/Dart команд когда проект сконфигурирован под FVM**
+
+## Условия срабатывания
+
+- **Триггер**: Обнаружение файла `.fvmrc` или папки `.fvm/` в корне проекта
+- **Автоматическое применение**: При выполнении любых Flutter/Dart команд
+
+## Обязательные команды с FVM префиксом
+
+### Flutter команды
+
+- `fvm flutter --version` вместо `flutter --version`
+- `fvm flutter pub get` вместо `flutter pub get`
+- `fvm flutter packages pub run build_runner build` вместо `flutter packages pub run build_runner build`
+- `fvm flutter clean` вместо `flutter clean`
+- `fvm flutter build` вместо `flutter build`
+- `fvm flutter test` вместо `flutter test`
+
+### Dart команды
+
+- `fvm dart analyze` вместо `dart analyze`
+- `fvm dart run` вместо `dart run`
+- `fvm dart format` вместо `dart format`
+- `fvm dart fix` вместо `dart fix`
+
+## Алгоритм проверки
+
+1. **Перед каждой Flutter/Dart командой** проверить:
+   - Существует ли файл `.fvmrc` в корне проекта
+   - Существует ли папка `.fvm/` в корне проекта
+
+2. **Если FVM конфигурация найдена:**
+   - ОБЯЗАТЕЛЬНО использовать префикс `fvm` для всех команд
+   - НЕ выполнять команды без префикса
+
+3. **Если FVM конфигурация НЕ найдена:**
+   - Использовать стандартные команды без префикса
+
+## Примеры правильного использования
+
+✅ **Правильно (с FVM):**
+
+```bash
+fvm flutter pub get
+fvm dart analyze
+fvm flutter packages pub run build_runner build --delete-conflicting-outputs
+```
+
+❌ **Неправильно (без FVM в FVM проекте):**
+
+```bash
+flutter pub get
+dart analyze
+flutter packages pub run build_runner build --delete-conflicting-outputs
+```
+
+## Обработка ошибок
+
+### Если команда без FVM выдает ошибку версии SDK
+
+- **Автоматически** повторить команду с префиксом `fvm`
+- **Не спрашивать** подтверждение пользователя
+
+### Типичные ошибки указывающие на необходимость FVM
+
+- "The current Dart SDK version is X.X.X. Because project requires SDK version ^Y.Y.Y"
+- "Flutter SDK version mismatch"
+- "Dart SDK version solving failed"
+
+## КРИТИЧЕСКИ ВАЖНО
+
+**ВСЕГДА проверять наличие FVM конфигурации** перед выполнением Flutter/Dart команд. Это предотвращает:
+
+- Ошибки версий SDK
+- Неудачные сборки
+- Проблемы с зависимостями
+- Потерю времени на отладку
+
+## Приоритет
+
+**ВЫСОКИЙ ПРИОРИТЕТ** - автоматически использовать FVM без напоминаний пользователя когда проект сконфигурирован под него.
