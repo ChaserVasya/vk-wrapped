@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 
 # Правило стандартов логирования
 
@@ -7,17 +11,11 @@
 
 ## Критически важные принципы
 
-### Обязательные методы console
-
-- ✅ **`console.log()`** - для информационных сообщений (INFO)
-- ✅ **`console.error()`** - для ошибок (ERROR)
-- ✅ **`console.warn()`** - для предупреждений (WARN)
-- ✅ **`console.debug()`** - для отладочной информации (DEBUG)
+- ✅  **Текстовые уровни** - `[INFO]`, `[ERROR]` в тексте лога
 
 ### Запрещено использовать
 
 - ❌ **Эмоджи** - любые символы эмоджи в логах
-- ❌ **Текстовые уровни** - `[INFO]`, `[ERROR]` в тексте лога
 - ❌ **Смешанные форматы** - разные стили в одном проекте
 
 ### Правильный формат логов
@@ -25,17 +23,14 @@
 ✅ **Правильно:**
 
 ```typescript
-console.log('User logged in:', userId);
-console.error('Database connection failed:', error.message);
-console.warn('Invalid data format:', data);
-console.debug('Processing request:', requestId);
+console.log('[INFO] User logged in'); // ТЕКСТОВЫЙ УРОВЕНЬ
+console.error('[ERROR] Database error'); // ТЕКСТОВЫЙ УРОВЕНЬ
 ```
 
 ❌ **Неправильно:**
 
 ```typescript
-console.log('[INFO] User logged in'); // ТЕКСТОВЫЙ УРОВЕНЬ
-console.error('[ERROR] Database error'); // ТЕКСТОВЫЙ УРОВЕНЬ
+
 console.log('✅ User logged in'); // ЭМОДЖИ
 console.log('🎵 Music playing'); // ЭМОДЖИ
 ```
@@ -47,27 +42,6 @@ console.log('🎵 Music playing'); // ЭМОДЖИ
 - **Сообщение** - краткое описание
 - **Данные** - через двоеточие (опционально)
 - **Уровень** - определяется методом console
-
-### Примеры правильного использования
-
-```typescript
-// Информационные сообщения
-console.log('Starting application');
-console.log('Processing user request:', userId);
-console.log('Session created:', sessionId);
-
-// Ошибки
-console.error('API request failed:', error.message);
-console.error('Database query error:', error);
-
-// Предупреждения
-console.warn('Invalid configuration:', config);
-console.warn('Deprecated method called');
-
-// Отладка
-console.debug('Request payload:', payload);
-console.debug('Response headers:', headers);
-```
 
 ## Приоритет
 

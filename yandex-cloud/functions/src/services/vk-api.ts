@@ -6,6 +6,8 @@ import { LoggerService } from './logger';
 export class VKApiService {
   // Получение статуса VK
   async getStatus(): Promise<VKStatus> {
+    const startTime = Date.now();
+
     try {
       const response = await axios.get('https://api.vk.com/method/users.get', {
         params: {
@@ -17,11 +19,20 @@ export class VKApiService {
       });
 
       if (!response.data.response || !response.data.response[0]) {
+        LoggerService.logErrorDetails(
+          new Error('Invalid VK API response: no user data'),
+          'VK API Response Validation'
+        );
         throw new Error('Invalid VK API response: no user data');
       }
 
-      return response.data.response[0];
+      const status = response.data.response[0];
+
+      LoggerService.logPerformance(startTime, 'VK API request');
+
+      return status;
     } catch (error) {
+      LoggerService.logErrorDetails(error, 'VK API Request');
       LoggerService.logPollingError(error);
       throw error;
     }
