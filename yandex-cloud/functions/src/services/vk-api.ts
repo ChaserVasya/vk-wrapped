@@ -12,11 +12,12 @@ export class VKApiService {
           fields: CONFIG.VK_API_FIELDS,
           access_token: CONFIG.SERVICE_TOKEN,
           v: CONFIG.VK_API_VERSION
-        },
-        headers: {
-          'User-Agent': CONFIG.USER_AGENT
         }
       });
+
+      if (!response.data.response || !response.data.response[0]) {
+        throw new Error('Invalid VK API response: no user data');
+      }
 
       return response.data.response[0];
     } catch (error) {

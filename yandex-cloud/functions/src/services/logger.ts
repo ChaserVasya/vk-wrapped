@@ -9,6 +9,18 @@ export class LoggerService {
     console.log('✅ Session saved to database');
   }
 
+  static logSessionCreated(fullId: string): void {
+    console.log(`✅ New session created for: ${fullId}`);
+  }
+
+  static logSessionUpdated(fullId: string): void {
+    console.log(`🔄 Session updated for: ${fullId}`);
+  }
+
+  static logAllSessionsFinished(): void {
+    console.log('🏁 All active sessions finished');
+  }
+
   static logSessionError(error: any): void {
     console.error('❌ Error saving session:', error);
   }

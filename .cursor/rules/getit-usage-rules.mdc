@@ -1,0 +1,65 @@
+---
+alwaysApply: true
+---
+
+# Правило использования GetIt в проекте
+
+## Основное требование
+
+**ВСЕГДА использовать `getIt<T>()` вместо `GetIt.instance<T>()`**
+
+## Применение правила
+
+### Обязательно использовать
+
+- ✅ **`getIt<T>()`** - для получения зависимостей из DI контейнера
+- ✅ **`getIt()`** - для получения зависимостей без указания типа
+- ✅ **Импорт `package:mobi_trainer/internal/di/di.dart`** - для доступа к getIt
+
+### Запрещено использовать
+
+- ❌ **`GetIt.instance<T>()`** - устаревший способ
+- ❌ **`GetIt.instance()`** - устаревший способ
+- ❌ **Прямой импорт `package:get_it/get_it.dart`** - только для типов
+
+## Технические детали
+
+### Правильные импорты
+
+```dart
+// ✅ Правильно - для использования getIt
+import 'package:mobi_trainer/internal/di/di.dart';
+
+// ✅ Правильно - для типов GetIt
+import 'package:get_it/get_it.dart';
+
+// ❌ Неправильно - для использования GetIt.instance
+import 'package:get_it/get_it.dart';
+```
+
+### Примеры использования
+
+```dart
+// ✅ Правильно
+final messageProcessor = getIt<MessageProcessor>();
+final logger = getIt<Logger>();
+
+// ❌ Неправильно
+final messageProcessor = GetIt.instance<MessageProcessor>();
+final logger = GetIt.instance<Logger>();
+```
+
+## Алгоритм применения
+
+1. **При получении зависимостей** - использовать `getIt<T>()`
+2. **При импорте для использования** - импортировать `internal/di/di.dart`
+3. **При импорте для типов** - импортировать `get_it/get_it.dart`
+4. **При рефакторинге** - заменить все `GetIt.instance` на `getIt`
+
+## Приоритет
+
+**ВЫСОКИЙ ПРИОРИТЕТ** - всегда использовать `getIt` вместо `GetIt.instance` для консистентности кода.
+
+## Исключения
+
+Нет исключений - правило должно соблюдаться всегда для единообразия использования DI.

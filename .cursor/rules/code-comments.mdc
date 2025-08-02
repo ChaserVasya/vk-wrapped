@@ -1,0 +1,12 @@
+---
+alwaysApply: true
+---
+# Code Comments Guidelines for Mobi Trainer Client
+
+## CRITICAL: Comment Writing Ban
+
+**ЗАПРЕЩЕНО писать любые комментарии в коде**
+
+## Исключение
+
+Нельзя убирать уже написанные комментарии. Их написал программист и одобрил. Значит они нужны

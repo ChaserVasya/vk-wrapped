@@ -1,0 +1,119 @@
+---
+alwaysApply: true
+---
+# Automation and Iteration Guidelines
+
+## Terminal Usage for Git Operations
+
+- **Use terminal automatically** when allowed for git operations
+- **Do NOT suggest commands** for the user to run manually if you can execute them yourself
+- **Execute git commands directly** instead of asking the user to run them
+- Examples of operations to automate:
+  - `git status`
+  - `git add .`
+  - `git pull`
+  - `git branch`
+  - `git checkout`
+
+### Git Commit and Push Policy
+
+- **NEVER commit automatically** - commits should only be made when explicitly requested by the user
+- **NEVER push automatically** - pushes should only be made when explicitly requested by the user
+- **Do NOT use** `git commit` unless the user specifically asks to "commit" or "create a commit"
+- **Do NOT use** `git push` unless the user specifically asks to "push"
+- **Automatic git add is OK** - staging changes is fine
+- **Ask for commit message** when user requests a commit
+
+### CRITICAL: Why No Auto-Commits
+
+**When you commit automatically, the user loses critical workflow control:**
+
+- ❌ **No visual diff in IDE** - changes become invisible
+- ❌ **Cannot accept/reject changes** - no review opportunity  
+- ❌ **Workflow disruption** - user expects to see and approve changes
+- ❌ **Version control chaos** - commits made without user consent
+
+**ALWAYS wait for explicit commit request** - "commit this", "make a commit", "git commit"
+
+### Examples of when to commit
+
+✅ User says: "commit these changes"
+✅ User says: "make a commit with message X"
+✅ User says: "git commit"
+
+### Examples of when NOT to commit
+
+❌ After completing any task (even if 100% done)
+❌ After fixing bugs successfully
+❌ After major refactoring
+❌ "To save progress" or "natural checkpoint"
+
+## Iterative Bug Fixing
+
+- **Continue iterations automatically** when fixing bugs
+- **Do NOT stop after first attempt** with questions like "Should I fix this?"
+- **Do NOT ask for permission** for additional fix attempts
+- **Fix and verify continuously** until the bug is resolved
+
+### Bug Fixing Process
+
+1. **Apply the fix** immediately
+2. **Test the fix yourself** using terminal when possible
+3. **If the bug persists**, apply another fix iteration
+4. **Repeat until successful** - do not interrupt the user
+5. **Only report final result** when bug is resolved or if genuinely stuck
+
+### What NOT to do
+
+❌ **Don't ask**: "Would you like me to fix this?"
+❌ **Don't ask**: "Please test this fix and let me know if it works"
+❌ **Don't stop**: After one attempt without trying alternatives
+
+### What TO do
+
+✅ **Automatically apply** multiple fix attempts
+✅ **Test fixes yourself** using available tools (terminal, file reading, etc.)
+✅ **Continue iterating** until the problem is solved
+✅ **Minimize user effort** by handling verification yourself
+
+## CRITICAL: Complete Task Execution
+
+**NEVER stop tasks halfway** - this is a critical failure mode that wastes user time.
+
+### Task Completion Requirements
+
+- **Work until 100% completion** - all tests passing, all errors fixed
+- **Do NOT stop at "partial success"** - 89% success is still failure
+- **Do NOT report progress updates** - work silently until done
+- **Do NOT ask for permission to continue** - just continue automatically
+- **Only stop if genuinely impossible** - not just difficult
+
+### Examples of prohibited stopping
+
+❌ "We made good progress, 29 of 31 tests passing" - CONTINUE UNTIL 31/31
+❌ "The migration is mostly done" - CONTINUE UNTIL FULLY DONE  
+❌ "Firebase tests are still failing but Huawei works" - FIX FIREBASE TOO
+
+### When to report
+
+✅ **Only when 100% complete** - all tests green, all errors fixed
+✅ **If genuinely stuck** - after multiple attempts with no progress
+
+## Automatic Rule Compliance Scanning
+
+### CRITICAL: Automatic Project Scanning
+
+- **Проверять полное соответствие сгенерированного кода правилам cursor перед окончанием работы**
+- **Автоматически находить и исправлять нарушения в затронутом коде** при обнаружении любого
+
+#### For All Rules
+
+- **При обнаружении любого нарушения** → найти ВСЕ подобные нарушения в затронутом коде
+- **Исправить ВСЕ нарушения за один раз** → не частично
+- **Проверить что больше нарушений нет** → финальная проверка
+
+## Goal
+
+**Minimize user workload** by automating everything that can be automated and handling iterative processes independently.
+
+**User expectation**: When they report a bug and say "fix it", they expect a complete solution, not a back-and-forth conversation.

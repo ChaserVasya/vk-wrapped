@@ -14,6 +14,11 @@ fi
 echo "📦 Building project..."
 npm run build
 
+# Создание оптимизированного архива без тестов
+echo "📦 Creating optimized archive..."
+rm -rf dist.zip
+zip -r dist.zip dist/ package.json -x "dist/__tests__/*"
+
 # Создание функции (если не существует)
 echo "🔧 Creating function..."
 yc serverless function create --name=vk-wrapped-poller --description="VK Status Poller with Timer and HTTP triggers" || echo "Function already exists"
@@ -26,15 +31,15 @@ yc serverless function version create \
   --entrypoint dist/index.handler \
   --memory 128m \
   --execution-timeout 30s \
-  --source-path . \
-  --environment USER_ID=${USER_ID},SERVICE_TOKEN=${SERVICE_TOKEN},VK_API_VERSION=${VK_API_VERSION},VK_API_FIELDS=${VK_API_FIELDS},USER_AGENT=${USER_AGENT}
+  --source-path dist.zip \
+  --environment USER_ID=${USER_ID},SERVICE_TOKEN=${SERVICE_TOKEN},VK_API_VERSION=${VK_API_VERSION},VK_API_FIELDS=${VK_API_FIELDS},YDB_ENDPOINT=${YDB_ENDPOINT},YDB_DATABASE_PATH=${YDB_DATABASE_PATH},YDB_TOKEN=${YDB_TOKEN}
 
-# Создание timer триггера
+# Создание timer триггера (если не существует)
 echo "⏰ Creating timer trigger..."
 yc serverless trigger create timer vk-poller-timer \
-  --cron-expression="* * * * *" \
-  --function-name=vk-wrapped-poller \
-  --function-tag=latest || echo "Timer trigger already exists"
+  --cron-expression="0 * * * ? *" \
+  --invoke-function-name=vk-wrapped-poller \
+  --invoke-function-service-account-name=vk-wrapped-function-sa || echo "Timer trigger already exists"
 
 # Получение HTTP URL функции
 echo "🔗 Getting function URL..."

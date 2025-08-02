@@ -1,0 +1,116 @@
+---
+alwaysApply: true
+---
+
+# Правило использования аннотаций DI в Mobi Trainer Client
+
+## Основные принципы
+
+### @lazySingleton
+
+**Использовать для классов с внутренним состоянием:**
+
+- Классы с полями, которые изменяются во время работы
+- Классы с коллекциями, которые накапливают данные
+- Классы с BehaviorSubject или другими реактивными потоками
+- Классы, которые должны сохранять состояние между вызовами
+
+**Примеры:**
+
+```dart
+@lazySingleton
+class BackgroundMessageProcessor {
+  final List<BackgroundMessageHandler> _handlers = []; // Состояние
+}
+
+@lazySingleton
+class NotificationManager {
+  final BehaviorSubject<int> _unreadCount = BehaviorSubject.seeded(0); // Состояние
+}
+```
+
+### @injectable
+
+**Использовать для классов БЕЗ внутреннего состояния:**
+
+- Классы, которые только обрабатывают данные
+- Классы-конвертеры, мапперы, экстракторы
+- Классы, которые не хранят данные между вызовами
+- Классы, которые создаются заново при каждом запросе
+
+**Примеры:**
+
+```dart
+@injectable
+class RemoteMessageConverter {
+  // Только методы конвертации, нет состояния
+}
+
+@injectable
+class NotificationDataExtractor {
+  // Только методы извлечения данных, нет состояния
+}
+```
+
+### @singleton
+
+**Использовать ТОЛЬКО с @PostConstruct(preResolve: true):**
+
+- Классы, которые требуют инициализации при создании
+- Классы, которые должны быть готовы к использованию сразу после создания
+- Классы с тяжелой инициализацией, которую нужно выполнить заранее
+
+**Примеры:**
+
+```dart
+@singleton
+class DeviceInfoManager {
+  @PostConstruct(preResolve: true)
+  Future<void> init() async {
+    // Тяжелая инициализация
+  }
+}
+```
+
+## Критически важные правила
+
+### ❌ НЕ использовать @singleton без @PostConstruct(preResolve: true)
+
+```dart
+// НЕПРАВИЛЬНО
+@singleton
+class SomeService {
+  // Без @PostConstruct(preResolve: true) - кодогенерация не сработает правильно
+}
+```
+
+### ✅ Правильная последовательность
+
+```dart
+// ПРАВИЛЬНО
+@singleton
+class SomeService {
+  @PostConstruct(preResolve: true)
+  Future<void> init() async {
+    // Инициализация
+  }
+}
+```
+
+## Алгоритм выбора аннотации
+
+1. **Есть ли внутреннее состояние?**
+   - Да → `@lazySingleton`
+   - Нет → переходим к шагу 2
+
+2. **Нужна ли инициализация при создании?**
+   - Да → `@singleton` + `@PostConstruct(preResolve: true)`
+   - Нет → `@injectable`
+
+## Приоритет
+
+**КРИТИЧЕСКИ ВЫСОКИЙ ПРИОРИТЕТ** - всегда использовать правильные аннотации для корректной работы DI и кодогенерации.
+
+## Исключения
+
+Нет исключений - правила должны соблюдаться всегда для всех классов в проекте.

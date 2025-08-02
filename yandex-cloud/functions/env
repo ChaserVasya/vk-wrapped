@@ -1,7 +1,10 @@
 # VK API Configuration
-USER_ID=206942551
+USER_ID=isaykinvasya
 SERVICE_TOKEN=e505d8ece505d8ece505d8ec7fe6321bbbee505e505d8ec8d8e9859a4d66773c2f64955
 VK_API_VERSION=5.131
 VK_API_FIELDS=status
-# Fake to imitate browser request for status
-USER_AGENT=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 
+
+# Yandex Database Configuration
+YDB_ENDPOINT=https://docapi.serverless.yandexcloud.net/ru-central1/b1gs9ka9aldijuamlfr7/etn3k2hemgr6nk2h3l4m
+YDB_DATABASE_PATH=/ru-central1/b1gs9ka9aldijuamlfr7/etn3k2hemgr6nk2h3l4m
+YDB_TOKEN=t1.9euelZqTi8aWyZ3JypnHjIuRyp2aye3rnpWazs6QxoqVmMjOkZ2ZjpTPyJDl8_deCkc7-e9vGEcr_N3z9x45RDv5728YRyv8zef1656VmpHMlJ2RmJeblcmNyIyNypiM7_zF656VmpHMlJ2RmJeblcmNyIyNypiM.XxxUFbqS_FpUWMElhiwUzbIjduRym6ufbi1GtMWbEZSy7sO8q0fYEjz6Mam-CfRdRRMGliiXTB0Cj2z3rfhkCg 

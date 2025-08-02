@@ -1,0 +1,15 @@
+{
+  "search.followSymlinks": true,
+  "search.exclude": {
+    "**/.git": true,
+    "**/build/**": true
+  },
+  "dart.flutterSdkPath": ".fvm/versions/3.32.5",
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "explicit"
+  },
+  "svg.preview.background": "editor"
+}
