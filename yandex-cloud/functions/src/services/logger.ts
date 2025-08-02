@@ -1,8 +1,9 @@
 // Сервис логирования
 
 export class LoggerService {
+  // === ОСНОВНЫЕ СОБЫТИЯ ===
   static logActiveMusic(artist: string, title: string, fullId: string): void {
-    console.log('[INFO] Active music:', `${artist} - ${title} (${fullId})`);
+    console.log('[INFO] Active music detected:', `${artist} - ${title} (${fullId})`);
   }
 
   static logSessionSaved(): void {
@@ -43,6 +44,45 @@ export class LoggerService {
 
   static logPollingError(error: any): void {
     console.error('[ERROR] Error in VK status polling:', LoggerService.formatError(error));
+  }
+
+  // === ДЕТАЛЬНОЕ ЛОГГИРОВАНИЕ ===
+  static logAudioValidation(audioStatus: any, isValid: boolean): void {
+    console.log('[DEBUG] Audio validation:', {
+      isValid,
+      hasId: !!audioStatus?.id,
+      hasOwnerId: !!audioStatus?.owner_id,
+      hasArtist: !!audioStatus?.artist,
+      hasTitle: !!audioStatus?.title,
+      audioData: audioStatus
+    });
+  }
+
+  static logDatabaseResult(operation: string, result: any): void {
+    console.log('[DEBUG] Database result:', {
+      operation,
+      hasRows: !!result.rows,
+      rowCount: result.rows?.length || 0,
+      firstRow: result.rows?.[0] || null
+    });
+  }
+
+  static logSessionCheck(fullId: string, hasActiveSession: boolean): void {
+    console.log('[DEBUG] Session check:', { fullId, hasActiveSession });
+  }
+
+  static logErrorDetails(error: any, context: string): void {
+    console.error(`[ERROR] ${context}:`, {
+      errorType: error?.constructor?.name,
+      errorMessage: error?.message,
+      errorStack: error?.stack?.split('\n').slice(0, 3),
+      fullError: LoggerService.formatError(error)
+    });
+  }
+
+  static logPerformance(startTime: number, operation: string): void {
+    const duration = Date.now() - startTime;
+    console.log(`[PERF] ${operation} completed in ${duration}ms`);
   }
 
   private static formatError(error: any): string {
