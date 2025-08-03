@@ -26,6 +26,49 @@ export class DatabaseService {
     });
   }
 
+  /**
+ * Преобразует строку YDB в TrackSession
+ * @param row - строка из YDB с полями full_id, first_observed, last_seen
+ * @returns TrackSession или null если данные некорректны
+ */
+  private mapRowToTrackSession(row: unknown): TrackSession | null {
+    try {
+      // Приводим к типу с items
+      const typedRow = row as { items?: unknown[] };
+      if (!typedRow.items || typedRow.items.length < 3) {
+        console.log(`[DEBUG] Invalid row structure: missing items or insufficient length`);
+        return null;
+      }
+
+      // YDB возвращает данные в формате items с bytesValue и uint32Value
+      const fullIdItem = typedRow.items[0] as { bytesValue?: string };
+      const firstObservedItem = typedRow.items[1] as { uint32Value?: number };
+      const lastSeenItem = typedRow.items[2] as { uint32Value?: number };
+
+      // Декодируем base64 для строки
+      const fullId = fullIdItem?.bytesValue ? Buffer.from(fullIdItem.bytesValue, 'base64').toString() : '';
+      const firstObservedTimestamp = firstObservedItem?.uint32Value || 0;
+      const lastSeenTimestamp = lastSeenItem?.uint32Value || 0;
+
+      if (!fullId || firstObservedTimestamp === 0 || lastSeenTimestamp === 0) {
+        console.log(`[DEBUG] Invalid row data: fullId="${fullId}", firstObservedTimestamp=${firstObservedTimestamp}, lastSeenTimestamp=${lastSeenTimestamp}`);
+        return null;
+      }
+
+      const firstObserved = new Date(firstObservedTimestamp * 1000);
+      const lastSeen = new Date(lastSeenTimestamp * 1000);
+
+      return {
+        full_id: fullId,
+        first_observed: firstObserved,
+        last_seen: lastSeen
+      };
+    } catch (error) {
+      console.log(`[ERROR] Failed to map row to TrackSession: ${error}`);
+      return null;
+    }
+  }
+
   // Получение активной сессии по full_id
   async getActiveSession(fullId: string): Promise<TrackSession | null> {
     const operation = 'get_active_session';
@@ -65,43 +108,13 @@ export class DatabaseService {
         return null;
       }
 
-      const sessionFullId: string = (rows[0] as unknown as { toString?: () => string })?.toString?.() || '';
+      const activeSession = this.mapRowToTrackSession(rows[0]);
 
-      // Детальное логирование для отладки парсинга дат
-      const rawFirstObserved = rows[1];
-      const rawLastSeen = rows[2];
-
-      console.log(`[DEBUG] Raw data from YDB: fullId="${sessionFullId}", firstObserved="${rawFirstObserved}", lastSeen="${rawLastSeen}"`);
-
-      // Правильное извлечение числовых значений из YDB объектов
-      const firstObservedTimestamp = (rawFirstObserved as unknown as { uint32Value?: number; value?: number; toString?: () => string })?.uint32Value ||
-        (rawFirstObserved as unknown as { uint32Value?: number; value?: number; toString?: () => string })?.value ||
-        parseInt((rawFirstObserved as unknown as { uint32Value?: number; value?: number; toString?: () => string })?.toString?.() || '0');
-
-      const lastSeenTimestamp = (rawLastSeen as unknown as { uint32Value?: number; value?: number; toString?: () => string })?.uint32Value ||
-        (rawLastSeen as unknown as { uint32Value?: number; value?: number; toString?: () => string })?.value ||
-        parseInt((rawLastSeen as unknown as { uint32Value?: number; value?: number; toString?: () => string })?.toString?.() || '0');
-
-      console.log(`[DEBUG] Parsed timestamps: firstObserved=${firstObservedTimestamp}, lastSeen=${lastSeenTimestamp}`);
-
-      const firstObserved = new Date(firstObservedTimestamp * 1000);
-      const lastSeen = new Date(lastSeenTimestamp * 1000);
-
-      console.log(`[DEBUG] Parsed dates: firstObserved=${firstObserved}, lastSeen=${lastSeen}`);
-      console.log(`[DEBUG] Date validation: firstObserved.isValid=${!isNaN(firstObserved.getTime())}, lastSeen.isValid=${!isNaN(lastSeen.getTime())}`);
-
-      if (isNaN(firstObserved.getTime()) || isNaN(lastSeen.getTime())) {
-        console.log(`[DEBUG] Invalid dates found, returning null`);
-        return null;
+      if (activeSession) {
+        console.log(`[DEBUG] Created active session for ${operation}: fullId="${activeSession.full_id}", firstObserved="${activeSession.first_observed}", lastSeen="${activeSession.last_seen}"`);
+      } else {
+        console.log(`[DEBUG] Failed to create active session for ${operation}`);
       }
-
-      const activeSession: TrackSession = {
-        full_id: sessionFullId,
-        first_observed: firstObserved,
-        last_seen: lastSeen
-      };
-
-      console.log(`[DEBUG] Created active session for ${operation}: fullId="${activeSession.full_id}", firstObserved="${activeSession.first_observed}", lastSeen="${activeSession.last_seen}"`);
 
       return activeSession;
 
@@ -241,17 +254,9 @@ export class DatabaseService {
         return [];
       }
 
-      const sessions: TrackSession[] = rows.map((row: any) => {
-        const fullId = row[0]?.toString() || '';
-        const firstObservedTimestamp = row[1]?.uint32Value || row[1]?.value || 0;
-        const lastSeenTimestamp = row[2]?.uint32Value || row[2]?.value || 0;
-
-        return {
-          full_id: fullId,
-          first_observed: new Date(firstObservedTimestamp * 1000),
-          last_seen: new Date(lastSeenTimestamp * 1000)
-        };
-      });
+      const sessions: TrackSession[] = rows
+        .map((row: unknown) => this.mapRowToTrackSession(row))
+        .filter((session): session is TrackSession => session !== null);
 
       console.log(`[DEBUG] Created ${sessions.length} active sessions for ${operation}`);
       return sessions;
@@ -303,17 +308,9 @@ export class DatabaseService {
         return [];
       }
 
-      const sessions: TrackSession[] = rows.map((row: any) => {
-        const fullId = row[0]?.toString() || '';
-        const firstObservedTimestamp = row[1]?.uint32Value || row[1]?.value || 0;
-        const lastSeenTimestamp = row[2]?.uint32Value || row[2]?.value || 0;
-
-        return {
-          full_id: fullId,
-          first_observed: new Date(firstObservedTimestamp * 1000),
-          last_seen: new Date(lastSeenTimestamp * 1000)
-        };
-      });
+      const sessions: TrackSession[] = rows
+        .map((row: unknown) => this.mapRowToTrackSession(row))
+        .filter((session): session is TrackSession => session !== null);
 
       console.log(`[DEBUG] Created ${sessions.length} completed sessions for ${operation}`);
       return sessions;

@@ -2,8 +2,8 @@ import * as dotenv from 'dotenv';
 import { TokenAuthService } from 'ydb-sdk';
 import { DatabaseService } from './src/services/database';
 
-// Загружаем переменные окружения
-dotenv.config();
+// Загружаем переменные окружения из файла .local.env
+dotenv.config({ path: '.local.env' });
 
 /**
  * Валидирует YDB токен
@@ -92,11 +92,11 @@ async function main() {
                 const duration = Math.round((lastSeen.getTime() - firstObserved.getTime()) / 60000);
 
                 console.log(`
-  ${index + 1}. ${session.full_id}
-     Started: ${firstObserved.toLocaleString()}
-     Last seen: ${lastSeen.toLocaleString()}
-     Duration: ${duration} minutes
-        `);
+   ${index + 1}. ${session.full_id}
+      Started: ${firstObserved.toLocaleString()}
+      Last seen: ${lastSeen.toLocaleString()}
+      Duration: ${duration} minutes
+         `);
             });
         }
 
