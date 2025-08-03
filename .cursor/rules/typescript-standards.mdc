@@ -1,0 +1,176 @@
+---
+alwaysApply: true
+---
+
+# Правило запрета использования any в TypeScript
+
+## Основное требование
+
+**НИКОГДА не использовать `any` в TypeScript коде**
+
+## Критически важные принципы
+
+### Что ЗАПРЕЩЕНО
+
+- ❌ **`any` тип** - полностью запрещен
+- ❌ **`result: any`** - недопустимо
+- ❌ **`const data: any`** - недопустимо
+- ❌ **`function(param: any)`** - недопустимо
+- ❌ **`return any`** - недопустимо
+
+### Что ОБЯЗАТЕЛЬНО использовать
+
+- ✅ **Конкретные типы** - `string`, `number`, `boolean`, `Date`
+- ✅ **Интерфейсы** - `interface MyType { field: string }`
+- ✅ **Типы** - `type MyType = { field: string }`
+- ✅ **Union типы** - `string | number`
+- ✅ **Generic типы** - `Array<string>`, `Promise<MyType>`
+- ✅ **Unknown** - для неизвестных типов вместо any
+
+## Алгоритм замены any
+
+### 1. Для внешних API
+
+```typescript
+// ❌ НЕПРАВИЛЬНО
+const response: any = await fetch('/api/data');
+
+// ✅ ПРАВИЛЬНО
+interface ApiResponse {
+  data: string;
+  status: number;
+}
+const response: ApiResponse = await fetch('/api/data');
+```
+
+### 2. Для JSON данных
+
+```typescript
+// ❌ НЕПРАВИЛЬНО
+const data: any = JSON.parse(jsonString);
+
+// ✅ ПРАВИЛЬНО
+interface ParsedData {
+  id: string;
+  name: string;
+}
+const data: ParsedData = JSON.parse(jsonString);
+```
+
+### 3. Для неизвестных типов
+
+```typescript
+// ❌ НЕПРАВИЛЬНО
+function processData(data: any) {
+  return data.someProperty;
+}
+
+// ✅ ПРАВИЛЬНО
+function processData(data: unknown) {
+  if (typeof data === 'object' && data !== null && 'someProperty' in data) {
+    return (data as { someProperty: string }).someProperty;
+  }
+  throw new Error('Invalid data structure');
+}
+```
+
+### 4. Для библиотечных типов
+
+```typescript
+// ❌ НЕПРАВИЛЬНО
+import { SomeLibrary } from 'some-lib';
+const result: any = SomeLibrary.method();
+
+// ✅ ПРАВИЛЬНО
+import { SomeLibrary, SomeLibraryResult } from 'some-lib';
+const result: SomeLibraryResult = SomeLibrary.method();
+```
+
+## Валидация в CI/CD
+
+### Обязательная проверка в деплое
+
+**Деплой ДОЛЖЕН падать при обнаружении `any`**
+
+```bash
+# В deploy.sh добавить проверку
+if grep -r "any" src/ --include="*.ts" --include="*.js"; then
+  echo "[ERROR] Found 'any' types in code. Fix them before deployment."
+  exit 1
+fi
+```
+
+### ESLint правило
+
+```json
+{
+  "rules": {
+    "@typescript-eslint/no-explicit-any": "error"
+  }
+}
+```
+
+## Примеры исправления
+
+### Database Service
+
+```typescript
+// ❌ НЕПРАВИЛЬНО
+const result: any = await this.driver.tableClient.withSession(async (session) => {
+  return await session.executeQuery(query);
+});
+
+// ✅ ПРАВИЛЬНО
+interface YdbResult {
+  resultSets: Array<{
+    rows: Array<{
+      items: Array<{
+        toString?: () => string;
+        uint32Value?: number;
+        value?: number;
+      }>;
+    }>;
+  }>;
+}
+
+const result: YdbResult = await this.driver.tableClient.withSession(async (session) => {
+  return await session.executeQuery(query);
+});
+```
+
+### API Response
+
+```typescript
+// ❌ НЕПРАВИЛЬНО
+const response: any = await axios.get('/api/status');
+
+// ✅ ПРАВИЛЬНО
+interface VkApiResponse {
+  response: {
+    status_audio?: {
+      id: number;
+      owner_id: number;
+      artist: string;
+      title: string;
+    };
+  };
+}
+
+const response: VkApiResponse = await axios.get('/api/status');
+```
+
+## Приоритет
+
+**КРИТИЧЕСКИ ВЫСОКИЙ ПРИОРИТЕТ** - никогда не использовать `any` для обеспечения типобезопасности.
+
+## Исключения
+
+Нет исключений - `any` полностью запрещен в проекте.
+
+## Последствия нарушения
+
+- Потеря типобезопасности
+- Ошибки в runtime
+- Сложность рефакторинга
+- Плохое качество кода
+- Падение деплоя при обнаружении

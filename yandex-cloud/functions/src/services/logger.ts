@@ -1,93 +1,76 @@
 // Сервис логирования
 
-export class LoggerService {
-  // === ОСНОВНЫЕ СОБЫТИЯ ===
-  static logActiveMusic(artist: string, title: string, fullId: string): void {
-    console.log('[INFO] Active music detected:', `${artist} - ${title} (${fullId})`);
-  }
+// Многострочные сообщения должны быть разделены
+// символом \r(carriage return), но не \n(line feed).При использовании 
+// последнего каждая строка отправляется отдельным сообщением и 
+// отображается в журнале отдельно.
 
-  static logSessionSaved(): void {
-    console.log('[INFO] Session saved to database');
+export class LoggerService {
+  static logActiveMusic(audioStatus: { artist: string; title: string; owner_id: number; id: number }): void {
+    const fullId = `${audioStatus.owner_id}_${audioStatus.id}`;
+    console.log(`[INFO] Active music detected: ${audioStatus.artist} - ${audioStatus.title} (${fullId})`);
   }
 
   static logSessionCreated(fullId: string): void {
-    console.log('[INFO] New session created for:', fullId);
+    console.log(`[INFO] New session created for: ${fullId}`);
   }
 
   static logSessionUpdated(fullId: string): void {
-    console.log('[INFO] Session updated for:', fullId);
+    console.log(`[INFO] Session updated for: ${fullId}`);
   }
 
   static logAllSessionsFinished(): void {
-    console.log('[INFO] All active sessions finished');
-  }
-
-  static logSessionError(error: any): void {
-    console.error('[ERROR] Error saving session:', LoggerService.formatError(error));
+    console.log(`[INFO] All active sessions finished`);
   }
 
   static logNoActiveMusic(reason: string): void {
-    console.log('[INFO] No active music:', reason);
+    console.log(`[INFO] No active music: ${reason}`);
   }
 
-  static logInvalidAudioStatus(status: any): void {
-    console.warn('[WARN] Invalid audio status format:', JSON.stringify(status));
+  static logSessionError(error: unknown, context: string = 'session'): void {
+    console.log(`[ERROR] Session error in ${context}: ${error}`);
+  }
+
+  static logInvalidAudioStatus(status: unknown): void {
+    console.log(`[INFO] Invalid audio status received: ${JSON.stringify(status)}`);
+  }
+
+  static logPollingError(error: unknown): void {
+    console.log(`[ERROR] Polling error: ${error}`);
   }
 
   static logPollingStart(): void {
-    console.log('[INFO] Starting VK status polling...');
+    console.log(`[INFO] Starting VK status polling...`);
   }
 
   static logPollingComplete(): void {
-    console.log('[INFO] VK status polling completed');
+    console.log(`[INFO] VK status polling completed`);
   }
 
-  static logPollingError(error: any): void {
-    console.error('[ERROR] Error in VK status polling:', LoggerService.formatError(error));
+  static logAudioValidation(audioStatus: unknown, isValid: boolean): void {
+    const hasId = audioStatus && typeof audioStatus === 'object' && 'id' in audioStatus;
+    const hasOwnerId = audioStatus && typeof audioStatus === 'object' && 'owner_id' in audioStatus;
+    const hasArtist = audioStatus && typeof audioStatus === 'object' && 'artist' in audioStatus;
+    const hasTitle = audioStatus && typeof audioStatus === 'object' && 'title' in audioStatus;
+
+    console.log(`[DEBUG] Audio validation: isValid=${isValid}, hasId=${hasId}, hasOwnerId=${hasOwnerId}, hasArtist=${hasArtist}, hasTitle=${hasTitle}`);
   }
 
-  // === ДЕТАЛЬНОЕ ЛОГГИРОВАНИЕ ===
-  static logAudioValidation(audioStatus: any, isValid: boolean): void {
-    console.log('[DEBUG] Audio validation:', {
-      isValid,
-      hasId: !!audioStatus?.id,
-      hasOwnerId: !!audioStatus?.owner_id,
-      hasArtist: !!audioStatus?.artist,
-      hasTitle: !!audioStatus?.title,
-      audioData: audioStatus
-    });
-  }
-
-  static logDatabaseResult(operation: string, result: any): void {
-    console.log('[DEBUG] Database result:', {
-      operation,
-      hasRows: !!result.rows,
-      rowCount: result.rows?.length || 0,
-      firstRow: result.rows?.[0] || null
-    });
+  static logDatabaseResult(operation: string, result: unknown): void {
+    console.log(`[DEBUG] Database ${operation} result: ${JSON.stringify(result)}`);
   }
 
   static logSessionCheck(fullId: string, hasActiveSession: boolean): void {
-    console.log('[DEBUG] Session check:', { fullId, hasActiveSession });
+    console.log(`[DEBUG] Session check: fullId=${fullId}, hasActiveSession=${hasActiveSession}`);
   }
 
-  static logErrorDetails(error: any, context: string): void {
-    console.error(`[ERROR] ${context}:`, {
-      errorType: error?.constructor?.name,
-      errorMessage: error?.message,
-      errorStack: error?.stack?.split('\n').slice(0, 3),
-      fullError: LoggerService.formatError(error)
-    });
+  static logErrorDetails(error: unknown, context: string): void {
+    console.error(`[ERROR] ${context}: errorType=${error?.constructor?.name}, errorMessage=${error instanceof Error ? error.message : 'Unknown'}, fullError=${LoggerService.formatError(error)}`);
   }
 
-  static logPerformance(startTime: number, operation: string): void {
-    const duration = Date.now() - startTime;
-    console.log(`[PERF] ${operation} completed in ${duration}ms`);
-  }
-
-  private static formatError(error: any): string {
+  private static formatError(error: unknown): string {
     if (error instanceof Error) return error.message;
-    if (typeof error === 'object') return JSON.stringify(error, null, 2);
+    if (typeof error === 'object') return JSON.stringify(error, null, 2).replace(/\n/g, '\r');
     return String(error);
   }
 } 

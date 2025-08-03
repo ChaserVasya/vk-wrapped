@@ -2,19 +2,19 @@
 -- Создает таблицы для VK Wrapped
 
 -- Таблица завершенных сессий прослушивания
-CREATE TABLE listening_sessions (
+CREATE TABLE completed_sessions (
     full_id String,          
-    start Timestamp,          
-    end Timestamp,         
-    PRIMARY KEY (start)
+    first_observed Uint32,          
+    last_seen Uint32,         
+    PRIMARY KEY (full_id, first_observed)
 );  
 
 
 -- Таблица активных сессий прослушивания
-CREATE TABLE active_sessions (
+CREATE TABLE current_sessions (
     full_id String,              -- "owner_id_track_id" (уникальный ключ)
-    start Timestamp,             -- время начала сессии
-    last_updated Timestamp,      -- время последнего обновления
+    first_observed Uint32,       -- когда впервые увидели трек
+    last_seen Uint32,            -- когда последний раз видели трек
     PRIMARY KEY (full_id)
 ); 
 

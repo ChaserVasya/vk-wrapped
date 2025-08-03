@@ -2,7 +2,7 @@
 -- Удаляет таблицы для VK Wrapped
 
 -- Удаляем таблицу завершенных сессий прослушивания
-DROP TABLE IF EXISTS listening_sessions;
+DROP TABLE IF EXISTS completed_sessions;
 
 -- Удаляем таблицу активных сессий прослушивания
-DROP TABLE IF EXISTS active_sessions; 
+DROP TABLE IF EXISTS current_sessions; 

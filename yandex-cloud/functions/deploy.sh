@@ -1,56 +1,53 @@
 #!/bin/bash
 
-echo "🚀 Deploying VK Wrapped Function with Timer and HTTP triggers..."
+echo "[INFO] Starting deployment process..."
 
-# Загрузка переменных окружения
-if [ -f "env" ]; then
-  echo "📋 Loading environment variables from env file..."
-  export $(cat env | grep -v '^#' | xargs)
-else
-  echo "⚠️  env file not found, using default values"
+# Проверка ESLint
+echo "[INFO] Running ESLint..."
+npm run lint
+if [ $? -ne 0 ]; then
+  echo "[ERROR] ESLint found errors. Fix them before deployment."
+  exit 1
+fi
+
+# Проверка синтаксиса TypeScript
+echo "[INFO] Checking TypeScript syntax..."
+npx tsc --noEmit
+if [ $? -ne 0 ]; then
+  echo "[ERROR] TypeScript compilation failed"
+  exit 1
+fi
+
+# Запуск тестов
+echo "[INFO] Running tests..."
+npm test
+if [ $? -ne 0 ]; then
+  echo "[ERROR] Tests failed"
+  exit 1
 fi
 
 # Сборка проекта
-echo "📦 Building project..."
+echo "[INFO] Building project..."
 npm run build
+if [ $? -ne 0 ]; then
+  echo "[ERROR] Build failed"
+  exit 1
+fi
 
-# Создание оптимизированного архива без тестов
-echo "📦 Creating optimized archive..."
-rm -rf dist.zip
-zip -r dist.zip dist/ package.json -x "dist/__tests__/*"
-
-# Создание функции (если не существует)
-echo "🔧 Creating function..."
-yc serverless function create --name=vk-wrapped-poller --description="VK Status Poller with Timer and HTTP triggers" || echo "Function already exists"
-
-# Создание версии функции
-echo "📤 Deploying function version..."
+# Деплой в Yandex Cloud Functions
+echo "[INFO] Deploying to Yandex Cloud Functions..."
 yc serverless function version create \
-  --function-name=vk-wrapped-poller \
-  --runtime nodejs18 \
-  --entrypoint dist/index.handler \
-  --memory 128m \
-  --execution-timeout 30s \
-  --source-path dist.zip \
-  --environment USER_ID=${USER_ID},SERVICE_TOKEN=${SERVICE_TOKEN},VK_API_VERSION=${VK_API_VERSION},VK_API_FIELDS=${VK_API_FIELDS},YDB_ENDPOINT=${YDB_ENDPOINT},YDB_DATABASE_PATH=${YDB_DATABASE_PATH},YDB_TOKEN=${YDB_TOKEN}
+  --function-name=vk-wrapped-function \
+  --runtime=nodejs18 \
+  --entrypoint=index.handler \
+  --memory=128m \
+  --execution-timeout=30s \
+  --source-path=dist.zip \
+  --environment-file=env
 
-# Создание timer триггера (если не существует)
-echo "⏰ Creating timer trigger..."
-yc serverless trigger create timer vk-poller-timer \
-  --cron-expression="0 * * * ? *" \
-  --invoke-function-name=vk-wrapped-poller \
-  --invoke-function-service-account-name=vk-wrapped-function-sa || echo "Timer trigger already exists"
-
-# Получение HTTP URL функции
-echo "🔗 Getting function URL..."
-FUNCTION_URL=$(yc serverless function get --name=vk-wrapped-poller --format=json | jq -r '.http_invoke_url')
-
-echo "✅ Function deployed successfully with both triggers!"
-echo "⏰ Timer trigger: every minute"
-echo "🌐 HTTP trigger: $FUNCTION_URL"
-echo ""
-echo "📋 Usage:"
-echo "1. Timer trigger runs automatically every minute"
-echo "2. HTTP trigger for manual testing: curl -X GET $FUNCTION_URL"
-echo "3. Check logs: yc serverless function logs vk-wrapped-poller"
-echo "4. Test function: yc serverless function invoke vk-wrapped-poller" 
+if [ $? -eq 0 ]; then
+  echo "[INFO] Deployment completed successfully!"
+else
+  echo "[ERROR] Deployment failed"
+  exit 1
+fi 

@@ -6,17 +6,17 @@ DROP TABLE IF EXISTS listening_sessions;
 DROP TABLE IF EXISTS active_sessions;
 
 -- Создаем таблицу завершенных сессий прослушивания
-CREATE TABLE listening_sessions (
+CREATE TABLE completed_sessions (
     full_id String,               -- "owner_id_track_id"
-    start Timestamp,              -- время начала сессии (PRIMARY KEY)
-    end Timestamp,                -- время окончания сессии
-    PRIMARY KEY (start)
+    first_observed Uint32,        -- когда впервые увидели трек
+    last_seen Uint32,             -- когда последний раз видели трек
+    PRIMARY KEY (full_id, first_observed)
 );
 
 -- Создаем таблицу активных сессий прослушивания
-CREATE TABLE active_sessions (
+CREATE TABLE current_sessions (
     full_id String,               -- "owner_id_track_id" (уникальный ключ)
-    start Timestamp,              -- время начала сессии
-    last_updated Timestamp,       -- время последнего обновления
+    first_observed Uint32,        -- когда впервые увидели трек
+    last_seen Uint32,             -- когда последний раз видели трек
     PRIMARY KEY (full_id)
 ); 

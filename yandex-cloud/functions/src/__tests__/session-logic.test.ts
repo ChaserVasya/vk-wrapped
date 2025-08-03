@@ -3,21 +3,21 @@ jest.mock('../services/vk-api');
 jest.mock('../services/database');
 
 import { handler } from '../index';
-import { createMockServices, setupMockImplementations, MockServices } from './test-utils';
+import { createMockServices, MockServices, setupMockImplementations } from './test-utils';
 
 describe('Session Logic Tests', () => {
   let mocks: MockServices;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Создаем моки сервисов
     mocks = createMockServices();
     setupMockImplementations(mocks);
   });
 
   describe('Логика создания и обновления активных сессий', () => {
-    test('Первый поллинг трека - создается новая активная сессия', async () => {
+    test('getActiveSession возвращает null - создается новая сессия', async () => {
       // Arrange
       const mockStatus = {
         status_audio: {
@@ -29,20 +29,22 @@ describe('Session Logic Tests', () => {
       };
 
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
-      mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии
+      mocks.databaseService.getActiveSession.mockResolvedValue(null);
       mocks.databaseService.createActiveSession.mockResolvedValue();
 
       // Act
-      const result = await handler({}, {});
+      const result = await handler();
 
       // Assert
       expect(result.statusCode).toBe(200);
+      const responseBody = JSON.parse(result.body);
+      expect(responseBody.status).toBe('success');
       expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
       expect(mocks.databaseService.createActiveSession).toHaveBeenCalledWith('456240381_456240381');
       expect(mocks.databaseService.updateActiveSession).not.toHaveBeenCalled();
     });
 
-    test('Второй поллинг того же трека - обновляется активная сессия', async () => {
+    test('getActiveSession возвращает валидный объект - обновляется сессия', async () => {
       // Arrange
       const mockStatus = {
         status_audio: {
@@ -53,27 +55,29 @@ describe('Session Logic Tests', () => {
         }
       };
 
-      const existingActiveSession = {
+      const activeSession = {
         full_id: '456240381_456240381',
-        start: new Date('2024-01-15T10:15:00Z'),
-        last_updated: new Date('2024-01-15T10:15:00Z')
+        first_observed: new Date('2024-01-15T10:15:00Z'),
+        last_seen: new Date('2024-01-15T10:20:00Z')
       };
 
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
-      mocks.databaseService.getActiveSession.mockResolvedValue(existingActiveSession); // Есть активная сессия
+      mocks.databaseService.getActiveSession.mockResolvedValue(activeSession);
       mocks.databaseService.updateActiveSession.mockResolvedValue();
 
       // Act
-      const result = await handler({}, {});
+      const result = await handler();
 
       // Assert
       expect(result.statusCode).toBe(200);
+      const responseBody = JSON.parse(result.body);
+      expect(responseBody.status).toBe('success');
       expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
       expect(mocks.databaseService.updateActiveSession).toHaveBeenCalledWith('456240381_456240381');
       expect(mocks.databaseService.createActiveSession).not.toHaveBeenCalled();
     });
 
-    test('Третий поллинг того же трека - снова обновляется активная сессия', async () => {
+    test('getActiveSession возвращает объект с невалидными датами - создается новая сессия', async () => {
       // Arrange
       const mockStatus = {
         status_audio: {
@@ -84,24 +88,28 @@ describe('Session Logic Tests', () => {
         }
       };
 
-      const existingActiveSession = {
+      // Объект с невалидными датами - используем NaN значения
+      const invalidActiveSession = {
         full_id: '456240381_456240381',
-        start: new Date('2024-01-15T10:15:00Z'),
-        last_updated: new Date('2024-01-15T10:16:00Z')
+        first_observed: new Date(NaN),
+        last_seen: new Date(NaN)
       };
 
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
-      mocks.databaseService.getActiveSession.mockResolvedValue(existingActiveSession);
-      mocks.databaseService.updateActiveSession.mockResolvedValue();
+      mocks.databaseService.getActiveSession.mockResolvedValue(invalidActiveSession);
+      mocks.databaseService.createActiveSession.mockResolvedValue();
 
       // Act
-      const result = await handler({}, {});
+      const result = await handler();
 
       // Assert
       expect(result.statusCode).toBe(200);
+      const responseBody = JSON.parse(result.body);
+      expect(responseBody.status).toBe('success');
       expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
-      expect(mocks.databaseService.updateActiveSession).toHaveBeenCalledWith('456240381_456240381');
-      expect(mocks.databaseService.createActiveSession).not.toHaveBeenCalled();
+      // Проверяем что createActiveSession вызывается вместо updateActiveSession
+      expect(mocks.databaseService.createActiveSession).toHaveBeenCalledWith('456240381_456240381');
+      expect(mocks.databaseService.updateActiveSession).not.toHaveBeenCalled();
     });
   });
 
@@ -123,7 +131,7 @@ describe('Session Logic Tests', () => {
       mocks.databaseService.createActiveSession.mockResolvedValue();
 
       // Act
-      const result = await handler({}, {});
+      const result = await handler();
 
       // Assert
       expect(result.statusCode).toBe(200);
@@ -149,7 +157,7 @@ describe('Session Logic Tests', () => {
       mocks.databaseService.createActiveSession.mockResolvedValue();
 
       // Act
-      const result = await handler({}, {});
+      const result = await handler();
 
       // Assert
       expect(result.statusCode).toBe(200);
@@ -169,7 +177,7 @@ describe('Session Logic Tests', () => {
       mocks.databaseService.finishAllActiveSessions.mockResolvedValue();
 
       // Act
-      const result = await handler({}, {});
+      const result = await handler();
 
       // Assert
       expect(result.statusCode).toBe(200);
@@ -194,7 +202,7 @@ describe('Session Logic Tests', () => {
       mocks.databaseService.finishAllActiveSessions.mockResolvedValue();
 
       // Act
-      const result = await handler({}, {});
+      const result = await handler();
 
       // Assert
       expect(result.statusCode).toBe(200);
@@ -226,21 +234,21 @@ describe('Session Logic Tests', () => {
       mocks.databaseService.getActiveSession.mockResolvedValue(null);
       mocks.databaseService.createActiveSession.mockResolvedValue();
 
-      await handler({}, {});
+      await handler();
 
       // Второй поллинг - нет музыки
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatusNoMusic);
       mocks.databaseService.finishAllActiveSessions.mockResolvedValue();
       jest.clearAllMocks();
 
-      await handler({}, {});
+      await handler();
 
       // Третий поллинг - снова есть та же музыка
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatusWithMusic);
       mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии (завершилась)
       mocks.databaseService.createActiveSession.mockResolvedValue();
 
-      const result = await handler({}, {});
+      const result = await handler();
 
       // Assert
       expect(result.statusCode).toBe(200);
@@ -277,21 +285,21 @@ describe('Session Logic Tests', () => {
       mocks.databaseService.getActiveSession.mockResolvedValue(null);
       mocks.databaseService.createActiveSession.mockResolvedValue();
 
-      await handler({}, {});
+      await handler();
 
       // Второй поллинг - нет музыки
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatusNoMusic);
       mocks.databaseService.finishAllActiveSessions.mockResolvedValue();
       jest.clearAllMocks();
 
-      await handler({}, {});
+      await handler();
 
       // Третий поллинг - есть другая музыка
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatusSecondMusic);
       mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии
       mocks.databaseService.createActiveSession.mockResolvedValue();
 
-      const result = await handler({}, {});
+      const result = await handler();
 
       // Assert
       expect(result.statusCode).toBe(200);
@@ -317,14 +325,14 @@ describe('Session Logic Tests', () => {
       // Первый поллинг - нет музыки
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatusNoMusic);
       mocks.databaseService.finishAllActiveSessions.mockResolvedValue();
-      await handler({}, {});
+      await handler();
 
       // Второй поллинг - есть музыка
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatusWithMusic);
       mocks.databaseService.getActiveSession.mockResolvedValue(null);
       mocks.databaseService.createActiveSession.mockResolvedValue();
 
-      const result = await handler({}, {});
+      const result = await handler();
 
       // Assert
       expect(result.statusCode).toBe(200);
@@ -334,7 +342,7 @@ describe('Session Logic Tests', () => {
   });
 
   describe('Обработка ошибок БД', () => {
-    test('Ошибка при получении активной сессии - функция не падает', async () => {
+    test('Ошибка при получении активной сессии - функция возвращает 500', async () => {
       // Arrange
       const mockStatus = {
         status_audio: {
@@ -349,16 +357,16 @@ describe('Session Logic Tests', () => {
       mocks.databaseService.getActiveSession.mockRejectedValue(new Error('DB Error'));
 
       // Act
-      const result = await handler({}, {});
+      const result = await handler();
 
       // Assert
-      expect(result.statusCode).toBe(200);
+      expect(result.statusCode).toBe(500);
       expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
       expect(mocks.databaseService.createActiveSession).not.toHaveBeenCalled();
       expect(mocks.databaseService.updateActiveSession).not.toHaveBeenCalled();
     });
 
-    test('Ошибка при создании активной сессии - функция не падает', async () => {
+    test('Ошибка при создании активной сессии - функция возвращает 500', async () => {
       // Arrange
       const mockStatus = {
         status_audio: {
@@ -374,15 +382,15 @@ describe('Session Logic Tests', () => {
       mocks.databaseService.createActiveSession.mockRejectedValue(new Error('DB Error'));
 
       // Act
-      const result = await handler({}, {});
+      const result = await handler();
 
       // Assert
-      expect(result.statusCode).toBe(200);
+      expect(result.statusCode).toBe(500);
       expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
       expect(mocks.databaseService.createActiveSession).toHaveBeenCalledWith('456240381_456240381');
     });
 
-    test('Ошибка при завершении всех сессий - функция не падает', async () => {
+    test('Ошибка при завершении всех сессий - функция возвращает 500', async () => {
       // Arrange
       const mockStatus = {
         status_audio: undefined
@@ -392,10 +400,10 @@ describe('Session Logic Tests', () => {
       mocks.databaseService.finishAllActiveSessions.mockRejectedValue(new Error('DB Error'));
 
       // Act
-      const result = await handler({}, {});
+      const result = await handler();
 
       // Assert
-      expect(result.statusCode).toBe(200);
+      expect(result.statusCode).toBe(500);
       expect(mocks.databaseService.finishAllActiveSessions).toHaveBeenCalledTimes(1);
     });
   });
