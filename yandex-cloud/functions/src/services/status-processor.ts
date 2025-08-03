@@ -1,70 +1,54 @@
-import { VKStatus } from '../types';
-import { createFullId } from '../utils';
+import { DataValidator, VKStatus } from '../types';
 import { DatabaseService } from './database';
 import { LoggerService } from './logger';
-import { ValidatorService } from './validator';
 
 export class StatusProcessorService {
   constructor(private dbService: DatabaseService) { }
 
   // Обработка статуса
   async processStatus(status: VKStatus): Promise<void> {
-    const startTime = Date.now();
 
     // Логируем валидацию аудио статуса
     const hasAudioStatus = !!status.status_audio;
-    const isValidAudio = hasAudioStatus && ValidatorService.isValidAudioStatus(status.status_audio);
+    const isValidAudio = hasAudioStatus && DataValidator.validateAudioStatus(status.status_audio);
 
     LoggerService.logAudioValidation(status.status_audio, isValidAudio);
 
-    if (hasAudioStatus && isValidAudio) {
+    if (hasAudioStatus && isValidAudio && status.status_audio) {
       await this.handleActiveMusic(status.status_audio);
     } else {
       const reason = !hasAudioStatus ? 'status_audio is null/undefined' : 'status_audio is invalid';
       await this.handleNoActiveMusic(reason);
     }
 
-    LoggerService.logPerformance(startTime, 'Status processing');
+
   }
 
-  private async handleActiveMusic(audioStatus: any): Promise<void> {
-    const { id, owner_id, artist, title } = audioStatus;
+  private async handleActiveMusic(audioStatus: { id: number; owner_id: number; artist: string; title: string }): Promise<void> {
+    const fullId = `${audioStatus.owner_id}_${audioStatus.id}`;
 
-    const fullId = createFullId(owner_id, id);
+    LoggerService.logActiveMusic(audioStatus);
 
-    LoggerService.logActiveMusic(artist, title, fullId);
+    const activeSession = await this.dbService.getActiveSession(fullId);
+    LoggerService.logSessionCheck(fullId, !!activeSession);
 
-    try {
-      // Проверяем, есть ли уже активная сессия для этого трека
-      const activeSession = await this.dbService.getActiveSession(fullId);
+    // Проверяем валидность активной сессии
+    const isValidSession = activeSession && DataValidator.validateTrackSession(activeSession);
 
-      LoggerService.logSessionCheck(fullId, !!activeSession);
-
-      if (activeSession) {
-        // Обновляем время последнего обновления существующей сессии
-        await this.dbService.updateActiveSession(fullId);
-        LoggerService.logSessionUpdated(fullId);
-      } else {
-        // Создаем новую активную сессию
-        await this.dbService.createActiveSession(fullId);
-        LoggerService.logSessionCreated(fullId);
-      }
-    } catch (error) {
-      LoggerService.logErrorDetails(error, 'Active Music Session Management');
-      LoggerService.logSessionError(error);
+    if (isValidSession) {
+      await this.dbService.updateActiveSession(fullId);
+      LoggerService.logSessionUpdated(fullId);
+    } else {
+      await this.dbService.createActiveSession(fullId);
+      LoggerService.logSessionCreated(fullId);
     }
   }
 
   private async handleNoActiveMusic(reason: string): Promise<void> {
     LoggerService.logNoActiveMusic(reason);
 
-    try {
-      // Завершаем все активные сессии при отсутствии музыки
-      await this.dbService.finishAllActiveSessions();
-      LoggerService.logAllSessionsFinished();
-    } catch (error) {
-      LoggerService.logErrorDetails(error, 'No Active Music Session Management');
-      LoggerService.logSessionError(error);
-    }
+    // Завершаем все активные сессии при отсутствии музыки
+    await this.dbService.finishAllActiveSessions();
+    LoggerService.logAllSessionsFinished();
   }
 } 
