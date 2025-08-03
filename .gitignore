@@ -122,3 +122,5 @@ dist.zip
 .terraform/
 *.tfstate
 *.tfstate.backup 
+
+*.env
