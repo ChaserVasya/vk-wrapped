@@ -33,6 +33,16 @@ if [ $? -ne 0 ]; then
   echo "[ERROR] Build failed"
   exit 1
 fi
+# https://github.com/yandex-cloud-examples/yc-ydb-connect-from-serverless-function/blob/main/deploy/create-func-ver.sh
+# Копируем package.json в dist для правильной работы
+echo "[INFO] Copying package.json to dist..."
+cp package.json dist/
+
+# Создаем ZIP архив из dist
+echo "[INFO] Creating ZIP archive from dist..."
+cd dist
+zip -r ../func.zip .
+cd ..
 
 # Деплой в Yandex Cloud Functions
 echo "[INFO] Deploying to Yandex Cloud Functions..."
@@ -43,10 +53,10 @@ ENV_VARS=$(./parse-env.sh .cloud.env)
 yc serverless function version create \
   --function-name=vk-wrapped-poller \
   --runtime=nodejs18 \
-  --entrypoint=dist/index.handler \
+  --entrypoint=index.handler \
   --memory=128m \
   --execution-timeout=30s \
-  --source-path=dist.zip \
+  --source-path=func.zip \
   --environment="$ENV_VARS" \
   --service-account-id=ajeup5brgovjbs8ok57u
 
