@@ -1,3 +1,0 @@
-#include? "Pods/Target Support Files/Pods-Runner Cocoapods/Pods-Runner Cocoapods.debug.xcconfig"
-#include "Generated.xcconfig"
-#include "AppCredentials.xcconfig"
