@@ -8,7 +8,8 @@
     "deploy": "./deploy.sh",
     "test": "jest",
     "lint": "eslint src/ --ext .ts",
-    "lint:fix": "eslint src/ --ext .ts --fix"
+    "lint:fix": "eslint src/ --ext .ts --fix",
+    "read-db": "ts-node read-db.ts"
   },
   "dependencies": {
     "@yandex-cloud/nodejs-sdk": "^2.9.0",
@@ -24,6 +25,7 @@
     "eslint": "^8.0.0",
     "jest": "^29.0.0",
     "ts-jest": "^29.4.0",
+    "ts-node": "^10.9.0",
     "typescript": "^5.9.2"
   },
   "engines": {

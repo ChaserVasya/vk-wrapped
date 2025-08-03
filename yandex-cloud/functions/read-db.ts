@@ -1,9 +1,15 @@
 import * as dotenv from 'dotenv';
 import { TokenAuthService } from 'ydb-sdk';
 import { DatabaseService } from './src/services/database';
+import { TrackSession } from './src/types';
 
 // Загружаем переменные окружения из файла .local.env
 dotenv.config({ path: '.local.env' });
+
+interface DatabaseResponse {
+    currentSessions: TrackSession[];
+    completedSessions: TrackSession[];
+}
 
 /**
  * Валидирует YDB токен
@@ -12,49 +18,27 @@ dotenv.config({ path: '.local.env' });
  */
 function validateYdbToken(token: string | undefined): boolean {
     if (!token) {
-        console.error(`
-❌ Error: YDB_TOKEN is required for local environment
-💡 Run: yc iam create-token
-    `);
         return false;
     }
 
     if (!token.startsWith('t1.')) {
-        console.error(`
-❌ Error: Invalid token format. Token should start with "t1."
-💡 Run: yc iam create-token
-    `);
         return false;
     }
 
     if (token.length < 100) {
-        console.error(`
-❌ Error: Token seems too short. It might be expired or invalid.
-💡 Run: yc iam create-token
-    `);
         return false;
     }
 
     return true;
 }
 
-async function main() {
-    console.log('🔍 Starting universal database reader...');
-
+async function getDatabaseData(): Promise<DatabaseResponse> {
     // Проверяем переменные окружения
-    console.log(`
-📊 Environment check:
-  Endpoint: ${process.env.YDB_ENDPOINT}
-  Database: ${process.env.YDB_DATABASE_PATH}
-  Token: ${process.env.YDB_TOKEN ? '✅ Found' : '❌ Not found'}
-  `);
-
-    // Валидируем токен
     if (!validateYdbToken(process.env.YDB_TOKEN)) {
-        return;
+        const error = new Error('Invalid or missing YDB_TOKEN');
+        (error as any).statusCode = 401;
+        throw error;
     }
-
-    console.log('🔐 Token validation passed');
 
     try {
         // Создаем authService для локальной среды
@@ -63,71 +47,65 @@ async function main() {
         // Создаем DatabaseService с инжектированным authService
         const databaseService = new DatabaseService(authService);
 
-        console.log('⏳ Waiting for driver to be ready...');
         const timeout = 10000;
         if (!(await (databaseService as any).driver.ready(timeout))) {
-            throw new Error(`Driver has not become ready in ${timeout}ms!`);
+            const error = new Error(`Driver has not become ready in ${timeout}ms!`);
+            (error as any).statusCode = 500;
+            throw error;
         }
-        console.log('✅ Driver is ready');
 
         // Читаем активные сессии
-        console.log('📊 Reading current sessions...');
         const currentSessions = await databaseService.getAllCurrentSessions(50);
-        console.log(`✅ Found ${currentSessions.length} current sessions`);
 
         // Читаем завершенные сессии
-        console.log('📊 Reading completed sessions...');
         const completedSessions = await databaseService.getCompletedSessions(50);
-        console.log(`✅ Found ${completedSessions.length} completed sessions`);
-
-        // Выводим результаты
-        console.log(`
-📋 Current Sessions:`);
-        if (currentSessions.length === 0) {
-            console.log('  No active sessions found');
-        } else {
-            currentSessions.forEach((session, index) => {
-                const firstObserved = session.first_observed;
-                const lastSeen = session.last_seen;
-                const duration = Math.round((lastSeen.getTime() - firstObserved.getTime()) / 60000);
-
-                console.log(`
-   ${index + 1}. ${session.full_id}
-      Started: ${firstObserved.toLocaleString()}
-      Last seen: ${lastSeen.toLocaleString()}
-      Duration: ${duration} minutes
-         `);
-            });
-        }
-
-        console.log(`
-📋 Completed Sessions:`);
-        if (completedSessions.length === 0) {
-            console.log('  No completed sessions found');
-        } else {
-            completedSessions.forEach((session, index) => {
-                const firstObserved = session.first_observed;
-                const lastSeen = session.last_seen;
-                const duration = Math.round((lastSeen.getTime() - firstObserved.getTime()) / 60000);
-
-                console.log(`
-  ${index + 1}. ${session.full_id}
-     Started: ${firstObserved.toLocaleString()}
-     Ended: ${lastSeen.toLocaleString()}
-     Duration: ${duration} minutes
-        `);
-            });
-        }
-
-        console.log('✅ Database reading completed successfully');
 
         // Закрываем соединение
         await databaseService.close();
 
+        return {
+            currentSessions: currentSessions,
+            completedSessions: completedSessions
+        };
+
     } catch (error) {
-        console.error('❌ Error reading database:', error);
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const statusCode = (error as any).statusCode || 500;
+
+        const httpError = new Error(errorMessage);
+        (httpError as any).statusCode = statusCode;
+        throw httpError;
+    }
+}
+
+async function main() {
+    try {
+        const data = await getDatabaseData();
+        // Выводим JSON в stdout
+        console.log(JSON.stringify(data, null, 2));
+    } catch (error) {
+        const statusCode = (error as any).statusCode || 500;
+        const errorMessage = error instanceof Error ? error.message : String(error);
+
+        console.error(JSON.stringify({
+            error: errorMessage,
+            statusCode: statusCode
+        }, null, 2));
+
         process.exit(1);
     }
 }
 
-main().catch(console.error); 
+// Экспортируем функцию для использования в других модулях
+export { getDatabaseData };
+
+main().catch((error) => {
+    const statusCode = (error as any).statusCode || 500;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    console.error(JSON.stringify({
+        error: errorMessage,
+        statusCode: statusCode
+    }, null, 2));
+    process.exit(1);
+}); 
