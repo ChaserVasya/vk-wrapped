@@ -196,11 +196,37 @@ export class DatabaseService {
       }
       console.log(`[DEBUG] Driver ready for finish_all_active_sessions`);
 
+      // Сначала получаем все активные сессии
+      console.log(`[DEBUG] About to call getAllCurrentSessions()`);
+      const activeSessions = await this.getAllCurrentSessions();
+      console.log(`[DEBUG] Found ${activeSessions.length} active sessions to finish`);
+      console.log(`[DEBUG] Active sessions:`, JSON.stringify(activeSessions, null, 2));
+
+      if (activeSessions.length > 0) {
+        // Перемещаем активные сессии в completed_sessions
+        const now = Math.floor(Date.now() / 1000);
+        const insertQuery: string = `
+          UPSERT INTO ${TABLES.COMPLETED_SESSIONS} (${FIELDS.FULL_ID}, ${FIELDS.FIRST_OBSERVED}, ${FIELDS.LAST_SEEN})
+          VALUES ${activeSessions.map(session =>
+          `("${session.full_id}", ${Math.floor(session.first_observed.getTime() / 1000)}, ${now})`
+        ).join(', ')}
+        `;
+
+        console.log(`[DEBUG] Executing insert query for finish_all_active_sessions: "${insertQuery}"`);
+
+        await this.driver.tableClient.withSession(async (session) => {
+          return await session.executeQuery(insertQuery);
+        });
+
+        console.log(`[DEBUG] Moved ${activeSessions.length} sessions to completed_sessions`);
+      }
+
+      // Теперь удаляем все из current_sessions
       const deleteQuery: string = `
         DELETE FROM ${TABLES.CURRENT_SESSIONS}
       `;
 
-      console.log(`[DEBUG] Executing query for finish_all_active_sessions: "${deleteQuery}"`);
+      console.log(`[DEBUG] Executing delete query for finish_all_active_sessions: "${deleteQuery}"`);
 
       await this.driver.tableClient.withSession(async (session) => {
         return await session.executeQuery(deleteQuery);
