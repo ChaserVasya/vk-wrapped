@@ -1,3 +1,4 @@
+import { MetadataAuthService } from 'ydb-sdk';
 import { DatabaseService } from './services/database';
 import { LoggerService } from './services/logger';
 import { StatusProcessorService } from './services/status-processor';
@@ -19,7 +20,8 @@ export async function handler(): Promise<SuccessResponse | ErrorResponse> {
   LoggerService.logPollingStart();
 
   try {
-    const databaseService = new DatabaseService();
+    const authService = new MetadataAuthService();
+    const databaseService = new DatabaseService(authService);
     const vkApiService = new VKApiService();
     const statusProcessor = new StatusProcessorService(databaseService);
 

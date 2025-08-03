@@ -1,4 +1,4 @@
-import { Driver, MetadataAuthService } from 'ydb-sdk';
+import { Driver, IAuthService } from 'ydb-sdk';
 import { TrackSession } from '../types';
 import { LoggerService } from './logger';
 
@@ -17,9 +17,8 @@ const FIELDS = {
 export class DatabaseService {
   private driver: Driver;
 
-  constructor() {
-    // Создаем драйвер для подключения к YDB с авторизацией через метаданные
-    const authService = new MetadataAuthService();
+  constructor(authService: IAuthService) {
+    // Создаем драйвер с инжектированным authService
     this.driver = new Driver({
       endpoint: process.env.YDB_ENDPOINT || '',
       database: process.env.YDB_DATABASE_PATH || '',
@@ -197,6 +196,130 @@ export class DatabaseService {
       console.log(`[DEBUG] All active sessions finished successfully`);
     } catch (error: unknown) {
       LoggerService.logErrorDetails(error, 'Database Query Execution');
+      throw error;
+    }
+  }
+
+  // Получение всех активных сессий
+  async getAllCurrentSessions(limit?: number): Promise<TrackSession[]> {
+    const operation = 'get_all_active_sessions';
+    console.log(`[DEBUG] Starting ${operation}`);
+
+    try {
+      const timeout = 10000;
+      if (!(await this.driver.ready(timeout))) {
+        throw new Error(`Driver has not become ready in ${timeout}ms!`);
+      }
+      console.log(`[DEBUG] Driver ready for ${operation}`);
+
+      const limitClause = limit ? `LIMIT ${limit}` : '';
+      const query: string = `
+        SELECT ${FIELDS.FULL_ID}, ${FIELDS.FIRST_OBSERVED}, ${FIELDS.LAST_SEEN}
+        FROM ${TABLES.CURRENT_SESSIONS}
+        ORDER BY ${FIELDS.LAST_SEEN} DESC
+        ${limitClause}
+      `;
+
+      console.log(`[DEBUG] Executing query for ${operation}: "${query}"`);
+
+      const result = await this.driver.tableClient.withSession(async (session) => {
+        return await session.executeQuery(query);
+      });
+
+      console.log(`[DEBUG] Query executed for ${operation}, resultSets count: ${result.resultSets.length}`);
+
+      if (!result.resultSets || result.resultSets.length === 0) {
+        console.log(`[DEBUG] No result sets for ${operation}`);
+        return [];
+      }
+
+      const rows = result.resultSets[0].rows;
+      console.log(`[DEBUG] Rows count for ${operation}: ${rows?.length || 0}`);
+
+      if (!rows || rows.length === 0) {
+        console.log(`[DEBUG] No rows found for ${operation}`);
+        return [];
+      }
+
+      const sessions: TrackSession[] = rows.map((row: any) => {
+        const fullId = row[0]?.toString() || '';
+        const firstObservedTimestamp = row[1]?.uint32Value || row[1]?.value || 0;
+        const lastSeenTimestamp = row[2]?.uint32Value || row[2]?.value || 0;
+
+        return {
+          full_id: fullId,
+          first_observed: new Date(firstObservedTimestamp * 1000),
+          last_seen: new Date(lastSeenTimestamp * 1000)
+        };
+      });
+
+      console.log(`[DEBUG] Created ${sessions.length} active sessions for ${operation}`);
+      return sessions;
+
+    } catch (error: unknown) {
+      console.log(`[ERROR] Database error in ${operation}: ${error}`);
+      throw error;
+    }
+  }
+
+  // Получение завершенных сессий
+  async getCompletedSessions(limit?: number): Promise<TrackSession[]> {
+    const operation = 'get_completed_sessions';
+    console.log(`[DEBUG] Starting ${operation}`);
+
+    try {
+      const timeout = 10000;
+      if (!(await this.driver.ready(timeout))) {
+        throw new Error(`Driver has not become ready in ${timeout}ms!`);
+      }
+      console.log(`[DEBUG] Driver ready for ${operation}`);
+
+      const limitClause = limit ? `LIMIT ${limit}` : '';
+      const query: string = `
+        SELECT ${FIELDS.FULL_ID}, ${FIELDS.FIRST_OBSERVED}, ${FIELDS.LAST_SEEN}
+        FROM ${TABLES.COMPLETED_SESSIONS}
+        ORDER BY ${FIELDS.LAST_SEEN} DESC
+        ${limitClause}
+      `;
+
+      console.log(`[DEBUG] Executing query for ${operation}: "${query}"`);
+
+      const result = await this.driver.tableClient.withSession(async (session) => {
+        return await session.executeQuery(query);
+      });
+
+      console.log(`[DEBUG] Query executed for ${operation}, resultSets count: ${result.resultSets.length}`);
+
+      if (!result.resultSets || result.resultSets.length === 0) {
+        console.log(`[DEBUG] No result sets for ${operation}`);
+        return [];
+      }
+
+      const rows = result.resultSets[0].rows;
+      console.log(`[DEBUG] Rows count for ${operation}: ${rows?.length || 0}`);
+
+      if (!rows || rows.length === 0) {
+        console.log(`[DEBUG] No rows found for ${operation}`);
+        return [];
+      }
+
+      const sessions: TrackSession[] = rows.map((row: any) => {
+        const fullId = row[0]?.toString() || '';
+        const firstObservedTimestamp = row[1]?.uint32Value || row[1]?.value || 0;
+        const lastSeenTimestamp = row[2]?.uint32Value || row[2]?.value || 0;
+
+        return {
+          full_id: fullId,
+          first_observed: new Date(firstObservedTimestamp * 1000),
+          last_seen: new Date(lastSeenTimestamp * 1000)
+        };
+      });
+
+      console.log(`[DEBUG] Created ${sessions.length} completed sessions for ${operation}`);
+      return sessions;
+
+    } catch (error: unknown) {
+      console.log(`[ERROR] Database error in ${operation}: ${error}`);
       throw error;
     }
   }
