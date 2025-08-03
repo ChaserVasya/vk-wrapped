@@ -5,23 +5,60 @@ import { DatabaseService } from './src/services/database';
 // Загружаем переменные окружения
 dotenv.config();
 
+/**
+ * Валидирует YDB токен
+ * @param token - токен для проверки
+ * @returns true если токен валиден, false если нет
+ */
+function validateYdbToken(token: string | undefined): boolean {
+    if (!token) {
+        console.error(`
+❌ Error: YDB_TOKEN is required for local environment
+💡 Run: yc iam create-token
+    `);
+        return false;
+    }
+
+    if (!token.startsWith('t1.')) {
+        console.error(`
+❌ Error: Invalid token format. Token should start with "t1."
+💡 Run: yc iam create-token
+    `);
+        return false;
+    }
+
+    if (token.length < 100) {
+        console.error(`
+❌ Error: Token seems too short. It might be expired or invalid.
+💡 Run: yc iam create-token
+    `);
+        return false;
+    }
+
+    return true;
+}
+
 async function main() {
     console.log('🔍 Starting universal database reader...');
 
     // Проверяем переменные окружения
-    console.log('📊 Environment check:');
-    console.log(`  Endpoint: ${process.env.YDB_ENDPOINT}`);
-    console.log(`  Database: ${process.env.YDB_DATABASE_PATH}`);
-    console.log(`  Token: ${process.env.YDB_TOKEN ? '✅ Found' : '❌ Not found'}`);
+    console.log(`
+📊 Environment check:
+  Endpoint: ${process.env.YDB_ENDPOINT}
+  Database: ${process.env.YDB_DATABASE_PATH}
+  Token: ${process.env.YDB_TOKEN ? '✅ Found' : '❌ Not found'}
+  `);
 
-    if (!process.env.YDB_TOKEN) {
-        console.error('❌ Error: YDB_TOKEN is required for local environment');
+    // Валидируем токен
+    if (!validateYdbToken(process.env.YDB_TOKEN)) {
         return;
     }
 
+    console.log('🔐 Token validation passed');
+
     try {
         // Создаем authService для локальной среды
-        const authService = new TokenAuthService(process.env.YDB_TOKEN);
+        const authService = new TokenAuthService(process.env.YDB_TOKEN!);
 
         // Создаем DatabaseService с инжектированным authService
         const databaseService = new DatabaseService(authService);
@@ -44,7 +81,8 @@ async function main() {
         console.log(`✅ Found ${completedSessions.length} completed sessions`);
 
         // Выводим результаты
-        console.log('\n📋 Current Sessions:');
+        console.log(`
+📋 Current Sessions:`);
         if (currentSessions.length === 0) {
             console.log('  No active sessions found');
         } else {
@@ -53,15 +91,17 @@ async function main() {
                 const lastSeen = session.last_seen;
                 const duration = Math.round((lastSeen.getTime() - firstObserved.getTime()) / 60000);
 
-                console.log(`  ${index + 1}. ${session.full_id}`);
-                console.log(`     Started: ${firstObserved.toLocaleString()}`);
-                console.log(`     Last seen: ${lastSeen.toLocaleString()}`);
-                console.log(`     Duration: ${duration} minutes`);
-                console.log('');
+                console.log(`
+  ${index + 1}. ${session.full_id}
+     Started: ${firstObserved.toLocaleString()}
+     Last seen: ${lastSeen.toLocaleString()}
+     Duration: ${duration} minutes
+        `);
             });
         }
 
-        console.log('📋 Completed Sessions:');
+        console.log(`
+📋 Completed Sessions:`);
         if (completedSessions.length === 0) {
             console.log('  No completed sessions found');
         } else {
@@ -70,11 +110,12 @@ async function main() {
                 const lastSeen = session.last_seen;
                 const duration = Math.round((lastSeen.getTime() - firstObserved.getTime()) / 60000);
 
-                console.log(`  ${index + 1}. ${session.full_id}`);
-                console.log(`     Started: ${firstObserved.toLocaleString()}`);
-                console.log(`     Ended: ${lastSeen.toLocaleString()}`);
-                console.log(`     Duration: ${duration} minutes`);
-                console.log('');
+                console.log(`
+  ${index + 1}. ${session.full_id}
+     Started: ${firstObserved.toLocaleString()}
+     Ended: ${lastSeen.toLocaleString()}
+     Duration: ${duration} minutes
+        `);
             });
         }
 
