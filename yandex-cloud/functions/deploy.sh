@@ -36,14 +36,19 @@ fi
 
 # Деплой в Yandex Cloud Functions
 echo "[INFO] Deploying to Yandex Cloud Functions..."
+
+# Читаем переменные из .cloud.env файла
+ENV_VARS=$(./parse-env.sh .cloud.env)
+
 yc serverless function version create \
-  --function-name=vk-wrapped-function \
+  --function-name=vk-wrapped-poller \
   --runtime=nodejs18 \
-  --entrypoint=index.handler \
+  --entrypoint=dist/index.handler \
   --memory=128m \
   --execution-timeout=30s \
   --source-path=dist.zip \
-  --environment-file=env
+  --environment="$ENV_VARS" \
+  --service-account-id=ajeup5brgovjbs8ok57u
 
 if [ $? -eq 0 ]; then
   echo "[INFO] Deployment completed successfully!"

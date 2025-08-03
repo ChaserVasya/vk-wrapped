@@ -6,7 +6,7 @@ jest.mock('../services/logger');
 // Мокаем DatabaseService полностью
 jest.mock('../services/database', () => {
     return {
-        DatabaseService: jest.fn().mockImplementation(() => ({
+        DatabaseService: jest.fn().mockImplementation((_authService: unknown) => ({ // eslint-disable-line @typescript-eslint/no-unused-vars, no-unused-vars
             getActiveSession: jest.fn(),
             createActiveSession: jest.fn(),
             updateActiveSession: jest.fn(),
@@ -21,7 +21,7 @@ describe('DatabaseService YDB SDK Tests', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        databaseService = new DatabaseService();
+        databaseService = new DatabaseService({} as any);
     });
 
     describe('getActiveSession YDB SDK parsing', () => {
