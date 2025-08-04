@@ -5,6 +5,7 @@ import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/settings_bloc/settings_bloc.dart';
 import 'package:front/ui/widgets/loading_widget.dart';
+import 'package:front/ui/widgets/token_input_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -228,7 +229,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 onPressed: state is SettingsState$Loading
                                     ? null
                                     : () {
-                                        _showTokenInputDialog(context);
+                                        showTokenInputDialog(context);
                                       },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.blue,
@@ -392,69 +393,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
-  }
-
-  void _showTokenInputDialog(BuildContext context) {
-    _tokenController.clear();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Настройка VK API Токена'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Для работы приложения необходим VK Personal Token.',
-              style: TextStyle(fontSize: 14),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Получите токен на сайте VK:',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: () {
-                // TODO: Открыть ссылку на получение токена
-                _showSnackBar(
-                  context,
-                  'Откройте vk.com/dev для получения токена',
-                );
-              },
-              child: const Text('Получить токен'),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _tokenController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'VK Personal Token',
-                hintText: 'Вставьте токен сюда',
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Отмена'),
-          ),
-          TextButton(
-            onPressed: () {
-              if (_tokenController.text.isNotEmpty) {
-                context.read<SettingsBloc>().add(
-                  SettingsEvent.saveToken(_tokenController.text),
-                );
-                Navigator.of(context).pop();
-              } else {
-                _showSnackBar(context, 'Введите токен');
-              }
-            },
-            child: const Text('Сохранить'),
-          ),
-        ],
-      ),
-    );
   }
 
   void _showTokenDialog(BuildContext context, bool hasToken) {
