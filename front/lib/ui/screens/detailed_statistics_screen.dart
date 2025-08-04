@@ -5,9 +5,10 @@ import 'package:front/features/state_management/states.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/detailed_statistics_bloc/detailed_statistics_bloc.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 
 class DetailedStatisticsScreen extends StatelessWidget {
-  final List<AudioTrack> tracks;
+  final IList<AudioTrack> tracks;
 
   const DetailedStatisticsScreen({super.key, required this.tracks});
 
@@ -93,8 +94,8 @@ class DetailedStatisticsScreen extends StatelessWidget {
     }
   }
 
-  Widget _buildOverallSection(Map<String, dynamic> statistics) {
-    final overall = statistics['overall'] as Map<String, dynamic>;
+  Widget _buildOverallSection(IMap<String, dynamic> statistics) {
+    final overall = statistics['overall'] as IMap<String, dynamic>;
 
     return Card(
       child: Padding(
@@ -134,8 +135,8 @@ class DetailedStatisticsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFavoriteTracksSection(Map<String, dynamic> statistics) {
-    final favoriteTracks = statistics['favoriteTracks'] as List<dynamic>;
+  Widget _buildFavoriteTracksSection(IMap<String, dynamic> statistics) {
+    final favoriteTracks = statistics['favoriteTracks'] as IList<dynamic>;
 
     return Card(
       child: Padding(
@@ -150,7 +151,7 @@ class DetailedStatisticsScreen extends StatelessWidget {
             const SizedBox(height: 16),
             ...favoriteTracks.asMap().entries.map((entry) {
               final index = entry.key;
-              final track = entry.value as Map<String, dynamic>;
+              final track = entry.value as IMap<String, dynamic>;
               return ListTile(
                 leading: CircleAvatar(child: Text('${index + 1}')),
                 title: Text(track['title']),
@@ -164,8 +165,8 @@ class DetailedStatisticsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildArtistSection(Map<String, dynamic> statistics) {
-    final artists = statistics['artists'] as Map<String, dynamic>;
+  Widget _buildArtistSection(IMap<String, dynamic> statistics) {
+    final artists = statistics['artists'] as IMap<String, dynamic>;
 
     return Card(
       child: Padding(
@@ -190,8 +191,8 @@ class DetailedStatisticsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildGenreSection(Map<String, dynamic> statistics) {
-    final genres = statistics['genres'] as Map<String, dynamic>;
+  Widget _buildGenreSection(IMap<String, dynamic> statistics) {
+    final genres = statistics['genres'] as IMap<String, dynamic>;
 
     return Card(
       child: Padding(
@@ -216,8 +217,8 @@ class DetailedStatisticsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeSection(Map<String, dynamic> statistics) {
-    final timeSlots = statistics['timeSlots'] as Map<String, dynamic>;
+  Widget _buildTimeSection(IMap<String, dynamic> statistics) {
+    final timeSlots = statistics['timeSlots'] as IMap<String, dynamic>;
 
     return Card(
       child: Padding(

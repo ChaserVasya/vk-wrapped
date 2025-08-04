@@ -1,7 +1,8 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:front/data/services/cache_service.dart';
 import 'package:front/domain/entities/audio_track.dart';
-import 'package:front/domain/services/cache_service_interface.dart';
 import 'package:front/domain/services/statistics_service.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -28,7 +29,6 @@ class DetailedStatisticsBloc
     Emitter<DetailedStatisticsState> emit,
   ) async {
     emit(const DetailedStatisticsState.loading());
-
     try {
       final statistics = await _statisticsService.getFullStatistics(
         event.tracks,

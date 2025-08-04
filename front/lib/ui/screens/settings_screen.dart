@@ -5,7 +5,7 @@ import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/settings_bloc/settings_bloc.dart';
 import 'package:front/ui/widgets/loading_widget.dart';
-import 'package:front/ui/widgets/token_input_dialog.dart';
+import 'package:front/ui/screens/token_setup_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -229,7 +229,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 onPressed: state is SettingsState$Loading
                                     ? null
                                     : () {
-                                        showTokenInputDialog(context);
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const TokenSetupScreen(),
+                                          ),
+                                        );
                                       },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.blue,

@@ -13,16 +13,14 @@ part 'home_state.dart';
 class HomeBloc extends EffectBloc<HomeEvent, HomeState> {
   final TokenService _tokenService;
 
-  HomeBloc({required TokenService tokenService})
-    : _tokenService = tokenService,
-      super(const HomeState.initial()) {
+  HomeBloc(this._tokenService) : super(const HomeState.initial()) {
     on<_SaveToken>(_onSaveToken);
     on<_ShowTokenDialog>(_onShowTokenDialog);
   }
 
   Future<void> _onSaveToken(_SaveToken event, Emitter<HomeState> emit) async {
     try {
-      if (!TokenService.isValidToken(event.token)) {
+      if (!_tokenService.isValidToken(event.token)) {
         emitEffect(
           const HomeEffect.tokenError(message: 'Неверный формат токена'),
         );

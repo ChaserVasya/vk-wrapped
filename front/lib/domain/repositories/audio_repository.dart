@@ -1,5 +1,6 @@
 import 'package:front/data/services/vk_api_service.dart';
 import 'package:front/domain/entities/audio_track.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
@@ -8,7 +9,7 @@ class AudioRepository {
 
   AudioRepository(this._vkApiService);
 
-  Future<List<AudioTrack>> getAudioById(List<String> audioIds) async {
+  Future<IList<AudioTrack>> getAudioById(IList<String> audioIds) async {
     return await _vkApiService.getAudioById(audioIds);
   }
 
@@ -16,15 +17,11 @@ class AudioRepository {
     return await _vkApiService.getSingleAudioById(audioId);
   }
 
-  Future<List<AudioTrack>> getUserAudio({int? count, int? offset}) async {
+  Future<IList<AudioTrack>> getUserAudio({int? count, int? offset}) async {
     return await _vkApiService.getUserAudio(count: count, offset: offset);
   }
 
-  Future<List<AudioTrack>> getPopularAudio({int? count, int? offset}) async {
+  Future<IList<AudioTrack>> getPopularAudio({int? count, int? offset}) async {
     return await _vkApiService.getPopularAudio(count: count, offset: offset);
-  }
-
-  Future<void> setToken(String token) async {
-    _vkApiService.setToken(token);
   }
 }

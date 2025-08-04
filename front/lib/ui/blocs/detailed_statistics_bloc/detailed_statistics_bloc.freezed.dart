@@ -177,14 +177,9 @@ class $DetailedStatisticsEventCopyWith<$Res> {
 /// @nodoc
 
 class _LoadStatistics implements DetailedStatisticsEvent {
-  const _LoadStatistics(final List<AudioTrack> tracks) : _tracks = tracks;
+  const _LoadStatistics(this.tracks);
 
-  final List<AudioTrack> _tracks;
-  List<AudioTrack> get tracks {
-    if (_tracks is EqualUnmodifiableListView) return _tracks;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_tracks);
-  }
+  final IList<AudioTrack> tracks;
 
   /// Create a copy of DetailedStatisticsEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -198,12 +193,12 @@ class _LoadStatistics implements DetailedStatisticsEvent {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _LoadStatistics &&
-            const DeepCollectionEquality().equals(other._tracks, _tracks));
+            const DeepCollectionEquality().equals(other.tracks, tracks));
   }
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_tracks));
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(tracks));
 
   @override
   String toString() {
@@ -219,7 +214,7 @@ abstract mixin class _$LoadStatisticsCopyWith<$Res>
     $Res Function(_LoadStatistics) _then,
   ) = __$LoadStatisticsCopyWithImpl;
   @useResult
-  $Res call({List<AudioTrack> tracks});
+  $Res call({IList<AudioTrack> tracks});
 }
 
 /// @nodoc
@@ -237,9 +232,9 @@ class __$LoadStatisticsCopyWithImpl<$Res>
     return _then(
       _LoadStatistics(
         null == tracks
-            ? _self._tracks
+            ? _self.tracks
             : tracks // ignore: cast_nullable_to_non_nullable
-                  as List<AudioTrack>,
+                  as IList<AudioTrack>,
       ),
     );
   }
@@ -335,16 +330,9 @@ class DetailedStatisticsState$Loading implements DetailedStatisticsState {
 /// @nodoc
 
 class DetailedStatisticsState$Data implements DetailedStatisticsState {
-  const DetailedStatisticsState$Data({
-    required final Map<String, dynamic> statistics,
-  }) : _statistics = statistics;
+  const DetailedStatisticsState$Data({required this.statistics});
 
-  final Map<String, dynamic> _statistics;
-  Map<String, dynamic> get statistics {
-    if (_statistics is EqualUnmodifiableMapView) return _statistics;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableMapView(_statistics);
-  }
+  final IMap<String, dynamic> statistics;
 
   /// Create a copy of DetailedStatisticsState
   /// with the given fields replaced by the non-null parameter values.
@@ -362,17 +350,12 @@ class DetailedStatisticsState$Data implements DetailedStatisticsState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is DetailedStatisticsState$Data &&
-            const DeepCollectionEquality().equals(
-              other._statistics,
-              _statistics,
-            ));
+            (identical(other.statistics, statistics) ||
+                other.statistics == statistics));
   }
 
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    const DeepCollectionEquality().hash(_statistics),
-  );
+  int get hashCode => Object.hash(runtimeType, statistics);
 
   @override
   String toString() {
@@ -388,7 +371,7 @@ abstract mixin class $DetailedStatisticsState$DataCopyWith<$Res>
     $Res Function(DetailedStatisticsState$Data) _then,
   ) = _$DetailedStatisticsState$DataCopyWithImpl;
   @useResult
-  $Res call({Map<String, dynamic> statistics});
+  $Res call({IMap<String, dynamic> statistics});
 }
 
 /// @nodoc
@@ -406,9 +389,9 @@ class _$DetailedStatisticsState$DataCopyWithImpl<$Res>
     return _then(
       DetailedStatisticsState$Data(
         statistics: null == statistics
-            ? _self._statistics
+            ? _self.statistics
             : statistics // ignore: cast_nullable_to_non_nullable
-                  as Map<String, dynamic>,
+                  as IMap<String, dynamic>,
       ),
     );
   }

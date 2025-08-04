@@ -1,5 +1,4 @@
 import 'package:front/data/services/cache_service.dart';
-import 'package:front/domain/exceptions/app_exception.dart';
 import 'package:injectable/injectable.dart';
 
 /// Сервис для управления VK токенами
@@ -11,25 +10,12 @@ class TokenService {
 
   /// Сохраняет токен
   Future<void> saveToken(String token) async {
-    try {
-      await _cacheService.saveToken(token);
-    } catch (e) {
-      throw CacheException('Failed to save token: $e');
-    }
-  }
-
-  /// Устанавливает токен (алиас для saveToken)
-  Future<void> setToken(String token) async {
-    await saveToken(token);
+    await _cacheService.saveToken(token);
   }
 
   /// Получает сохраненный токен
   Future<String?> getToken() async {
-    try {
-      return await _cacheService.getToken();
-    } catch (e) {
-      throw CacheException('Failed to get token: $e');
-    }
+    return await _cacheService.getToken();
   }
 
   /// Проверяет, есть ли токен
@@ -40,40 +26,28 @@ class TokenService {
 
   /// Удаляет токен
   Future<void> clearToken() async {
-    try {
-      await _cacheService.clearToken();
-    } catch (e) {
-      throw CacheException('Failed to clear token: $e');
-    }
+    await _cacheService.clearToken();
   }
 
   /// Валидирует токен
-  static bool isValidToken(String token) {
+  bool isValidToken(String token) {
     return token.isNotEmpty && token.length > 10;
   }
 
   /// Получает clientId (извлекает из токена или возвращает дефолтный)
   Future<String> getClientId() async {
-    try {
-      // Пытаемся получить из кэша
-      final cachedClientId = await _cacheService.getClientId();
-      if (cachedClientId != null && cachedClientId.isNotEmpty) {
-        return cachedClientId;
-      }
-
-      // Если нет в кэше, возвращаем дефолтный VK client ID
-      return '51729127'; // VK Wrapped App ID
-    } catch (e) {
-      throw CacheException('Failed to get client ID: $e');
+    // Пытаемся получить из кэша
+    final cachedClientId = await _cacheService.getClientId();
+    if (cachedClientId != null && cachedClientId.isNotEmpty) {
+      return cachedClientId;
     }
+
+    // Если нет в кэше, возвращаем дефолтный VK client ID
+    return '51729127'; // VK Wrapped App ID
   }
 
   /// Устанавливает clientId
   Future<void> setClientId(String clientId) async {
-    try {
-      await _cacheService.saveClientId(clientId);
-    } catch (e) {
-      throw CacheException('Failed to save client ID: $e');
-    }
+    await _cacheService.saveClientId(clientId);
   }
 }

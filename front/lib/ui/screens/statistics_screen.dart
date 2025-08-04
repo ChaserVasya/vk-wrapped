@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/domain/entities/audio_track.dart';
@@ -65,7 +66,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   FloatingActionButton.extended(
                     heroTag: 'detailed_stats_button',
                     onPressed: () {
-                      final tracks = state.tracks.dataOrNull ?? [];
+                      final tracks =
+                          state.tracks.dataOrNull ?? const IListConst([]);
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) =>
@@ -87,13 +89,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   Widget _buildBody(BuildContext context, AudioState state) {
     switch (state.tracks) {
-      case CommonStateLoading<List<AudioTrack>>():
+      case CommonStateLoading<IList<AudioTrack>>():
         return const LoadingState();
-      case CommonStateData<List<AudioTrack>>(data: final tracks):
+      case CommonStateData<IList<AudioTrack>>(data: final tracks):
         return tracks.isEmpty
             ? const EmptyState(text: 'Нет данных для анализа')
             : _buildStatisticsPages(tracks);
-      case CommonStateError<List<AudioTrack>>(e: final error):
+      case CommonStateError<IList<AudioTrack>>(e: final error):
         return ErrorState(
           error?.toString() ?? 'Неизвестная ошибка',
           title: 'Ошибка загрузки данных',
@@ -106,7 +108,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     }
   }
 
-  Widget _buildStatisticsPages(List<AudioTrack> tracks) {
+  Widget _buildStatisticsPages(IList<AudioTrack> tracks) {
     return PageView.builder(
       itemCount: _getPageCount(tracks),
       itemBuilder: (context, pageIndex) {
@@ -115,14 +117,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  int _getPageCount(List<AudioTrack> tracks) {
+  int _getPageCount(IList<AudioTrack> tracks) {
     // Количество страниц: общая статистика + страницы с треками
     const tracksPerPage = 5;
     final tracksPages = (tracks.length / tracksPerPage).ceil();
     return 1 + tracksPages; // 1 для общей статистики + страницы с треками
   }
 
-  Widget _buildStatisticsPage(List<AudioTrack> tracks, int pageIndex) {
+  Widget _buildStatisticsPage(IList<AudioTrack> tracks, int pageIndex) {
     if (pageIndex == 0) {
       return _buildOverviewPage(tracks);
     } else {
@@ -130,7 +132,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     }
   }
 
-  Widget _buildOverviewPage(List<AudioTrack> tracks) {
+  Widget _buildOverviewPage(IList<AudioTrack> tracks) {
     final totalTracks = tracks.length;
     final uniqueArtists = tracks.map((t) => t.artist).toSet().length;
     final totalDuration = tracks.fold<Duration>(
@@ -222,7 +224,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  Widget _buildTracksPage(List<AudioTrack> tracks, int pageIndex) {
+  Widget _buildTracksPage(IList<AudioTrack> tracks, int pageIndex) {
     const tracksPerPage = 5;
     final startIndex = pageIndex * tracksPerPage;
     final endIndex = (startIndex + tracksPerPage).clamp(0, tracks.length);
@@ -307,7 +309,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     }
   }
 
-  List<String> _getTopArtists(List<AudioTrack> tracks) {
+  IList<String> _getTopArtists(IList<AudioTrack> tracks) {
     final artistCounts = <String, int>{};
 
     for (final track in tracks) {
@@ -317,6 +319,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final sortedArtists = artistCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    return sortedArtists.map((e) => e.key).toList();
+    return sortedArtists.map((e) => e.key).toIList();
   }
 }
