@@ -3,13 +3,11 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:front/data/services/cache_service.dart';
-import 'package:front/data/services/token_service.dart';
+import 'package:front/data/local/prefs_storage.dart';
+import 'package:front/data/local/vk_token_storage.dart';
 import 'package:front/domain/entities/audio_track.dart';
 import 'package:front/domain/exceptions/app_exception.dart';
 import 'package:front/domain/repositories/audio_repository.dart';
-import 'package:front/domain/use_cases/get_audio_tracks_use_case.dart';
-import 'package:front/domain/use_cases/get_user_audio_use_case.dart';
 import 'package:front/features/state_management/common_states.dart';
 import 'package:injectable/injectable.dart';
 
@@ -46,8 +44,8 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
   }
 
   final AudioRepository _audioRepository;
-  final CacheService _cacheService;
-  final TokenService _tokenService;
+  final PrefsStorage _cacheService;
+  final VkTokenStorage _tokenService;
 
   FutureOr<void> _onLoadUserAudio(
     _LoadUserAudio event,

@@ -6,7 +6,9 @@ import 'package:injectable/injectable.dart';
 class TokenGenerator {
   static const IListConst<String> _scopes = IListConst(['audio', 'offline']);
 
-  String generateAuthUrl(String clientId, String redirectUri) {
+  String generateAuthUrl(String clientId) {
+    const redirectUri = 'https://oauth.vk.com/blank.html';
+
     final scopesParam = _scopes.join(',');
     return 'https://oauth.vk.com/authorize?'
         'client_id=$clientId&'
@@ -15,5 +17,11 @@ class TokenGenerator {
         'scope=$scopesParam&'
         'response_type=token&'
         'v=5.131';
+  }
+
+  String? extractTokenFromUrl(String url) {
+    final uri = Uri.parse(url);
+    final queryParams = uri.queryParameters;
+    return queryParams['access_token'];
   }
 }

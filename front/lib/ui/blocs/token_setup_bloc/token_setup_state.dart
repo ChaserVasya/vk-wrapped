@@ -1,12 +1,10 @@
 part of 'token_setup_bloc.dart';
 
 @freezed
-class TokenSetupState with _$TokenSetupState {
-  const factory TokenSetupState.initial() = TokenSetupState$Initial;
-  const factory TokenSetupState.loading() = TokenSetupState$Loading;
-  const factory TokenSetupState.saving() = TokenSetupState$Saving;
-  const factory TokenSetupState.dataLoaded({
+abstract class TokenSetupState with _$TokenSetupState {
+  const factory TokenSetupState({
+    required String vkAppId,
     required String? currentToken,
-    required String currentClientId,
+    required String? tokenGenerationUrl,
   }) = TokenSetupState$DataLoaded;
-} 
+}

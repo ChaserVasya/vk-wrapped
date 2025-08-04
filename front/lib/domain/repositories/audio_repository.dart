@@ -1,27 +1,36 @@
-import 'package:front/data/services/vk_api_service.dart';
-import 'package:front/domain/entities/audio_track.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:front/data/remote/api/track_sessions_client.dart';
+import 'package:front/data/remote/api/vk_api_client.dart';
+import 'package:front/data/remote/services/vk_service.dart';
+import 'package:front/data/local/audio_storage/audio_storage.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class AudioRepository {
-  final VkApiService _vkApiService;
+  final VkService _vkApiService;
+  final AudioStorage _trackStorage;
+  final TrackSessionsClient _sessionsClient;
 
-  AudioRepository(this._vkApiService);
+  AudioRepository(this._vkApiService, this._trackStorage, this._sessionsClient);
 
-  Future<IList<AudioTrack>> getAudioById(IList<String> audioIds) async {
-    return await _vkApiService.getAudioById(audioIds);
-  }
+  Future<IList<VkAudioTrack>> getListenedAudio() async {
+    final localTracks = await _trackStorage.getTracks();
+    final sessions = await _sessionsClient.getSessions();
 
-  Future<AudioTrack?> getSingleAudioById(String audioId) async {
-    return await _vkApiService.getSingleAudioById(audioId);
-  }
+    final localTrackFullIds = localTracks.map((track) => track.fullId).toSet();
 
-  Future<IList<AudioTrack>> getUserAudio({int? count, int? offset}) async {
-    return await _vkApiService.getUserAudio(count: count, offset: offset);
-  }
+    final missingIds = sessions
+        .map((s) => s.fullId)
+        .where((fullId) => !localTrackFullIds.contains(fullId))
+        .toList();
 
-  Future<IList<AudioTrack>> getPopularAudio({int? count, int? offset}) async {
-    return await _vkApiService.getPopularAudio(count: count, offset: offset);
+    if (missingIds.isNotEmpty) {
+      final missingTracks = await _vkApiService.getAudioById(missingIds);
+      await _trackStorage.updateTracks(missingTracks);
+
+      return localTracks.addAll(missingTracks);
+    }
+
+    return localTracks;
   }
 }

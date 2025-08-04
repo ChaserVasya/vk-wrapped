@@ -21,7 +21,7 @@
 ```dart
 import 'package:front/lib/token_generator.dart';
 import 'package:front/lib/vk_api_client.dart';
-import 'package:front/lib/database_client.dart';
+import 'package:front/lib/track_sessions_client.dart';
 
 // Генерация токена
 final tokenUrl = TokenGenerator.generateTokenUrl();
@@ -44,7 +44,7 @@ fvm dart run bin/token_generator.dart
 
 ### Database Client
 ```bash
-fvm dart run bin/database_client.dart
+fvm dart run bin/track_sessions_client.dart
 ```
 Получает данные из Yandex Database через TypeScript скрипт.
 

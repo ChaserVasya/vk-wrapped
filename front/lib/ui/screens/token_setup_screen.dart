@@ -1,257 +1,231 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
+import 'package:front/features/utils/bloc/safe_listeners.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/token_setup_bloc/token_setup_bloc.dart';
+import 'package:front/ui/widgets/extensions.dart';
+import 'package:gap/gap.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class TokenSetupScreen extends StatefulWidget {
+class TokenSetupScreen extends StatelessWidget {
   const TokenSetupScreen({super.key});
 
   @override
-  State<TokenSetupScreen> createState() => _TokenSetupScreenState();
+  Widget build(BuildContext context) {
+    return const _Providers(child: _Listeners(child: _View()));
+  }
 }
 
-class _TokenSetupScreenState extends State<TokenSetupScreen> {
+class _Providers extends StatelessWidget {
+  const _Providers({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) =>
+          getIt<TokenSetupBloc>()..add(const TokenSetupEvent.initial()),
+    );
+  }
+}
+
+class _Listeners extends StatelessWidget {
+  const _Listeners({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocListener(
+      listeners: [
+        ShowErrorSafeListener<TokenSetupBloc>(),
+        EffectListener<TokenSetupBloc, TokenSetupEffect>(
+          listener: (context, effect) {
+            switch (effect) {
+              case TokenSetupEffect$Finish():
+                context.showSnackBar('Токен сохранен');
+                Navigator.of(context).pop();
+            }
+          },
+        ),
+      ],
+      child: child,
+    );
+  }
+}
+
+class _View extends StatefulWidget {
+  const _View();
+
+  @override
+  State<_View> createState() => _ViewState();
+}
+
+class _ViewState extends State<_View> {
   final _tokenController = TextEditingController();
-  final _clientIdController = TextEditingController();
+  final _vkAppIdController = TextEditingController();
 
   @override
   void initState() {
+    final state = context.read<TokenSetupBloc>().state;
+    _tokenController.text = state.currentToken ?? '';
+    _vkAppIdController.text = state.vkAppId;
     super.initState();
-    context.read<TokenSetupBloc>().add(const TokenSetupEvent.loadCurrentData());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final vkAppId = context.select((TokenSetupBloc bloc) => bloc.state.vkAppId);
+    _vkAppIdController.text = vkAppId;
   }
 
   @override
   void dispose() {
     _tokenController.dispose();
-    _clientIdController.dispose();
+    _vkAppIdController.dispose();
     super.dispose();
   }
 
-  Future<void> _saveToken() async {
+  Future<void> _saveToken(BuildContext context) async {
     context.read<TokenSetupBloc>().add(
-      TokenSetupEvent.saveToken(
-        token: _tokenController.text,
-        clientId: _clientIdController.text,
-      ),
+      TokenSetupEvent.vkTokenResponseProvided(_tokenController.text),
     );
-  }
-
-  Future<void> _openTokenUrl() async {
-    context.read<TokenSetupBloc>().add(const TokenSetupEvent.openTokenUrl());
-  }
-
-  void _updateControllers(TokenSetupState$DataLoaded state) {
-    if (state.currentToken != null) {
-      _tokenController.text = state.currentToken!;
-    }
-    if (state.currentClientId.isNotEmpty) {
-      _clientIdController.text = state.currentClientId;
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<TokenSetupBloc>(),
-      child: EffectListener<TokenSetupBloc, TokenSetupEffect>(
-        listener: (context, effect) {
-          switch (effect) {
-            case TokenSetupEffect$TokenSaved():
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Токен сохранен')));
-              Navigator.of(context).pop();
-            case TokenSetupEffect$ValidationError(message: final message):
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(message)));
-            case TokenSetupEffect$Error(message: final message):
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(message)));
-            case TokenSetupEffect$OpenUrl(url: final url):
-              _launchUrl(url);
-          }
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Настройка VK токена'),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-          body: BlocBuilder<TokenSetupBloc, TokenSetupState>(
-            builder: (context, state) {
-              // Обновляем контроллеры при загрузке данных
-              if (state is TokenSetupState$DataLoaded) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _updateControllers(state);
-                });
-              }
-
-              return SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Инструкция по получению токена:',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              '1. Нажмите "Получить токен"',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            const Text(
-                              '2. Авторизуйтесь в VK',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            const Text(
-                              '3. Скопируйте токен из адресной строки',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            const Text(
-                              '4. Вставьте токен в поле ниже',
-                              style: TextStyle(fontSize: 14),
-                            ),
-                            const SizedBox(height: 16),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: _openTokenUrl,
-                                icon: const Icon(Icons.link),
-                                label: const Text('Получить токен'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+    return Scaffold(
+      appBar: AppBar(title: const Text('Настройка VK токена')),
+      body: BlocBuilder<TokenSetupBloc, TokenSetupState>(
+        builder: (context, state) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Настройки токена:',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Настройки токена:',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'Client ID (необязательно):',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: _clientIdController,
-                              decoration: const InputDecoration(
-                                hintText: '51729127',
-                                border: OutlineInputBorder(),
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 12,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'VK Personal Token:',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(height: 8),
-                            TextField(
-                              controller: _tokenController,
-                              decoration: const InputDecoration(
-                                hintText: 'v1.1234567890abcdef...',
-                                border: OutlineInputBorder(),
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 12,
-                                ),
-                              ),
-                              maxLines: 3,
-                            ),
-                            const SizedBox(height: 16),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: state is TokenSetupState$Saving
-                                    ? null
-                                    : _saveToken,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                ),
-                                child: state is TokenSetupState$Saving
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                Colors.white,
-                                              ),
-                                        ),
-                                      )
-                                    : const Text(
-                                        'Сохранить токен',
-                                        style: TextStyle(fontSize: 16),
-                                      ),
-                              ),
-                            ),
-                          ],
+                        const Gap(16),
+                        const Text(
+                          'Vk App Id:',
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                      ),
+                        const Gap(8),
+                        TextField(
+                          controller: _vkAppIdController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                          ),
+                          onEditingComplete: () {
+                            context.read<TokenSetupBloc>().add(
+                              TokenSetupEvent.vkAppIdSaved(
+                                _vkAppIdController.text,
+                              ),
+                            );
+                          },
+                        ),
+                        const Gap(16),
+                        const Text(
+                          'VK Personal Token:',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const Gap(8),
+                        TextField(
+                          controller: _tokenController,
+                          decoration: const InputDecoration(
+                            hintText: 'v1.1234567890abcdef...',
+                            border: OutlineInputBorder(),
+                          ),
+                          onEditingComplete: () => _saveToken(context),
+                        ),
+                        const Gap(16),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              );
-            },
-          ),
-        ),
+                if (state.tokenGenerationUrl != null)
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Инструкция по получению токена:',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Gap(16),
+                          const Text(
+                            '1. Нажмите "Получить токен" и все последующие кнопочки в браузере пока не появится текст "Пожалуйста, не копируйте данные из адресной строки"',
+                          ),
+                          const Text('2. Скопируйте данные из адресной строки'),
+                          const Text('3. Вставьте их в поле ниже'),
+                          const Gap(16),
+                          SizedBox(
+                            child: ElevatedButton.icon(
+                              onPressed: () => _launchUrl(
+                                state.tokenGenerationUrl!,
+                                context,
+                              ),
+                              icon: const Icon(Icons.link),
+                              label: const Text('Получить токен'),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ].separateBy(const Gap(16)),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Future<void> _launchUrl(String url) async {
+  Future<void> _launchUrl(String url, BuildContext context) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Не удалось открыть ссылку: $url')),
-        );
+      if (!context.mounted) {
+        return;
       }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Запрещено открывать ссылки( Что-то не так с разрешениями',
+          ),
+        ),
+      );
     }
+    if (!context.mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Не удалось открыть ссылку: $url')));
   }
 }

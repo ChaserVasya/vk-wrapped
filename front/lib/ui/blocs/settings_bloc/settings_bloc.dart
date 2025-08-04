@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:front/data/services/cache_service.dart';
-import 'package:front/data/services/export_service.dart';
-import 'package:front/data/services/token_service.dart';
+import 'package:front/data/local/prefs_storage.dart';
+import 'package:front/data/local/export_service.dart';
+import 'package:front/data/local/vk_token_storage.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -13,13 +13,13 @@ part 'settings_state.dart';
 
 @injectable
 class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
-  final CacheService _cacheService;
-  final TokenService _tokenService;
+  final PrefsStorage _cacheService;
+  final VkTokenStorage _tokenService;
   final ExportService _exportService;
 
   SettingsBloc({
-    required CacheService cacheService,
-    required TokenService tokenService,
+    required PrefsStorage cacheService,
+    required VkTokenStorage tokenService,
     required ExportService exportService,
   }) : _cacheService = cacheService,
        _tokenService = tokenService,

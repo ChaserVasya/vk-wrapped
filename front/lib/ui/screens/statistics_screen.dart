@@ -8,6 +8,7 @@ import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/audio_bloc/audio_bloc.dart';
 import 'package:front/ui/screens/detailed_statistics_screen.dart';
 import 'package:front/ui/widgets/audio_track_card.dart';
+import 'package:gap/gap.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -62,7 +63,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 ),
                 if (state.tracks.isData &&
                     (state.tracks.dataOrNull?.isNotEmpty ?? false)) ...[
-                  const SizedBox(height: 16),
+                  const Gap(16),
                   FloatingActionButton.extended(
                     heroTag: 'detailed_stats_button',
                     onPressed: () {
@@ -149,7 +150,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             'Общая статистика',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 24),
+          const Gap(24),
 
           // Карточки статистики
           Row(
@@ -162,7 +163,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   Colors.blue,
                 ),
               ),
-              const SizedBox(width: 12),
+              const Gap(12),
               Expanded(
                 child: _buildStatCard(
                   'Уникальных артистов',
@@ -173,7 +174,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const Gap(12),
 
           Row(
             children: [
@@ -185,7 +186,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   Colors.orange,
                 ),
               ),
-              const SizedBox(width: 12),
+              const Gap(12),
               Expanded(
                 child: _buildStatCard(
                   'Средняя длительность',
@@ -203,12 +204,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ],
           ),
 
-          const SizedBox(height: 24),
+          const Gap(24),
           const Text(
             'Популярные артисты',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 12),
+          const Gap(12),
 
           // Топ артистов
           ..._getTopArtists(tracks)
@@ -239,7 +240,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             'Треки (${startIndex + 1}-$endIndex)',
             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 16),
+          const Gap(16),
 
           ...pageTracks.map(
             (track) => Padding(
@@ -271,12 +272,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         child: Column(
           children: [
             Icon(icon, size: 32, color: color),
-            const SizedBox(height: 8),
+            const Gap(8),
             Text(
               value,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 4),
+            const Gap(4),
             Text(
               title,
               style: const TextStyle(fontSize: 12, color: Colors.grey),
