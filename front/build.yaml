@@ -1,0 +1,32 @@
+global_options:
+  freezed:
+    runs_before:
+      - json_serializable
+  json_serializable:
+    runs_before:
+      - retrofit_generator
+targets:
+  $default:
+    builders:
+      drift_dev:
+        generate_for: [ '**/drift/**' ]
+      mockito|mockBuilder:
+        options:
+          format: true
+          generate_for:
+            - lib/data/mocks/infrastructure.mocks.dart
+            - lib/data/mocks/infrastructure.dart
+            - test/all.mocks.dart
+            - test/all.dart
+      source_gen|combining_builder:
+        options:
+          build_extensions:
+            '{{path}}/{{name}}.dart': '{{path}}/generated/{{name}}.g.dart'
+      freezed:
+        options:
+          generate_for:
+            - lib/**
+          format: true
+          build_extensions:
+            'bloc/{{name}}.dart': 'bloc/{{name}}.freezed.dart'
+            '{{path}}/{{name}}.dart': '{{path}}/generated/{{name}}.freezed.dart'

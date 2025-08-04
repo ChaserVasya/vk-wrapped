@@ -1,104 +1,133 @@
-import 'dart:convert';
-import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:json_annotation/json_annotation.dart';
+import 'package:retrofit/retrofit.dart';
 
-/// Клиент для работы с VK API
-class VkApiClient {
-  static const String _apiVersion = '5.131';
-  static const String _baseUrl = 'https://api.vk.com/method';
+part 'generated/vk_api_client.g.dart';
 
-  final String _token;
+@RestApi(baseUrl: 'https://api.vk.com/method')
+abstract class VkApiClient {
+  factory VkApiClient(Dio dio, {String baseUrl}) = _VkApiClient;
 
-  VkApiClient(this._token);
+  @GET('/audio.getById')
+  Future<VkAudioResponse> getAudioById({
+    @Query('audios') required String audios,
+    @Query('access_token') required String accessToken,
+    @Query('v') String version = '5.131',
+  });
 
-  /// Выполняет запрос к VK API
-  Future<Map<String, dynamic>> _makeApiRequest(
-    String method,
-    Map<String, String> params,
-  ) async {
-    final queryParams = {'access_token': _token, 'v': _apiVersion, ...params};
+  @GET('/audio.get')
+  Future<VkAudioResponse> getUserAudio({
+    @Query('count') int? count,
+    @Query('offset') int? offset,
+    @Query('access_token') required String accessToken,
+    @Query('v') String version = '5.131',
+  });
 
-    final uri = Uri.parse(
-      '$_baseUrl/$method',
-    ).replace(queryParameters: queryParams);
+  @GET('/audio.getPopular')
+  Future<VkAudioResponse> getPopularAudio({
+    @Query('count') int? count,
+    @Query('offset') int? offset,
+    @Query('access_token') required String accessToken,
+    @Query('v') String version = '5.131',
+  });
+}
 
-    try {
-      final response = await HttpClient()
-          .getUrl(uri)
-          .then((request) => request.close());
-      final responseBody = await response.transform(utf8.decoder).join();
+@JsonSerializable()
+class VkAudioResponse {
+  final List<VkAudioTrack> response;
 
-      if (response.statusCode != 200) {
-        throw Exception('HTTP ${response.statusCode}: $responseBody');
-      }
+  VkAudioResponse({required this.response});
 
-      final jsonData = jsonDecode(responseBody);
+  factory VkAudioResponse.fromJson(Map<String, dynamic> json) =>
+      _$VkAudioResponseFromJson(json);
 
-      if (jsonData['error'] != null) {
-        final error = jsonData['error'];
-        throw Exception(
-          'VK API Error: ${error['error_msg']} (${error['error_code']})',
-        );
-      }
+  Map<String, dynamic> toJson() => _$VkAudioResponseToJson(this);
+}
 
-      return jsonData;
-    } catch (e) {
-      if (e is Exception) {
-        rethrow;
-      }
-      throw Exception('Network error: $e');
-    }
-  }
+@JsonSerializable()
+class VkAudioTrack {
+  final int id;
+  final int ownerId;
+  final String title;
+  final String artist;
+  final int duration;
+  final String url;
+  @JsonKey(name: 'date')
+  final int date;
 
-  /// Получает информацию об аудио по ID
-  ///
-  /// [audioIds] - список ID аудио в формате "owner_id_audio_id"
-  /// [return] - информация об аудио треках
-  Future<List<Map<String, dynamic>>> getAudioById(List<String> audioIds) async {
-    if (audioIds.isEmpty) {
-      return [];
-    }
+  VkAudioTrack({
+    required this.id,
+    required this.ownerId,
+    required this.title,
+    required this.artist,
+    required this.duration,
+    required this.url,
+    required this.date,
+  });
 
-    final audiosParam = audioIds.join(',');
+  factory VkAudioTrack.fromJson(Map<String, dynamic> json) =>
+      _$VkAudioTrackFromJson(json);
 
-    final response = await _makeApiRequest('audio.getById', {
-      'audios': audiosParam,
-    });
+  Map<String, dynamic> toJson() => _$VkAudioTrackToJson(this);
+}
 
-    final items = response['response'] as List;
-    return items.cast<Map<String, dynamic>>();
-  }
+@JsonSerializable()
+class VkArtist {
+  final int id;
+  final String name;
+  final String? domain;
+  final String? photo;
 
-  /// Получает информацию об одном аудио по ID
-  Future<Map<String, dynamic>?> getSingleAudioById(String audioId) async {
-    final audios = await getAudioById([audioId]);
-    return audios.isNotEmpty ? audios.first : null;
-  }
+  VkArtist({required this.id, required this.name, this.domain, this.photo});
 
-  /// Получает аудио пользователя
-  Future<List<Map<String, dynamic>>> getUserAudio({
-    int? count,
-    int? offset,
-  }) async {
-    final response = await _makeApiRequest('audio.get', {
-      if (count != null) 'count': count.toString(),
-      if (offset != null) 'offset': offset.toString(),
-    });
+  factory VkArtist.fromJson(Map<String, dynamic> json) =>
+      _$VkArtistFromJson(json);
 
-    final items = response['response']['items'] as List;
-    return items.cast<Map<String, dynamic>>();
-  }
+  Map<String, dynamic> toJson() => _$VkArtistToJson(this);
+}
 
-  /// Получает популярные аудио
-  Future<List<Map<String, dynamic>>> getPopularAudio({
-    int? count,
-    int? offset,
-  }) async {
-    final response = await _makeApiRequest('audio.getPopular', {
-      if (count != null) 'count': count.toString(),
-      if (offset != null) 'offset': offset.toString(),
-    });
+@JsonSerializable()
+class VkError {
+  @JsonKey(name: 'error_code')
+  final int errorCode;
+  @JsonKey(name: 'error_msg')
+  final String errorMsg;
+  @JsonKey(name: 'request_params')
+  final List<VkRequestParam>? requestParams;
 
-    final items = response['response'] as List;
-    return items.cast<Map<String, dynamic>>();
-  }
+  VkError({
+    required this.errorCode,
+    required this.errorMsg,
+    this.requestParams,
+  });
+
+  factory VkError.fromJson(Map<String, dynamic> json) =>
+      _$VkErrorFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VkErrorToJson(this);
+}
+
+@JsonSerializable()
+class VkRequestParam {
+  final String key;
+  final String value;
+
+  VkRequestParam({required this.key, required this.value});
+
+  factory VkRequestParam.fromJson(Map<String, dynamic> json) =>
+      _$VkRequestParamFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VkRequestParamToJson(this);
+}
+
+@JsonSerializable()
+class VkErrorResponse {
+  final VkError error;
+
+  VkErrorResponse({required this.error});
+
+  factory VkErrorResponse.fromJson(Map<String, dynamic> json) =>
+      _$VkErrorResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VkErrorResponseToJson(this);
 }

@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:front/domain/entities/audio_track.dart';
 import 'package:front/domain/services/cache_service_interface.dart';
-import 'package:front/domain/services/enhanced_statistics_service.dart';
+import 'package:front/domain/services/statistics_service.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -14,13 +14,14 @@ part 'detailed_statistics_state.dart';
 @injectable
 class DetailedStatisticsBloc
     extends EffectBloc<DetailedStatisticsEvent, DetailedStatisticsState> {
-  DetailedStatisticsBloc(this._cacheService)
+  DetailedStatisticsBloc(this._cacheService, this._statisticsService)
     : super(const DetailedStatisticsState.initial()) {
     on<_LoadStatistics>(_onLoadStatistics);
     on<_LoadFromCache>(_onLoadFromCache);
   }
 
-  final CacheServiceInterface _cacheService;
+  final CacheService _cacheService;
+  final StatisticsService _statisticsService;
 
   Future<void> _onLoadStatistics(
     _LoadStatistics event,
@@ -29,7 +30,7 @@ class DetailedStatisticsBloc
     emit(const DetailedStatisticsState.loading());
 
     try {
-      final statistics = await EnhancedStatisticsService.getFullStatistics(
+      final statistics = await _statisticsService.getFullStatistics(
         event.tracks,
       );
       emit(DetailedStatisticsState.data(statistics: statistics));
@@ -52,7 +53,7 @@ class DetailedStatisticsBloc
         return;
       }
 
-      final statistics = await EnhancedStatisticsService.getFullStatistics(
+      final statistics = await _statisticsService.getFullStatistics(
         cachedTracks,
       );
       emit(DetailedStatisticsState.data(statistics: statistics));

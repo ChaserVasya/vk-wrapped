@@ -1,11 +1,11 @@
+import 'package:front/data/services/cache_service.dart';
 import 'package:front/domain/exceptions/app_exception.dart';
-import 'package:front/domain/services/cache_service_interface.dart';
 import 'package:injectable/injectable.dart';
 
 /// Сервис для управления VK токенами
-@injectable
+@lazySingleton
 class TokenService {
-  final CacheServiceInterface _cacheService;
+  final CacheService _cacheService;
 
   TokenService(this._cacheService);
 

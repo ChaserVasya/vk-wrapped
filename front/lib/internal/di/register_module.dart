@@ -1,10 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:front/data/services/api_client.dart';
-import 'package:front/data/services/database_client.dart';
-import 'package:front/data/services/enhanced_cache_service.dart';
-import 'package:front/data/services/vk_api_service.dart';
-import 'package:front/domain/repositories/audio_repository.dart';
-import 'package:front/domain/services/cache_service_interface.dart';
+import 'package:front/data/services/cache_service.dart';
+import 'package:front/domain/services/cache_service_interface.dart'
+    as cache_interface;
 import 'package:injectable/injectable.dart';
 
 @module
@@ -19,9 +17,5 @@ abstract class RegisterModule {
   );
 
   @lazySingleton
-  CacheServiceInterface get cacheService => EnhancedCacheService();
-
-  @lazySingleton
-  AudioRepository get audioRepository =>
-      AudioRepositoryImpl(VkApiService(DatabaseClient(apiClient)));
+  cache_interface.CacheService get cacheService => CacheService();
 }

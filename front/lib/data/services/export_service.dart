@@ -2,13 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:front/domain/entities/audio_track.dart';
+import 'package:injectable/injectable.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 /// Сервис для экспорта данных
+@lazySingleton
 class ExportService {
   /// Экспортирует данные в JSON файл
-  static Future<void> exportToJson(List<AudioTrack> tracks) async {
+  Future<void> exportToJson(List<AudioTrack> tracks) async {
     try {
       final data = {
         'exportDate': DateTime.now().toIso8601String(),
@@ -39,7 +41,7 @@ class ExportService {
   }
 
   /// Экспортирует статистику в JSON
-  static Future<void> exportStatistics(Map<String, dynamic> statistics) async {
+  Future<void> exportStatistics(Map<String, dynamic> statistics) async {
     try {
       final data = {
         'exportDate': DateTime.now().toIso8601String(),

@@ -13,14 +13,17 @@ part 'settings_state.dart';
 
 @injectable
 class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
-  final CacheServiceInterface _cacheService;
+  final CacheService _cacheService;
   final TokenService _tokenService;
+  final ExportService _exportService;
 
   SettingsBloc({
-    required CacheServiceInterface cacheService,
+    required CacheService cacheService,
     required TokenService tokenService,
+    required ExportService exportService,
   }) : _cacheService = cacheService,
        _tokenService = tokenService,
+       _exportService = exportService,
        super(const SettingsState.initial()) {
     on<_CheckTokenStatus>(_onCheckTokenStatus);
     on<_ClearToken>(_onClearToken);
@@ -99,7 +102,7 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
         return;
       }
 
-      await ExportService.exportToJson(tracks);
+      await _exportService.exportToJson(tracks);
       emitEffect(const SettingsEffect.dataExported());
     } catch (e) {
       emitEffect(SettingsEffect.error(message: e.toString()));

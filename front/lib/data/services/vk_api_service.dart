@@ -1,4 +1,6 @@
+import 'package:dio/dio.dart';
 import 'package:front/data/services/database_client.dart';
+import 'package:front/data/services/token_service.dart';
 import 'package:front/data/services/vk_api_client.dart';
 import 'package:front/domain/entities/audio_track.dart';
 import 'package:injectable/injectable.dart';
@@ -7,11 +9,13 @@ import 'package:injectable/injectable.dart';
 class VkApiService {
   VkApiClient? _client;
   final DatabaseClient _databaseClient;
+  final TokenService _tokenService;
 
-  VkApiService(this._databaseClient);
+  VkApiService(this._databaseClient, this._tokenService);
 
   void setToken(String token) {
-    _client = VkApiClient(token);
+    final dio = Dio();
+    _client = VkApiClient(dio, baseUrl: 'https://api.vk.com/method');
   }
 
   Future<List<AudioTrack>> getAudioById(List<String> audioIds) async {
@@ -19,17 +23,24 @@ class VkApiService {
       throw Exception('VK API client not initialized. Set token first.');
     }
 
-    final response = await _client!.getAudioById(audioIds);
-    return response.map((json) => AudioTrack.fromJson(json)).toList();
+    if (audioIds.isEmpty) {
+      return [];
+    }
+
+    final audiosParam = audioIds.join(',');
+    final response = await _client!.getAudioById(
+      audios: audiosParam,
+      accessToken: await _getAccessToken(),
+    );
+
+    return response.response
+        .map((vkTrack) => _convertVkTrackToAudioTrack(vkTrack))
+        .toList();
   }
 
   Future<AudioTrack?> getSingleAudioById(String audioId) async {
-    if (_client == null) {
-      throw Exception('VK API client not initialized. Set token first.');
-    }
-
-    final response = await _client!.getSingleAudioById(audioId);
-    return response != null ? AudioTrack.fromJson(response) : null;
+    final tracks = await getAudioById([audioId]);
+    return tracks.isNotEmpty ? tracks.first : null;
   }
 
   /// Получает аудио пользователя из базы данных
@@ -43,9 +54,9 @@ class VkApiService {
         final detailedTracks = <AudioTrack>[];
         for (final session in sessions) {
           try {
-            final trackDetails = await _client!.getSingleAudioById(session.id);
+            final trackDetails = await getSingleAudioById(session.id);
             if (trackDetails != null) {
-              detailedTracks.add(AudioTrack.fromJson(trackDetails));
+              detailedTracks.add(trackDetails);
             } else {
               detailedTracks.add(session);
             }
@@ -73,7 +84,30 @@ class VkApiService {
     final response = await _client!.getPopularAudio(
       count: count,
       offset: offset,
+      accessToken: await _getAccessToken(),
     );
-    return response.map((json) => AudioTrack.fromJson(json)).toList();
+
+    return response.response
+        .map((vkTrack) => _convertVkTrackToAudioTrack(vkTrack))
+        .toList();
+  }
+
+  Future<String> _getAccessToken() async {
+    final token = await _tokenService.getToken();
+    if (token == null || token.isEmpty) {
+      throw Exception('VK API token not found. Please set token first.');
+    }
+    return token;
+  }
+
+  AudioTrack _convertVkTrackToAudioTrack(VkAudioTrack vkTrack) {
+    return AudioTrack(
+      id: '${vkTrack.ownerId}_${vkTrack.id}',
+      title: vkTrack.title,
+      artist: vkTrack.artist,
+      duration: vkTrack.duration,
+      url: vkTrack.url,
+      lastPlayed: DateTime.fromMillisecondsSinceEpoch(vkTrack.date * 1000),
+    );
   }
 }
