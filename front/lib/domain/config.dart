@@ -1,3 +1,3 @@
 abstract final class Config {
-  static const String fallbackVkAppId = '52910910';
+  static const String fallbackVkAppId = '2685278'; // Kate mobile
 }

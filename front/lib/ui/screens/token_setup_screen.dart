@@ -25,8 +25,8 @@ class _Providers extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          getIt<TokenSetupBloc>()..add(const TokenSetupEvent.initial()),
+      create: (context) => getIt<TokenSetupBloc>(),
+      child: child,
     );
   }
 }
@@ -73,13 +73,6 @@ class _ViewState extends State<_View> {
     _tokenController.text = state.currentToken ?? '';
     _vkAppIdController.text = state.vkAppId;
     super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final vkAppId = context.select((TokenSetupBloc bloc) => bloc.state.vkAppId);
-    _vkAppIdController.text = vkAppId;
   }
 
   @override
@@ -162,6 +155,7 @@ class _ViewState extends State<_View> {
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           const Text(
                             'Инструкция по получению токена:',
@@ -172,7 +166,7 @@ class _ViewState extends State<_View> {
                           ),
                           const Gap(16),
                           const Text(
-                            '1. Нажмите "Получить токен" и все последующие кнопочки в браузере пока не появится текст "Пожалуйста, не копируйте данные из адресной строки"',
+                            '1. Нажмите "Получить токен" и все последующие кнопочки в браузере пока не появится текст "Пожалуйста, не копируйте данные из адресной строки ..."',
                           ),
                           const Text('2. Скопируйте данные из адресной строки'),
                           const Text('3. Вставьте их в поле ниже'),
@@ -185,11 +179,6 @@ class _ViewState extends State<_View> {
                               ),
                               icon: const Icon(Icons.link),
                               label: const Text('Получить токен'),
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                              ),
                             ),
                           ),
                         ],
@@ -205,26 +194,18 @@ class _ViewState extends State<_View> {
   }
 
   Future<void> _launchUrl(String url, BuildContext context) async {
+    print('VK TOKEN URL: $url');
     final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      if (!context.mounted) {
-        return;
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Запрещено открывать ссылки( Что-то не так с разрешениями',
-          ),
-        ),
-      );
-    }
+    final canLaunch = await canLaunchUrl(uri);
     if (!context.mounted) {
       return;
     }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Не удалось открыть ссылку: $url')));
+    if (canLaunch) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      context.showSnackBar(
+        'Запрещено открывать ссылки( Что-то не так с разрешениями',
+      );
+    }
   }
 }

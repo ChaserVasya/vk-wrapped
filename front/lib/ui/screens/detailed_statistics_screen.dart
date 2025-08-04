@@ -1,9 +1,9 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:front/domain/entities/audio_track.dart';
 import 'package:front/features/state_management/states.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
+import 'package:front/features/utils/bloc/safe_listeners.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/detailed_statistics_bloc/detailed_statistics_bloc.dart';
 import 'package:gap/gap.dart';
@@ -13,40 +13,75 @@ class DetailedStatisticsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return const _Providers(child: _Listeners(child: _View()));
+  }
+}
+
+class _Providers extends StatelessWidget {
+  const _Providers({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) {
-        final bloc = getIt<DetailedStatisticsBloc>();
-        return bloc;
-      },
-      child: EffectListener<DetailedStatisticsBloc, DetailedStatisticsEffect>(
-        listener: (context, effect) {
-          switch (effect) {
-            case DetailedStatisticsEffect$Error(message: final message):
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('Ошибка: $message')));
-          }
-        },
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Детальная статистика'),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  context.read<DetailedStatisticsBloc>().add(
-                    DetailedStatisticsEvent.loadStatistics(tracks),
-                  );
-                },
-                icon: const Icon(Icons.refresh),
-              ),
-            ],
-          ),
-          body: BlocBuilder<DetailedStatisticsBloc, DetailedStatisticsState>(
-            builder: (context, state) {
-              return _buildBody(context, state);
-            },
-          ),
+      create: (context) =>
+          getIt<DetailedStatisticsBloc>()
+            ..add(const DetailedStatisticsEvent.init()),
+      child: child,
+    );
+  }
+}
+
+class _Listeners extends StatelessWidget {
+  const _Listeners({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocListener(
+      listeners: [
+        ShowErrorSafeListener<DetailedStatisticsBloc>(),
+        EffectListener<DetailedStatisticsBloc, DetailedStatisticsEffect>(
+          listener: (context, effect) {
+            switch (effect) {
+              case DetailedStatisticsEffect$Error(message: final message):
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('Ошибка: $message')));
+            }
+          },
         ),
+      ],
+      child: child,
+    );
+  }
+}
+
+class _View extends StatelessWidget {
+  const _View();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Детальная статистика'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.read<DetailedStatisticsBloc>().add(
+                const DetailedStatisticsEvent.init(),
+              );
+            },
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
+      ),
+      body: BlocBuilder<DetailedStatisticsBloc, DetailedStatisticsState>(
+        builder: (context, state) {
+          return _buildBody(context, state);
+        },
       ),
     );
   }
@@ -60,7 +95,7 @@ class DetailedStatisticsScreen extends StatelessWidget {
           message,
           onRefresh: () {
             context.read<DetailedStatisticsBloc>().add(
-              DetailedStatisticsEvent.loadStatistics(tracks),
+              const DetailedStatisticsEvent.init(),
             );
           },
         );

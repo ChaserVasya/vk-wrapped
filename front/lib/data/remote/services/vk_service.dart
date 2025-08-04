@@ -25,8 +25,15 @@ class VkService {
   String get _token {
     final token = _prefsStorage.getToken();
     if (token == null) {
-      throw Exception('VK Token is not set');
+      throw const NoTokenException();
     }
     return token;
   }
+}
+
+class NoTokenException implements Exception {
+  const NoTokenException();
+
+  @override
+  String toString() => 'VK Token отсутствует';
 }

@@ -9,7 +9,7 @@ targets:
   $default:
     builders:
       drift_dev:
-        generate_for: [ '**/drift/**' ]
+        generate_for: [ 'lib/**' ]
       mockito|mockBuilder:
         options:
           format: true

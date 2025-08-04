@@ -105,7 +105,7 @@ class _$CommonStateDataCopyWithImpl<T, $Res>
 class CommonStateError<T> extends CommonStates<T> {
   const CommonStateError(this.e) : super._();
 
-  final AppException? e;
+  final AppException e;
 
   /// Create a copy of CommonStates
   /// with the given fields replaced by the non-null parameter values.
@@ -139,7 +139,7 @@ abstract mixin class $CommonStateErrorCopyWith<T, $Res>
     $Res Function(CommonStateError<T>) _then,
   ) = _$CommonStateErrorCopyWithImpl;
   @useResult
-  $Res call({AppException? e});
+  $Res call({AppException e});
 }
 
 /// @nodoc
@@ -153,13 +153,13 @@ class _$CommonStateErrorCopyWithImpl<T, $Res>
   /// Create a copy of CommonStates
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
-  $Res call({Object? e = freezed}) {
+  $Res call({Object? e = null}) {
     return _then(
       CommonStateError<T>(
-        freezed == e
+        null == e
             ? _self.e
             : e // ignore: cast_nullable_to_non_nullable
-                  as AppException?,
+                  as AppException,
       ),
     );
   }

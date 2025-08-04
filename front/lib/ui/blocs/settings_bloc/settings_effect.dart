@@ -7,8 +7,6 @@ sealed class SettingsEffect with _$SettingsEffect {
   const factory SettingsEffect.cacheCleared() = SettingsEffect$CacheCleared;
   const factory SettingsEffect.dataExported() = SettingsEffect$DataExported;
   const factory SettingsEffect.noDataToExport() = SettingsEffect$NoDataToExport;
-  const factory SettingsEffect.showTokenDialog({required bool hasToken}) =
-      SettingsEffect$ShowTokenDialog;
   const factory SettingsEffect.error({required String message}) =
       SettingsEffect$Error;
 }

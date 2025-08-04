@@ -6,6 +6,37 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return const _Providers(child: _Listeners(child: _View()));
+  }
+}
+
+class _Providers extends StatelessWidget {
+  const _Providers({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return child;
+  }
+}
+
+class _Listeners extends StatelessWidget {
+  const _Listeners({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return child;
+  }
+}
+
+class _View extends StatelessWidget {
+  const _View();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('VK Wrapped'),
@@ -43,6 +74,20 @@ class HomeScreen extends StatelessWidget {
               },
               icon: const Icon(Icons.analytics),
               label: const Text('Посмотреть статистику'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+            ),
+            const Gap(16),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(context).pushNamed('/tracks');
+              },
+              icon: const Icon(Icons.list),
+              label: const Text('Список треков'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,

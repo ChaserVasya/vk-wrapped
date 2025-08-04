@@ -8,7 +8,7 @@ sealed class CommonStates<T> with _$CommonStates<T> {
   const CommonStates._();
 
   const factory CommonStates.data(T data) = CommonStateData<T>;
-  const factory CommonStates.error(AppException? e) = CommonStateError;
+  const factory CommonStates.error(AppException e) = CommonStateError;
   const factory CommonStates.loading() = CommonStateLoading<T>;
 
   T? get dataOrNull {

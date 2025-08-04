@@ -35,8 +35,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const HomeScreen(),
         '/statistics': (context) => const StatisticsScreen(),
         '/settings': (context) => const SettingsScreen(),
-        '/detailed-statistics': (context) =>
-            const DetailedStatisticsScreen(tracks: []),
+        '/detailed-statistics': (context) => const DetailedStatisticsScreen(),
       },
     );
   }
