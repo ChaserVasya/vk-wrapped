@@ -39,14 +39,13 @@ class $TokenSetupEffectCopyWith<$Res> {
 
 /// @nodoc
 
-class TokenSetupEffect$TokenSaved implements TokenSetupEffect {
-  const TokenSetupEffect$TokenSaved();
+class TokenSetupEffect$Finish implements TokenSetupEffect {
+  const TokenSetupEffect$Finish();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is TokenSetupEffect$TokenSaved);
+        (other.runtimeType == runtimeType && other is TokenSetupEffect$Finish);
   }
 
   @override
@@ -54,211 +53,7 @@ class TokenSetupEffect$TokenSaved implements TokenSetupEffect {
 
   @override
   String toString() {
-    return 'TokenSetupEffect.tokenSaved()';
-  }
-}
-
-/// @nodoc
-
-class TokenSetupEffect$ValidationError implements TokenSetupEffect {
-  const TokenSetupEffect$ValidationError({required this.message});
-
-  final String message;
-
-  /// Create a copy of TokenSetupEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $TokenSetupEffect$ValidationErrorCopyWith<TokenSetupEffect$ValidationError>
-  get copyWith =>
-      _$TokenSetupEffect$ValidationErrorCopyWithImpl<
-        TokenSetupEffect$ValidationError
-      >(this, _$identity);
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is TokenSetupEffect$ValidationError &&
-            (identical(other.message, message) || other.message == message));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, message);
-
-  @override
-  String toString() {
-    return 'TokenSetupEffect.validationError(message: $message)';
-  }
-}
-
-/// @nodoc
-abstract mixin class $TokenSetupEffect$ValidationErrorCopyWith<$Res>
-    implements $TokenSetupEffectCopyWith<$Res> {
-  factory $TokenSetupEffect$ValidationErrorCopyWith(
-    TokenSetupEffect$ValidationError value,
-    $Res Function(TokenSetupEffect$ValidationError) _then,
-  ) = _$TokenSetupEffect$ValidationErrorCopyWithImpl;
-  @useResult
-  $Res call({String message});
-}
-
-/// @nodoc
-class _$TokenSetupEffect$ValidationErrorCopyWithImpl<$Res>
-    implements $TokenSetupEffect$ValidationErrorCopyWith<$Res> {
-  _$TokenSetupEffect$ValidationErrorCopyWithImpl(this._self, this._then);
-
-  final TokenSetupEffect$ValidationError _self;
-  final $Res Function(TokenSetupEffect$ValidationError) _then;
-
-  /// Create a copy of TokenSetupEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({Object? message = null}) {
-    return _then(
-      TokenSetupEffect$ValidationError(
-        message: null == message
-            ? _self.message
-            : message // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class TokenSetupEffect$Error implements TokenSetupEffect {
-  const TokenSetupEffect$Error({required this.message});
-
-  final String message;
-
-  /// Create a copy of TokenSetupEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $TokenSetupEffect$ErrorCopyWith<TokenSetupEffect$Error> get copyWith =>
-      _$TokenSetupEffect$ErrorCopyWithImpl<TokenSetupEffect$Error>(
-        this,
-        _$identity,
-      );
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is TokenSetupEffect$Error &&
-            (identical(other.message, message) || other.message == message));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, message);
-
-  @override
-  String toString() {
-    return 'TokenSetupEffect.error(message: $message)';
-  }
-}
-
-/// @nodoc
-abstract mixin class $TokenSetupEffect$ErrorCopyWith<$Res>
-    implements $TokenSetupEffectCopyWith<$Res> {
-  factory $TokenSetupEffect$ErrorCopyWith(
-    TokenSetupEffect$Error value,
-    $Res Function(TokenSetupEffect$Error) _then,
-  ) = _$TokenSetupEffect$ErrorCopyWithImpl;
-  @useResult
-  $Res call({String message});
-}
-
-/// @nodoc
-class _$TokenSetupEffect$ErrorCopyWithImpl<$Res>
-    implements $TokenSetupEffect$ErrorCopyWith<$Res> {
-  _$TokenSetupEffect$ErrorCopyWithImpl(this._self, this._then);
-
-  final TokenSetupEffect$Error _self;
-  final $Res Function(TokenSetupEffect$Error) _then;
-
-  /// Create a copy of TokenSetupEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({Object? message = null}) {
-    return _then(
-      TokenSetupEffect$Error(
-        message: null == message
-            ? _self.message
-            : message // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class TokenSetupEffect$OpenUrl implements TokenSetupEffect {
-  const TokenSetupEffect$OpenUrl({required this.url});
-
-  final String url;
-
-  /// Create a copy of TokenSetupEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $TokenSetupEffect$OpenUrlCopyWith<TokenSetupEffect$OpenUrl> get copyWith =>
-      _$TokenSetupEffect$OpenUrlCopyWithImpl<TokenSetupEffect$OpenUrl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is TokenSetupEffect$OpenUrl &&
-            (identical(other.url, url) || other.url == url));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, url);
-
-  @override
-  String toString() {
-    return 'TokenSetupEffect.openUrl(url: $url)';
-  }
-}
-
-/// @nodoc
-abstract mixin class $TokenSetupEffect$OpenUrlCopyWith<$Res>
-    implements $TokenSetupEffectCopyWith<$Res> {
-  factory $TokenSetupEffect$OpenUrlCopyWith(
-    TokenSetupEffect$OpenUrl value,
-    $Res Function(TokenSetupEffect$OpenUrl) _then,
-  ) = _$TokenSetupEffect$OpenUrlCopyWithImpl;
-  @useResult
-  $Res call({String url});
-}
-
-/// @nodoc
-class _$TokenSetupEffect$OpenUrlCopyWithImpl<$Res>
-    implements $TokenSetupEffect$OpenUrlCopyWith<$Res> {
-  _$TokenSetupEffect$OpenUrlCopyWithImpl(this._self, this._then);
-
-  final TokenSetupEffect$OpenUrl _self;
-  final $Res Function(TokenSetupEffect$OpenUrl) _then;
-
-  /// Create a copy of TokenSetupEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({Object? url = null}) {
-    return _then(
-      TokenSetupEffect$OpenUrl(
-        url: null == url
-            ? _self.url
-            : url // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
+    return 'TokenSetupEffect.finish()';
   }
 }
 
@@ -289,13 +84,13 @@ class $TokenSetupEventCopyWith<$Res> {
 
 /// @nodoc
 
-class _LoadCurrentData implements TokenSetupEvent {
-  const _LoadCurrentData();
+class _Initial implements TokenSetupEvent {
+  const _Initial();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _LoadCurrentData);
+        (other.runtimeType == runtimeType && other is _Initial);
   }
 
   @override
@@ -303,75 +98,72 @@ class _LoadCurrentData implements TokenSetupEvent {
 
   @override
   String toString() {
-    return 'TokenSetupEvent.loadCurrentData()';
+    return 'TokenSetupEvent.initial()';
   }
 }
 
 /// @nodoc
 
-class _SaveToken implements TokenSetupEvent {
-  const _SaveToken({required this.token, required this.clientId});
+class _VkTokenResponseProvided implements TokenSetupEvent {
+  const _VkTokenResponseProvided(this.url);
 
-  final String token;
-  final String clientId;
+  final String url;
 
   /// Create a copy of TokenSetupEvent
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$SaveTokenCopyWith<_SaveToken> get copyWith =>
-      __$SaveTokenCopyWithImpl<_SaveToken>(this, _$identity);
+  _$VkTokenResponseProvidedCopyWith<_VkTokenResponseProvided> get copyWith =>
+      __$VkTokenResponseProvidedCopyWithImpl<_VkTokenResponseProvided>(
+        this,
+        _$identity,
+      );
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _SaveToken &&
-            (identical(other.token, token) || other.token == token) &&
-            (identical(other.clientId, clientId) ||
-                other.clientId == clientId));
+            other is _VkTokenResponseProvided &&
+            (identical(other.url, url) || other.url == url));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, token, clientId);
+  int get hashCode => Object.hash(runtimeType, url);
 
   @override
   String toString() {
-    return 'TokenSetupEvent.saveToken(token: $token, clientId: $clientId)';
+    return 'TokenSetupEvent.vkTokenResponseProvided(url: $url)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$SaveTokenCopyWith<$Res>
+abstract mixin class _$VkTokenResponseProvidedCopyWith<$Res>
     implements $TokenSetupEventCopyWith<$Res> {
-  factory _$SaveTokenCopyWith(
-    _SaveToken value,
-    $Res Function(_SaveToken) _then,
-  ) = __$SaveTokenCopyWithImpl;
+  factory _$VkTokenResponseProvidedCopyWith(
+    _VkTokenResponseProvided value,
+    $Res Function(_VkTokenResponseProvided) _then,
+  ) = __$VkTokenResponseProvidedCopyWithImpl;
   @useResult
-  $Res call({String token, String clientId});
+  $Res call({String url});
 }
 
 /// @nodoc
-class __$SaveTokenCopyWithImpl<$Res> implements _$SaveTokenCopyWith<$Res> {
-  __$SaveTokenCopyWithImpl(this._self, this._then);
+class __$VkTokenResponseProvidedCopyWithImpl<$Res>
+    implements _$VkTokenResponseProvidedCopyWith<$Res> {
+  __$VkTokenResponseProvidedCopyWithImpl(this._self, this._then);
 
-  final _SaveToken _self;
-  final $Res Function(_SaveToken) _then;
+  final _VkTokenResponseProvided _self;
+  final $Res Function(_VkTokenResponseProvided) _then;
 
   /// Create a copy of TokenSetupEvent
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
-  $Res call({Object? token = null, Object? clientId = null}) {
+  $Res call({Object? url = null}) {
     return _then(
-      _SaveToken(
-        token: null == token
-            ? _self.token
-            : token // ignore: cast_nullable_to_non_nullable
-                  as String,
-        clientId: null == clientId
-            ? _self.clientId
-            : clientId // ignore: cast_nullable_to_non_nullable
+      _VkTokenResponseProvided(
+        null == url
+            ? _self.url
+            : url // ignore: cast_nullable_to_non_nullable
                   as String,
       ),
     );
@@ -380,106 +172,150 @@ class __$SaveTokenCopyWithImpl<$Res> implements _$SaveTokenCopyWith<$Res> {
 
 /// @nodoc
 
-class _OpenTokenUrl implements TokenSetupEvent {
-  const _OpenTokenUrl();
+class _VkAppIdSaved implements TokenSetupEvent {
+  const _VkAppIdSaved(this.vkAppId);
+
+  final String vkAppId;
+
+  /// Create a copy of TokenSetupEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$VkAppIdSavedCopyWith<_VkAppIdSaved> get copyWith =>
+      __$VkAppIdSavedCopyWithImpl<_VkAppIdSaved>(this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _OpenTokenUrl);
+        (other.runtimeType == runtimeType &&
+            other is _VkAppIdSaved &&
+            (identical(other.vkAppId, vkAppId) || other.vkAppId == vkAppId));
   }
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  int get hashCode => Object.hash(runtimeType, vkAppId);
 
   @override
   String toString() {
-    return 'TokenSetupEvent.openTokenUrl()';
+    return 'TokenSetupEvent.vkAppIdSaved(vkAppId: $vkAppId)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$VkAppIdSavedCopyWith<$Res>
+    implements $TokenSetupEventCopyWith<$Res> {
+  factory _$VkAppIdSavedCopyWith(
+    _VkAppIdSaved value,
+    $Res Function(_VkAppIdSaved) _then,
+  ) = __$VkAppIdSavedCopyWithImpl;
+  @useResult
+  $Res call({String vkAppId});
+}
+
+/// @nodoc
+class __$VkAppIdSavedCopyWithImpl<$Res>
+    implements _$VkAppIdSavedCopyWith<$Res> {
+  __$VkAppIdSavedCopyWithImpl(this._self, this._then);
+
+  final _VkAppIdSaved _self;
+  final $Res Function(_VkAppIdSaved) _then;
+
+  /// Create a copy of TokenSetupEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  $Res call({Object? vkAppId = null}) {
+    return _then(
+      _VkAppIdSaved(
+        null == vkAppId
+            ? _self.vkAppId
+            : vkAppId // ignore: cast_nullable_to_non_nullable
+                  as String,
+      ),
+    );
   }
 }
 
 /// @nodoc
 mixin _$TokenSetupState {
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is TokenSetupState);
-  }
+  String get vkAppId;
+  String? get currentToken;
+  String? get tokenGenerationUrl;
 
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'TokenSetupState()';
-  }
-}
-
-/// @nodoc
-class $TokenSetupStateCopyWith<$Res> {
-  $TokenSetupStateCopyWith(
-    TokenSetupState _,
-    $Res Function(TokenSetupState) __,
-  );
-}
-
-/// @nodoc
-
-class TokenSetupState$Initial implements TokenSetupState {
-  const TokenSetupState$Initial();
+  /// Create a copy of TokenSetupState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  $TokenSetupStateCopyWith<TokenSetupState> get copyWith =>
+      _$TokenSetupStateCopyWithImpl<TokenSetupState>(
+        this as TokenSetupState,
+        _$identity,
+      );
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is TokenSetupState$Initial);
+        (other.runtimeType == runtimeType &&
+            other is TokenSetupState &&
+            (identical(other.vkAppId, vkAppId) || other.vkAppId == vkAppId) &&
+            (identical(other.currentToken, currentToken) ||
+                other.currentToken == currentToken) &&
+            (identical(other.tokenGenerationUrl, tokenGenerationUrl) ||
+                other.tokenGenerationUrl == tokenGenerationUrl));
   }
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  int get hashCode =>
+      Object.hash(runtimeType, vkAppId, currentToken, tokenGenerationUrl);
 
   @override
   String toString() {
-    return 'TokenSetupState.initial()';
+    return 'TokenSetupState(vkAppId: $vkAppId, currentToken: $currentToken, tokenGenerationUrl: $tokenGenerationUrl)';
   }
 }
 
 /// @nodoc
-
-class TokenSetupState$Loading implements TokenSetupState {
-  const TokenSetupState$Loading();
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is TokenSetupState$Loading);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'TokenSetupState.loading()';
-  }
+abstract mixin class $TokenSetupStateCopyWith<$Res> {
+  factory $TokenSetupStateCopyWith(
+    TokenSetupState value,
+    $Res Function(TokenSetupState) _then,
+  ) = _$TokenSetupStateCopyWithImpl;
+  @useResult
+  $Res call({String vkAppId, String? currentToken, String? tokenGenerationUrl});
 }
 
 /// @nodoc
+class _$TokenSetupStateCopyWithImpl<$Res>
+    implements $TokenSetupStateCopyWith<$Res> {
+  _$TokenSetupStateCopyWithImpl(this._self, this._then);
 
-class TokenSetupState$Saving implements TokenSetupState {
-  const TokenSetupState$Saving();
+  final TokenSetupState _self;
+  final $Res Function(TokenSetupState) _then;
 
+  /// Create a copy of TokenSetupState
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
   @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is TokenSetupState$Saving);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'TokenSetupState.saving()';
+  $Res call({
+    Object? vkAppId = null,
+    Object? currentToken = freezed,
+    Object? tokenGenerationUrl = freezed,
+  }) {
+    return _then(
+      _self.copyWith(
+        vkAppId: null == vkAppId
+            ? _self.vkAppId
+            : vkAppId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        currentToken: freezed == currentToken
+            ? _self.currentToken
+            : currentToken // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        tokenGenerationUrl: freezed == tokenGenerationUrl
+            ? _self.tokenGenerationUrl
+            : tokenGenerationUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
+      ),
+    );
   }
 }
 
@@ -487,15 +323,21 @@ class TokenSetupState$Saving implements TokenSetupState {
 
 class TokenSetupState$DataLoaded implements TokenSetupState {
   const TokenSetupState$DataLoaded({
+    required this.vkAppId,
     required this.currentToken,
-    required this.currentClientId,
+    required this.tokenGenerationUrl,
   });
 
+  @override
+  final String vkAppId;
+  @override
   final String? currentToken;
-  final String currentClientId;
+  @override
+  final String? tokenGenerationUrl;
 
   /// Create a copy of TokenSetupState
   /// with the given fields replaced by the non-null parameter values.
+  @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
   $TokenSetupState$DataLoadedCopyWith<TokenSetupState$DataLoaded>
@@ -510,18 +352,20 @@ class TokenSetupState$DataLoaded implements TokenSetupState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is TokenSetupState$DataLoaded &&
+            (identical(other.vkAppId, vkAppId) || other.vkAppId == vkAppId) &&
             (identical(other.currentToken, currentToken) ||
                 other.currentToken == currentToken) &&
-            (identical(other.currentClientId, currentClientId) ||
-                other.currentClientId == currentClientId));
+            (identical(other.tokenGenerationUrl, tokenGenerationUrl) ||
+                other.tokenGenerationUrl == tokenGenerationUrl));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, currentToken, currentClientId);
+  int get hashCode =>
+      Object.hash(runtimeType, vkAppId, currentToken, tokenGenerationUrl);
 
   @override
   String toString() {
-    return 'TokenSetupState.dataLoaded(currentToken: $currentToken, currentClientId: $currentClientId)';
+    return 'TokenSetupState(vkAppId: $vkAppId, currentToken: $currentToken, tokenGenerationUrl: $tokenGenerationUrl)';
   }
 }
 
@@ -532,8 +376,9 @@ abstract mixin class $TokenSetupState$DataLoadedCopyWith<$Res>
     TokenSetupState$DataLoaded value,
     $Res Function(TokenSetupState$DataLoaded) _then,
   ) = _$TokenSetupState$DataLoadedCopyWithImpl;
+  @override
   @useResult
-  $Res call({String? currentToken, String currentClientId});
+  $Res call({String vkAppId, String? currentToken, String? tokenGenerationUrl});
 }
 
 /// @nodoc
@@ -546,18 +391,27 @@ class _$TokenSetupState$DataLoadedCopyWithImpl<$Res>
 
   /// Create a copy of TokenSetupState
   /// with the given fields replaced by the non-null parameter values.
+  @override
   @pragma('vm:prefer-inline')
-  $Res call({Object? currentToken = freezed, Object? currentClientId = null}) {
+  $Res call({
+    Object? vkAppId = null,
+    Object? currentToken = freezed,
+    Object? tokenGenerationUrl = freezed,
+  }) {
     return _then(
       TokenSetupState$DataLoaded(
+        vkAppId: null == vkAppId
+            ? _self.vkAppId
+            : vkAppId // ignore: cast_nullable_to_non_nullable
+                  as String,
         currentToken: freezed == currentToken
             ? _self.currentToken
             : currentToken // ignore: cast_nullable_to_non_nullable
                   as String?,
-        currentClientId: null == currentClientId
-            ? _self.currentClientId
-            : currentClientId // ignore: cast_nullable_to_non_nullable
-                  as String,
+        tokenGenerationUrl: freezed == tokenGenerationUrl
+            ? _self.tokenGenerationUrl
+            : tokenGenerationUrl // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }

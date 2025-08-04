@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/domain/entities/audio_track.dart';
@@ -5,24 +6,16 @@ import 'package:front/features/state_management/states.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/detailed_statistics_bloc/detailed_statistics_bloc.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:gap/gap.dart';
 
 class DetailedStatisticsScreen extends StatelessWidget {
-  final IList<AudioTrack> tracks;
-
-  const DetailedStatisticsScreen({super.key, required this.tracks});
+  const DetailedStatisticsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) {
         final bloc = getIt<DetailedStatisticsBloc>();
-        if (tracks.isNotEmpty) {
-          bloc.add(DetailedStatisticsEvent.loadStatistics(tracks));
-        } else {
-          // Если треки не переданы, загружаем из кэша
-          bloc.add(const DetailedStatisticsEvent.loadFromCache());
-        }
         return bloc;
       },
       child: EffectListener<DetailedStatisticsBloc, DetailedStatisticsEffect>(
@@ -78,13 +71,13 @@ class DetailedStatisticsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildOverallSection(statistics),
-              const SizedBox(height: 24),
+              const Gap(24),
               _buildFavoriteTracksSection(statistics),
-              const SizedBox(height: 24),
+              const Gap(24),
               _buildArtistSection(statistics),
-              const SizedBox(height: 24),
+              const Gap(24),
               _buildGenreSection(statistics),
-              const SizedBox(height: 24),
+              const Gap(24),
               _buildTimeSection(statistics),
             ],
           ),
@@ -107,7 +100,7 @@ class DetailedStatisticsScreen extends StatelessWidget {
               'Общая статистика',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            const Gap(16),
             _buildStatRow('Всего треков', overall['totalTracks'].toString()),
             _buildStatRow(
               'Общая длительность',
@@ -148,7 +141,7 @@ class DetailedStatisticsScreen extends StatelessWidget {
               'Любимые треки',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            const Gap(16),
             ...favoriteTracks.asMap().entries.map((entry) {
               final index = entry.key;
               final track = entry.value as IMap<String, dynamic>;
@@ -178,7 +171,7 @@ class DetailedStatisticsScreen extends StatelessWidget {
               'Топ артистов',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            const Gap(16),
             ...artists.entries.take(10).map((entry) {
               return ListTile(
                 title: Text(entry.key),
@@ -204,7 +197,7 @@ class DetailedStatisticsScreen extends StatelessWidget {
               'Жанры',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            const Gap(16),
             ...genres.entries.map((entry) {
               return ListTile(
                 title: Text(entry.key),
@@ -230,7 +223,7 @@ class DetailedStatisticsScreen extends StatelessWidget {
               'Время прослушивания',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
+            const Gap(16),
             ...timeSlots.entries.map((entry) {
               return ListTile(
                 title: Text(entry.key),

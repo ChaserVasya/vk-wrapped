@@ -1,8 +1,11 @@
 import 'package:dio/dio.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'generated/vk_api_client.g.dart';
+part 'generated/vk_api_client.freezed.dart';
 
 @RestApi(baseUrl: 'https://api.vk.com/method')
 abstract class VkApiClient {
@@ -14,27 +17,11 @@ abstract class VkApiClient {
     @Query('access_token') required String accessToken,
     @Query('v') String version = '5.131',
   });
-
-  @GET('/audio.get')
-  Future<VkAudioResponse> getUserAudio({
-    @Query('count') int? count,
-    @Query('offset') int? offset,
-    @Query('access_token') required String accessToken,
-    @Query('v') String version = '5.131',
-  });
-
-  @GET('/audio.getPopular')
-  Future<VkAudioResponse> getPopularAudio({
-    @Query('count') int? count,
-    @Query('offset') int? offset,
-    @Query('access_token') required String accessToken,
-    @Query('v') String version = '5.131',
-  });
 }
 
 @JsonSerializable()
 class VkAudioResponse {
-  final List<VkAudioTrack> response;
+  final IList<VkAudioTrack> response;
 
   VkAudioResponse({required this.response});
 
@@ -44,16 +31,24 @@ class VkAudioResponse {
   Map<String, dynamic> toJson() => _$VkAudioResponseToJson(this);
 }
 
+@freezed
 @JsonSerializable()
-class VkAudioTrack {
+class VkAudioTrack with _$VkAudioTrack {
+  /// Used for search by vk api
+  String get fullId => '${ownerId}_$id';
+
+  @override
   final int id;
+  @override
   final int ownerId;
+  @override
   final String title;
+  @override
   final String artist;
+  @override
   final int duration;
+  @override
   final String url;
-  @JsonKey(name: 'date')
-  final int date;
 
   VkAudioTrack({
     required this.id,
@@ -62,7 +57,6 @@ class VkAudioTrack {
     required this.artist,
     required this.duration,
     required this.url,
-    required this.date,
   });
 
   factory VkAudioTrack.fromJson(Map<String, dynamic> json) =>

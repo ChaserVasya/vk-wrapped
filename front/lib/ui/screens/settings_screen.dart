@@ -4,8 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/settings_bloc/settings_bloc.dart';
-import 'package:front/ui/widgets/loading_widget.dart';
 import 'package:front/ui/screens/token_setup_screen.dart';
+import 'package:front/ui/widgets/loading_widget.dart';
+import 'package:gap/gap.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -34,7 +35,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: TextStyle(color: hasToken ? Colors.green : Colors.red),
             ),
             if (hasToken) ...[
-              const SizedBox(height: 8),
+              const Gap(8),
               const Text(
                 'Токен сохранен в приложении',
                 style: TextStyle(fontSize: 12, color: Colors.grey),
@@ -46,7 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return const Row(
           children: [
             SizedBox(width: 16, height: 16, child: LoadingWidget()),
-            SizedBox(width: 8),
+            Gap(8),
             Text('Проверка токена...'),
           ],
         );
@@ -66,7 +67,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return const Row(
           children: [
             SizedBox(width: 16, height: 16, child: LoadingWidget()),
-            SizedBox(width: 8),
+            Gap(8),
             Text('Очистка кэша...'),
           ],
         );
@@ -89,10 +90,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               'Текущие настройки:',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
+            const Gap(8),
             Text('Client ID: $clientId', style: const TextStyle(fontSize: 12)),
             if (hasToken && currentToken != null) ...[
-              const SizedBox(height: 4),
+              const Gap(4),
               Row(
                 children: [
                   Expanded(
@@ -121,7 +122,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return const Row(
           children: [
             SizedBox(width: 16, height: 16, child: LoadingWidget()),
-            SizedBox(width: 8),
+            Gap(8),
             Text('Загрузка данных...'),
           ],
         );
@@ -184,11 +185,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const Gap(8),
                             _buildTokenStatus(state),
-                            const SizedBox(height: 8),
+                            const Gap(8),
                             _buildCurrentData(state),
-                            const SizedBox(height: 16),
+                            const Gap(16),
                             Row(
                               children: [
                                 Expanded(
@@ -203,7 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     child: const Text('Проверить статус'),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                const Gap(8),
                                 Expanded(
                                   child: ElevatedButton(
                                     onPressed: state is SettingsState$Loading
@@ -222,7 +223,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
+                            const Gap(8),
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
@@ -247,7 +248,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const Gap(16),
 
                     // Секция кэша
                     Card(
@@ -263,12 +264,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const Gap(8),
                             const Text(
                               'Кэшированные данные включают:',
                               style: TextStyle(fontSize: 14),
                             ),
-                            const SizedBox(height: 4),
+                            const Gap(4),
                             const Text(
                               '• Список треков',
                               style: TextStyle(
@@ -290,9 +291,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 color: Colors.grey,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const Gap(8),
                             _buildCacheStatus(state),
-                            const SizedBox(height: 16),
+                            const Gap(16),
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
@@ -312,7 +313,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const Gap(16),
 
                     // Секция экспорта
                     Card(
@@ -328,12 +329,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(height: 8),
+                            const Gap(8),
                             const Text(
                               'Экспортируйте ваши данные в JSON файл для анализа или резервного копирования.',
                               style: TextStyle(fontSize: 14),
                             ),
-                            const SizedBox(height: 8),
+                            const Gap(8),
                             const Text(
                               'Экспортируемые данные:',
                               style: TextStyle(
@@ -362,7 +363,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 color: Colors.grey,
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const Gap(16),
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
@@ -410,7 +411,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             if (!hasToken) ...[
               const Text('Введите токен VK API:'),
-              const SizedBox(height: 8),
+              const Gap(8),
               TextField(
                 controller: _tokenController,
                 decoration: const InputDecoration(
@@ -420,9 +421,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ] else ...[
               const Text('Токен уже сохранен.'),
-              const SizedBox(height: 8),
+              const Gap(8),
               const Text('Хотите заменить его?'),
-              const SizedBox(height: 8),
+              const Gap(8),
               TextField(
                 controller: _tokenController,
                 decoration: const InputDecoration(

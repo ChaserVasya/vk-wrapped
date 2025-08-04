@@ -8,13 +8,14 @@ part of '../vk_api_client.dart';
 
 VkAudioResponse _$VkAudioResponseFromJson(Map<String, dynamic> json) =>
     VkAudioResponse(
-      response: (json['response'] as List<dynamic>)
-          .map((e) => VkAudioTrack.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      response: IList<VkAudioTrack>.fromJson(
+        json['response'],
+        (value) => VkAudioTrack.fromJson(value as Map<String, dynamic>),
+      ),
     );
 
 Map<String, dynamic> _$VkAudioResponseToJson(VkAudioResponse instance) =>
-    <String, dynamic>{'response': instance.response};
+    <String, dynamic>{'response': instance.response.toJson((value) => value)};
 
 VkAudioTrack _$VkAudioTrackFromJson(Map<String, dynamic> json) => VkAudioTrack(
   id: (json['id'] as num).toInt(),
@@ -23,7 +24,6 @@ VkAudioTrack _$VkAudioTrackFromJson(Map<String, dynamic> json) => VkAudioTrack(
   artist: json['artist'] as String,
   duration: (json['duration'] as num).toInt(),
   url: json['url'] as String,
-  date: (json['date'] as num).toInt(),
 );
 
 Map<String, dynamic> _$VkAudioTrackToJson(VkAudioTrack instance) =>
@@ -34,7 +34,6 @@ Map<String, dynamic> _$VkAudioTrackToJson(VkAudioTrack instance) =>
       'artist': instance.artist,
       'duration': instance.duration,
       'url': instance.url,
-      'date': instance.date,
     };
 
 VkArtist _$VkArtistFromJson(Map<String, dynamic> json) => VkArtist(
@@ -115,82 +114,6 @@ class _VkApiClient implements VkApiClient {
           .compose(
             _dio.options,
             '/audio.getById',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late VkAudioResponse _value;
-    try {
-      _value = VkAudioResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<VkAudioResponse> getUserAudio({
-    int? count,
-    int? offset,
-    required String accessToken,
-    String version = '5.131',
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'count': count,
-      r'offset': offset,
-      r'access_token': accessToken,
-      r'v': version,
-    };
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<VkAudioResponse>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/audio.get',
-            queryParameters: queryParameters,
-            data: _data,
-          )
-          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
-    );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late VkAudioResponse _value;
-    try {
-      _value = VkAudioResponse.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
-  }
-
-  @override
-  Future<VkAudioResponse> getPopularAudio({
-    int? count,
-    int? offset,
-    required String accessToken,
-    String version = '5.131',
-  }) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'count': count,
-      r'offset': offset,
-      r'access_token': accessToken,
-      r'v': version,
-    };
-    queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<VkAudioResponse>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
-          .compose(
-            _dio.options,
-            '/audio.getPopular',
             queryParameters: queryParameters,
             data: _data,
           )

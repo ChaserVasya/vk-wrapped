@@ -2,10 +2,8 @@ part of 'token_setup_bloc.dart';
 
 @freezed
 sealed class TokenSetupEvent with _$TokenSetupEvent {
-  const factory TokenSetupEvent.loadCurrentData() = _LoadCurrentData;
-  const factory TokenSetupEvent.saveToken({
-    required String token,
-    required String clientId,
-  }) = _SaveToken;
-  const factory TokenSetupEvent.openTokenUrl() = _OpenTokenUrl;
-} 
+  const factory TokenSetupEvent.initial() = _Initial;
+  const factory TokenSetupEvent.vkTokenResponseProvided(String url) =
+      _VkTokenResponseProvided;
+  const factory TokenSetupEvent.vkAppIdSaved(String vkAppId) = _VkAppIdSaved;
+}

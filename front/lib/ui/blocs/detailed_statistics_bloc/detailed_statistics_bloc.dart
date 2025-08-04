@@ -1,7 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:front/data/services/cache_service.dart';
+import 'package:front/data/local/prefs_storage.dart';
 import 'package:front/domain/entities/audio_track.dart';
 import 'package:front/domain/services/statistics_service.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
@@ -17,22 +17,19 @@ class DetailedStatisticsBloc
     extends EffectBloc<DetailedStatisticsEvent, DetailedStatisticsState> {
   DetailedStatisticsBloc(this._cacheService, this._statisticsService)
     : super(const DetailedStatisticsState.initial()) {
-    on<_LoadStatistics>(_onLoadStatistics);
-    on<_LoadFromCache>(_onLoadFromCache);
+    on<_Init>(_onInit);
   }
 
-  final CacheService _cacheService;
+  final PrefsStorage _cacheService;
   final StatisticsService _statisticsService;
 
-  Future<void> _onLoadStatistics(
-    _LoadStatistics event,
+  Future<void> _onInit(
+    _Init event,
     Emitter<DetailedStatisticsState> emit,
   ) async {
     emit(const DetailedStatisticsState.loading());
     try {
-      final statistics = await _statisticsService.getFullStatistics(
-        event.tracks,
-      );
+      final statistics = await _statisticsService.getFullStatistics();
       emit(DetailedStatisticsState.data(statistics: statistics));
     } catch (e) {
       emit(DetailedStatisticsState.error(message: e.toString()));

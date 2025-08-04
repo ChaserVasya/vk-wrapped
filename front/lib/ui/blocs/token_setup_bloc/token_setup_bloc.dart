@@ -1,7 +1,11 @@
+import 'dart:async';
+
+import 'package:dartx/dartx.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:front/data/services/token_generator.dart';
-import 'package:front/data/services/token_service.dart';
+import 'package:front/domain/config.dart';
+import 'package:front/domain/services/token_generator.dart';
+import 'package:front/domain/storages/auth_storage.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -12,80 +16,68 @@ part 'token_setup_state.dart';
 
 @injectable
 class TokenSetupBloc extends EffectBloc<TokenSetupEvent, TokenSetupState> {
-  final TokenService _tokenService;
+  final AuthStorage _authStorage;
   final TokenGenerator _tokenGenerator;
 
-  TokenSetupBloc({
-    required TokenService tokenService,
-    required TokenGenerator tokenGenerator,
-  }) : _tokenService = tokenService,
-       _tokenGenerator = tokenGenerator,
-       super(const TokenSetupState.initial()) {
-    on<_LoadCurrentData>(_onLoadCurrentData);
-    on<_SaveToken>(_onSaveToken);
-    on<_OpenTokenUrl>(_onOpenTokenUrl);
-  }
-
-  Future<void> _onLoadCurrentData(
-    _LoadCurrentData event,
-    Emitter<TokenSetupState> emit,
-  ) async {
-    try {
-      emit(const TokenSetupState.loading());
-
-      final currentToken = await _tokenService.getToken();
-      final currentClientId = await _tokenService.getClientId();
-
-      emit(
-        TokenSetupState.dataLoaded(
-          currentToken: currentToken,
-          currentClientId: currentClientId,
+  TokenSetupBloc(this._authStorage, this._tokenGenerator)
+    : super(
+        const TokenSetupState(
+          vkAppId: 'loading...',
+          currentToken: null,
+          tokenGenerationUrl: null,
         ),
-      );
-    } catch (e) {
-      emitEffect(TokenSetupEffect.error(message: e.toString()));
-    }
+      ) {
+    on<_Initial>(_onInitial);
+    on<_VkTokenResponseProvided>(_onVkTokenResponseProvided);
+    on<_VkAppIdSaved>(_onVkAppIdSaved);
   }
 
-  Future<void> _onSaveToken(
-    _SaveToken event,
+  Future<void> _onInitial(_Initial event, Emitter<TokenSetupState> emit) async {
+    final currentToken = _authStorage.getToken();
+
+    emit(
+      TokenSetupState(
+        vkAppId: _authStorage.getVkAppId() ?? Config.fallbackVkAppId,
+        currentToken: currentToken,
+        tokenGenerationUrl: null,
+      ),
+    );
+  }
+
+  Future<void> _onVkTokenResponseProvided(
+    _VkTokenResponseProvided event,
     Emitter<TokenSetupState> emit,
   ) async {
-    if (event.token.trim().isEmpty) {
-      emitEffect(
-        const TokenSetupEffect.validationError(message: 'Введите токен'),
-      );
+    final url = event.url;
+
+    if (url.isBlank) {
+      emitErrorEffect('Вставьте ссылку');
       return;
     }
 
-    try {
-      emit(const TokenSetupState.saving());
+    final token = _tokenGenerator.extractTokenFromUrl(url);
 
-      await _tokenService.saveToken(event.token.trim());
-
-      if (event.clientId.trim().isNotEmpty) {
-        await _tokenService.setClientId(event.clientId.trim());
-      }
-
-      emitEffect(const TokenSetupEffect.tokenSaved());
-    } catch (e) {
-      emitEffect(TokenSetupEffect.error(message: 'Ошибка сохранения: $e'));
+    if (token == null) {
+      emitErrorEffect('Не удалось получить токен :(');
+      return;
     }
+
+    await _authStorage.saveToken(token);
+    emitEffect(const TokenSetupEffect.finish());
   }
 
-  Future<void> _onOpenTokenUrl(
-    _OpenTokenUrl event,
+  Future<void> _onVkAppIdSaved(
+    _VkAppIdSaved event,
     Emitter<TokenSetupState> emit,
   ) async {
-    try {
-      final clientId = await _tokenService.getClientId();
-      const redirectUri = 'https://oauth.vk.com/blank.html';
-      final url = _tokenGenerator.generateAuthUrl(clientId, redirectUri);
-      emitEffect(TokenSetupEffect.openUrl(url: url));
-    } catch (e) {
-      emitEffect(
-        TokenSetupEffect.error(message: 'Ошибка генерации ссылки: $e'),
-      );
+    var vkAppId = event.vkAppId;
+
+    if (vkAppId.isBlank) {
+      vkAppId = Config.fallbackVkAppId;
     }
+
+    await _authStorage.saveVkAppId(vkAppId);
+    final url = _tokenGenerator.generateAuthUrl(vkAppId);
+    emit(state.copyWith(tokenGenerationUrl: url, vkAppId: vkAppId));
   }
 }

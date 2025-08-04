@@ -176,79 +176,13 @@ class $DetailedStatisticsEventCopyWith<$Res> {
 
 /// @nodoc
 
-class _LoadStatistics implements DetailedStatisticsEvent {
-  const _LoadStatistics(this.tracks);
-
-  final IList<AudioTrack> tracks;
-
-  /// Create a copy of DetailedStatisticsEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$LoadStatisticsCopyWith<_LoadStatistics> get copyWith =>
-      __$LoadStatisticsCopyWithImpl<_LoadStatistics>(this, _$identity);
+class _Init implements DetailedStatisticsEvent {
+  const _Init();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _LoadStatistics &&
-            const DeepCollectionEquality().equals(other.tracks, tracks));
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(tracks));
-
-  @override
-  String toString() {
-    return 'DetailedStatisticsEvent.loadStatistics(tracks: $tracks)';
-  }
-}
-
-/// @nodoc
-abstract mixin class _$LoadStatisticsCopyWith<$Res>
-    implements $DetailedStatisticsEventCopyWith<$Res> {
-  factory _$LoadStatisticsCopyWith(
-    _LoadStatistics value,
-    $Res Function(_LoadStatistics) _then,
-  ) = __$LoadStatisticsCopyWithImpl;
-  @useResult
-  $Res call({IList<AudioTrack> tracks});
-}
-
-/// @nodoc
-class __$LoadStatisticsCopyWithImpl<$Res>
-    implements _$LoadStatisticsCopyWith<$Res> {
-  __$LoadStatisticsCopyWithImpl(this._self, this._then);
-
-  final _LoadStatistics _self;
-  final $Res Function(_LoadStatistics) _then;
-
-  /// Create a copy of DetailedStatisticsEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({Object? tracks = null}) {
-    return _then(
-      _LoadStatistics(
-        null == tracks
-            ? _self.tracks
-            : tracks // ignore: cast_nullable_to_non_nullable
-                  as IList<AudioTrack>,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _LoadFromCache implements DetailedStatisticsEvent {
-  const _LoadFromCache();
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _LoadFromCache);
+        (other.runtimeType == runtimeType && other is _Init);
   }
 
   @override
@@ -256,7 +190,7 @@ class _LoadFromCache implements DetailedStatisticsEvent {
 
   @override
   String toString() {
-    return 'DetailedStatisticsEvent.loadFromCache()';
+    return 'DetailedStatisticsEvent.init()';
   }
 }
 

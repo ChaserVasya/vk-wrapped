@@ -1,5 +1,5 @@
-import 'package:front/domain/entities/audio_track.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:front/domain/entities/audio_track.dart';
 import 'package:injectable/injectable.dart';
 
 /// Улучшенный сервис для анализа статистики
