@@ -26,6 +26,10 @@ export class DatabaseService {
     });
   }
 
+  get driverInstance(): Driver {
+    return this.driver;
+  }
+
   /**
  * Преобразует строку YDB в TrackSession
  * @param row - строка из YDB с полями full_id, first_observed, last_seen
@@ -87,13 +91,9 @@ export class DatabaseService {
         WHERE ${FIELDS.FULL_ID} = "${fullId}"
       `;
 
-      console.log(`[DEBUG] Executing query for ${operation}: "${query}"`);
-
       const result = await this.driver.tableClient.withSession(async (session) => {
         return await session.executeQuery(query);
       });
-
-      console.log(`[DEBUG] Query executed for ${operation}, resultSets count: ${result.resultSets.length}`);
 
       if (!result.resultSets || result.resultSets.length === 0) {
         console.log(`[DEBUG] No result sets for ${operation}`);
@@ -141,8 +141,6 @@ export class DatabaseService {
         VALUES ("${fullId}", ${now}, ${now})
       `;
 
-      console.log(`[DEBUG] Executing query for create_active_session: "${query}"`);
-
       await this.driver.tableClient.withSession(async (session) => {
         return await session.executeQuery(query);
       });
@@ -171,8 +169,6 @@ export class DatabaseService {
         UPSERT INTO ${TABLES.CURRENT_SESSIONS} (${FIELDS.FULL_ID}, ${FIELDS.FIRST_OBSERVED}, ${FIELDS.LAST_SEEN})
         VALUES ("${fullId}", ${now}, ${now})
       `;
-
-      console.log(`[DEBUG] Executing query for update_active_session: "${query}"`);
 
       await this.driver.tableClient.withSession(async (session) => {
         return await session.executeQuery(query);
@@ -212,8 +208,6 @@ export class DatabaseService {
         ).join(', ')}
         `;
 
-        console.log(`[DEBUG] Executing insert query for finish_all_active_sessions: "${insertQuery}"`);
-
         await this.driver.tableClient.withSession(async (session) => {
           return await session.executeQuery(insertQuery);
         });
@@ -225,8 +219,6 @@ export class DatabaseService {
       const deleteQuery: string = `
         DELETE FROM ${TABLES.CURRENT_SESSIONS}
       `;
-
-      console.log(`[DEBUG] Executing delete query for finish_all_active_sessions: "${deleteQuery}"`);
 
       await this.driver.tableClient.withSession(async (session) => {
         return await session.executeQuery(deleteQuery);
@@ -259,13 +251,9 @@ export class DatabaseService {
         ${limitClause}
       `;
 
-      console.log(`[DEBUG] Executing query for ${operation}: "${query}"`);
-
       const result = await this.driver.tableClient.withSession(async (session) => {
         return await session.executeQuery(query);
       });
-
-      console.log(`[DEBUG] Query executed for ${operation}, resultSets count: ${result.resultSets.length}`);
 
       if (!result.resultSets || result.resultSets.length === 0) {
         console.log(`[DEBUG] No result sets for ${operation}`);
@@ -313,13 +301,9 @@ export class DatabaseService {
         ${limitClause}
       `;
 
-      console.log(`[DEBUG] Executing query for ${operation}: "${query}"`);
-
       const result = await this.driver.tableClient.withSession(async (session) => {
         return await session.executeQuery(query);
       });
-
-      console.log(`[DEBUG] Query executed for ${operation}, resultSets count: ${result.resultSets.length}`);
 
       if (!result.resultSets || result.resultSets.length === 0) {
         console.log(`[DEBUG] No result sets for ${operation}`);
