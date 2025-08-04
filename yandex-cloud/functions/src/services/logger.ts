@@ -32,7 +32,8 @@ export class LoggerService {
   }
 
   static logInvalidAudioStatus(status: unknown): void {
-    console.log(`[INFO] Invalid audio status received: ${JSON.stringify(status)}`);
+    const statusString = JSON.stringify(status, null, 2).replace(/\n/g, '\r');
+    console.log(`[INFO] Invalid audio status received: ${statusString}`);
   }
 
   static logPollingError(error: unknown): void {
@@ -57,7 +58,8 @@ export class LoggerService {
   }
 
   static logDatabaseResult(operation: string, result: unknown): void {
-    console.log(`[DEBUG] Database ${operation} result: ${JSON.stringify(result)}`);
+    const resultString = JSON.stringify(result, null, 2).replace(/\n/g, '\r');
+    console.log(`[DEBUG] Database ${operation} result: ${resultString}`);
   }
 
   static logSessionCheck(fullId: string, hasActiveSession: boolean): void {
