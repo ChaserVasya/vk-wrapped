@@ -18,6 +18,11 @@ class TokenService {
     }
   }
 
+  /// Устанавливает токен (алиас для saveToken)
+  Future<void> setToken(String token) async {
+    await saveToken(token);
+  }
+
   /// Получает сохраненный токен
   Future<String?> getToken() async {
     try {
@@ -60,6 +65,15 @@ class TokenService {
       return '51729127'; // VK Wrapped App ID
     } catch (e) {
       throw CacheException('Failed to get client ID: $e');
+    }
+  }
+
+  /// Устанавливает clientId
+  Future<void> setClientId(String clientId) async {
+    try {
+      await _cacheService.saveClientId(clientId);
+    } catch (e) {
+      throw CacheException('Failed to save client ID: $e');
     }
   }
 }

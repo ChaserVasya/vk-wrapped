@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/home_bloc/home_bloc.dart';
+import 'package:front/ui/widgets/token_input_dialog.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -23,7 +24,7 @@ class HomeScreen extends StatelessWidget {
                 context,
               ).showSnackBar(SnackBar(content: Text('Ошибка: $message')));
             case HomeEffect$ShowTokenDialog():
-              _showTokenDialog(context);
+              showTokenInputDialog(context);
           }
         },
         child: Scaffold(
@@ -109,54 +110,6 @@ class HomeScreen extends StatelessWidget {
             },
           ),
         ),
-      ),
-    );
-  }
-
-  void _showTokenDialog(BuildContext context) {
-    final tokenController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('VK Токен'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Для работы приложения необходим VK Personal Token.'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () async {
-                // TODO: Добавить url_launcher
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Откройте ссылку в браузере')),
-                );
-              },
-              child: const Text('Получить токен'),
-            ),
-            const SizedBox(height: 16),
-            const Text('После получения токена вставьте его в поле ниже:'),
-            const SizedBox(height: 8),
-            TextField(
-              controller: tokenController,
-              decoration: const InputDecoration(
-                labelText: 'VK Personal Token',
-                hintText: 'Вставьте токен сюда',
-                border: OutlineInputBorder(),
-              ),
-              onSubmitted: (token) {
-                context.read<HomeBloc>().add(HomeEvent.saveToken(token));
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Закрыть'),
-          ),
-        ],
       ),
     );
   }
