@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:front/features/utils/lib/src/bloc/safe_bloc.dart';
+import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/settings_bloc/settings_bloc.dart';
+import 'package:front/ui/widgets/loading_widget.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -42,11 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case SettingsState$Loading():
         return const Row(
           children: [
-            SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
+            SizedBox(width: 16, height: 16, child: LoadingWidget()),
             SizedBox(width: 8),
             Text('Проверка токена...'),
           ],
@@ -66,11 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       case SettingsState$Loading():
         return const Row(
           children: [
-            SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
+            SizedBox(width: 16, height: 16, child: LoadingWidget()),
             SizedBox(width: 8),
             Text('Очистка кэша...'),
           ],
@@ -80,10 +74,70 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Widget _buildCurrentData(SettingsState state) {
+    switch (state) {
+      case SettingsState$CurrentData(
+        hasToken: final hasToken,
+        currentToken: final currentToken,
+        clientId: final clientId,
+      ):
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Текущие настройки:',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text('Client ID: $clientId', style: const TextStyle(fontSize: 12)),
+            if (hasToken && currentToken != null) ...[
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Токен: $currentToken',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      Clipboard.setData(ClipboardData(text: currentToken));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Токен скопирован')),
+                      );
+                    },
+                    icon: const Icon(Icons.copy, size: 16),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        );
+      case SettingsState$Loading():
+        return const Row(
+          children: [
+            SizedBox(width: 16, height: 16, child: LoadingWidget()),
+            SizedBox(width: 8),
+            Text('Загрузка данных...'),
+          ],
+        );
+      default:
+        return const Text('Данные не загружены');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<SettingsBloc>(),
+      create: (context) {
+        final bloc = getIt<SettingsBloc>();
+        // Загружаем текущие данные при создании экрана
+        bloc.add(const SettingsEvent.loadCurrentData());
+        return bloc;
+      },
       child: EffectListener<SettingsBloc, SettingsEffect>(
         listener: (context, effect) {
           switch (effect) {
@@ -110,7 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           appBar: AppBar(title: const Text('Настройки')),
           body: BlocBuilder<SettingsBloc, SettingsState>(
             builder: (context, state) {
-              return Padding(
+              return SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -131,6 +185,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ),
                             const SizedBox(height: 8),
                             _buildTokenStatus(state),
+                            const SizedBox(height: 8),
+                            _buildCurrentData(state),
                             const SizedBox(height: 16),
                             Row(
                               children: [

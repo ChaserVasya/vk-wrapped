@@ -8,4 +8,9 @@ class SettingsState with _$SettingsState {
       SettingsState$TokenConfigured;
   const factory SettingsState.cacheStatus({required bool isCleared}) =
       SettingsState$CacheStatus;
+  const factory SettingsState.currentData({
+    required bool hasToken,
+    required String? currentToken,
+    required String clientId,
+  }) = SettingsState$CurrentData;
 }

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:project_utils/src/exception/app_exception.dart';
+import 'package:front/domain/exceptions/app_exception.dart';
 
 // mixin can`t override other mixins, so, I apply some boilerplate
 
@@ -17,10 +17,7 @@ abstract class InterceptedBloc<Event, State> extends Bloc<Event, State> {
     );
   }
 
-  FutureOr<void> interceptor(
-    FutureOr Function() handler,
-    Emitter<State> emit,
-  );
+  FutureOr<void> interceptor(FutureOr Function() handler, Emitter<State> emit);
 }
 
 mixin HandlerEmitOnError<Event, State> on InterceptedBloc<Event, State> {
@@ -28,8 +25,8 @@ mixin HandlerEmitOnError<Event, State> on InterceptedBloc<Event, State> {
   interceptor(handler, emit) async {
     try {
       await handler();
-    } catch (e, st) {
-      final exc = AppException.fromDynamic(e, st: st);
+    } catch (e) {
+      final exc = AppException(e.toString(), originalError: e);
       emit(createErrorState(exc));
       rethrow;
     }

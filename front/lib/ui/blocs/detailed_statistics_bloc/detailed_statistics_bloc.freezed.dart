@@ -15,61 +15,30 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$DetailedStatisticsEvent {
 
- List<AudioTrack> get tracks;
-/// Create a copy of DetailedStatisticsEvent
-/// with the given fields replaced by the non-null parameter values.
-@JsonKey(includeFromJson: false, includeToJson: false)
-@pragma('vm:prefer-inline')
-$DetailedStatisticsEventCopyWith<DetailedStatisticsEvent> get copyWith => _$DetailedStatisticsEventCopyWithImpl<DetailedStatisticsEvent>(this as DetailedStatisticsEvent, _$identity);
+
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is DetailedStatisticsEvent&&const DeepCollectionEquality().equals(other.tracks, tracks));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DetailedStatisticsEvent);
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(tracks));
+int get hashCode => runtimeType.hashCode;
 
 @override
 String toString() {
-  return 'DetailedStatisticsEvent(tracks: $tracks)';
+  return 'DetailedStatisticsEvent()';
 }
 
 
 }
 
 /// @nodoc
-abstract mixin class $DetailedStatisticsEventCopyWith<$Res>  {
-  factory $DetailedStatisticsEventCopyWith(DetailedStatisticsEvent value, $Res Function(DetailedStatisticsEvent) _then) = _$DetailedStatisticsEventCopyWithImpl;
-@useResult
-$Res call({
- List<AudioTrack> tracks
-});
-
-
-
-
-}
-/// @nodoc
-class _$DetailedStatisticsEventCopyWithImpl<$Res>
-    implements $DetailedStatisticsEventCopyWith<$Res> {
-  _$DetailedStatisticsEventCopyWithImpl(this._self, this._then);
-
-  final DetailedStatisticsEvent _self;
-  final $Res Function(DetailedStatisticsEvent) _then;
-
-/// Create a copy of DetailedStatisticsEvent
-/// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? tracks = null,}) {
-  return _then(_self.copyWith(
-tracks: null == tracks ? _self.tracks : tracks // ignore: cast_nullable_to_non_nullable
-as List<AudioTrack>,
-  ));
-}
-
+class $DetailedStatisticsEventCopyWith<$Res>  {
+$DetailedStatisticsEventCopyWith(DetailedStatisticsEvent _, $Res Function(DetailedStatisticsEvent) __);
 }
 
 
@@ -81,7 +50,7 @@ class _LoadStatistics implements DetailedStatisticsEvent {
   
 
  final  List<AudioTrack> _tracks;
-@override List<AudioTrack> get tracks {
+ List<AudioTrack> get tracks {
   if (_tracks is EqualUnmodifiableListView) return _tracks;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_tracks);
@@ -90,7 +59,7 @@ class _LoadStatistics implements DetailedStatisticsEvent {
 
 /// Create a copy of DetailedStatisticsEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @JsonKey(includeFromJson: false, includeToJson: false)
+@JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
 _$LoadStatisticsCopyWith<_LoadStatistics> get copyWith => __$LoadStatisticsCopyWithImpl<_LoadStatistics>(this, _$identity);
 
@@ -116,7 +85,7 @@ String toString() {
 /// @nodoc
 abstract mixin class _$LoadStatisticsCopyWith<$Res> implements $DetailedStatisticsEventCopyWith<$Res> {
   factory _$LoadStatisticsCopyWith(_LoadStatistics value, $Res Function(_LoadStatistics) _then) = __$LoadStatisticsCopyWithImpl;
-@override @useResult
+@useResult
 $Res call({
  List<AudioTrack> tracks
 });
@@ -135,7 +104,7 @@ class __$LoadStatisticsCopyWithImpl<$Res>
 
 /// Create a copy of DetailedStatisticsEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? tracks = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? tracks = null,}) {
   return _then(_LoadStatistics(
 null == tracks ? _self._tracks : tracks // ignore: cast_nullable_to_non_nullable
 as List<AudioTrack>,
@@ -144,6 +113,38 @@ as List<AudioTrack>,
 
 
 }
+
+/// @nodoc
+
+
+class _LoadFromCache implements DetailedStatisticsEvent {
+  const _LoadFromCache();
+  
+
+
+
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _LoadFromCache);
+}
+
+
+@override
+int get hashCode => runtimeType.hashCode;
+
+@override
+String toString() {
+  return 'DetailedStatisticsEvent.loadFromCache()';
+}
+
+
+}
+
+
+
 
 /// @nodoc
 mixin _$DetailedStatisticsState {

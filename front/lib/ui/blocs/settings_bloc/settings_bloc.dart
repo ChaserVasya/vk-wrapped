@@ -4,7 +4,7 @@ import 'package:injectable/injectable.dart';
 import 'package:front/domain/services/cache_service_interface.dart';
 import 'package:front/data/services/token_service.dart';
 import 'package:front/data/services/export_service.dart';
-import 'package:front/features/utils/lib/src/bloc/safe_bloc.dart';
+import 'package:front/features/utils/bloc/safe_bloc.dart';
 
 part 'settings_bloc.freezed.dart';
 part 'settings_event.dart';
@@ -27,6 +27,7 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
     on<_SaveToken>(_onSaveToken);
     on<_ClearCache>(_onClearCache);
     on<_ExportData>(_onExportData);
+    on<_LoadCurrentData>(_onLoadCurrentData);
   }
 
   Future<void> _onCheckTokenStatus(
@@ -100,6 +101,29 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
 
       await ExportService.exportToJson(tracks);
       emitEffect(const SettingsEffect.dataExported());
+    } catch (e) {
+      emitEffect(SettingsEffect.error(message: e.toString()));
+    }
+  }
+
+  Future<void> _onLoadCurrentData(
+    _LoadCurrentData event,
+    Emitter<SettingsState> emit,
+  ) async {
+    try {
+      emit(const SettingsState.loading());
+
+      final hasToken = await _tokenService.hasToken();
+      final currentToken = await _tokenService.getToken();
+      final clientId = await _tokenService.getClientId();
+
+      emit(
+        SettingsState.currentData(
+          hasToken: hasToken,
+          currentToken: currentToken,
+          clientId: clientId,
+        ),
+      );
     } catch (e) {
       emitEffect(SettingsEffect.error(message: e.toString()));
     }

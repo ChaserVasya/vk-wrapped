@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:front/data/services/token_service.dart';
-import 'package:front/features/utils/lib/src/bloc/safe_bloc.dart';
+import 'package:front/features/utils/bloc/safe_bloc.dart';
 
 part 'home_bloc.freezed.dart';
 part 'home_event.dart';

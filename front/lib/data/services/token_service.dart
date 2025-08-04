@@ -46,4 +46,20 @@ class TokenService {
   static bool isValidToken(String token) {
     return token.isNotEmpty && token.length > 10;
   }
+
+  /// Получает clientId (извлекает из токена или возвращает дефолтный)
+  Future<String> getClientId() async {
+    try {
+      // Пытаемся получить из кэша
+      final cachedClientId = await _cacheService.getClientId();
+      if (cachedClientId != null && cachedClientId.isNotEmpty) {
+        return cachedClientId;
+      }
+
+      // Если нет в кэше, возвращаем дефолтный VK client ID
+      return '51729127'; // VK Wrapped App ID
+    } catch (e) {
+      throw CacheException('Failed to get client ID: $e');
+    }
+  }
 }

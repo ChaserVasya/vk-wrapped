@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:front/domain/entities/audio_track.dart';
@@ -59,17 +58,24 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
     _LoadUserAudio event,
     Emitter<AudioState> emit,
   ) async {
+    print('🔄 AudioBloc: _onLoadUserAudio called');
     emit(state.copyWith(tracks: const CommonStates.loading()));
+    print('🔄 AudioBloc: Emitted loading state');
 
     try {
+      print('🔄 AudioBloc: Calling _getUserAudioUseCase');
       final tracks = await _getUserAudioUseCase(count: event.count ?? 50);
+      print('🔄 AudioBloc: Got ${tracks.length} tracks');
       await _cacheService.cacheTracks(tracks);
 
       emit(state.copyWith(tracks: CommonStates.data(tracks)));
+      print('🔄 AudioBloc: Emitted data state');
     } catch (e) {
+      print('❌ AudioBloc: Error occurred: $e');
       emit(
         state.copyWith(tracks: CommonStates.error(AppException(e.toString()))),
       );
+      print('🔄 AudioBloc: Emitted error state');
     }
   }
 

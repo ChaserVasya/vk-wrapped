@@ -163,4 +163,26 @@ class EnhancedCacheService implements CacheServiceInterface {
       return null;
     }
   }
+
+  /// Сохраняет clientId
+  @override
+  Future<void> saveClientId(String clientId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('client_id', clientId);
+    } catch (e) {
+      throw CacheException('Failed to save client ID: $e');
+    }
+  }
+
+  /// Получает clientId
+  @override
+  Future<String?> getClientId() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString('client_id');
+    } catch (e) {
+      throw CacheException('Failed to get client ID: $e');
+    }
+  }
 }
