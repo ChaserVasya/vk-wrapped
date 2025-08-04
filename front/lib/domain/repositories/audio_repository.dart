@@ -1,5 +1,5 @@
-import 'package:front/domain/entities/audio_track.dart';
 import 'package:front/data/services/vk_api_service.dart';
+import 'package:front/domain/entities/audio_track.dart';
 import 'package:injectable/injectable.dart';
 
 abstract class AudioRepository {

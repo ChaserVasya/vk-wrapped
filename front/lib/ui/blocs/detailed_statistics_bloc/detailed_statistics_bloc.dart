@@ -1,15 +1,15 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:injectable/injectable.dart';
 import 'package:front/domain/entities/audio_track.dart';
-import 'package:front/domain/services/enhanced_statistics_service.dart';
 import 'package:front/domain/services/cache_service_interface.dart';
+import 'package:front/domain/services/enhanced_statistics_service.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
+import 'package:injectable/injectable.dart';
 
 part 'detailed_statistics_bloc.freezed.dart';
+part 'detailed_statistics_effect.dart';
 part 'detailed_statistics_event.dart';
 part 'detailed_statistics_state.dart';
-part 'detailed_statistics_effect.dart';
 
 @injectable
 class DetailedStatisticsBloc

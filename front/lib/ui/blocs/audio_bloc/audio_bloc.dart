@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:injectable/injectable.dart';
 import 'package:front/domain/entities/audio_track.dart';
+import 'package:front/domain/exceptions/app_exception.dart';
+import 'package:front/domain/services/cache_service_interface.dart';
 import 'package:front/domain/use_cases/get_audio_tracks_use_case.dart';
 import 'package:front/domain/use_cases/get_user_audio_use_case.dart';
-import 'package:front/domain/services/cache_service_interface.dart';
 import 'package:front/features/state_management/common_states.dart';
-import 'package:front/domain/exceptions/app_exception.dart';
+import 'package:injectable/injectable.dart';
 
 part 'audio_bloc.freezed.dart';
 

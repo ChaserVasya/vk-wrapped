@@ -9,7 +9,7 @@ class LoadingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (useTestLoadingWidget) {
-      return Text('loading');
+      return const Text('loading');
     }
     return const Center(child: CircularProgressIndicator());
   }

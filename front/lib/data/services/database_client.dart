@@ -1,8 +1,7 @@
-import 'package:dio/dio.dart';
+import 'package:front/data/services/api_client.dart';
 import 'package:front/domain/entities/audio_track.dart';
 import 'package:front/domain/exceptions/app_exception.dart';
 import 'package:injectable/injectable.dart';
-import 'package:front/data/services/api_client.dart';
 
 /// Клиент для работы с базой данных через Yandex Cloud Functions
 @injectable
@@ -53,7 +52,7 @@ class DatabaseClient {
       id: audioId,
       title: 'Unknown Track', // Нужно получать с VK API
       artist: 'Unknown Artist', // Нужно получать с VK API
-      url: 'https://vk.com/audio${ownerId}_${audioId}',
+      url: 'https://vk.com/audio${ownerId}_$audioId',
       duration: duration,
       playCount: playCount,
       albumCover: null,
@@ -74,7 +73,7 @@ class DatabaseClient {
         id: audioId,
         title: 'Track $audioId',
         artist: 'Artist',
-        url: 'https://vk.com/audio${ownerId}_${audioId}',
+        url: 'https://vk.com/audio${ownerId}_$audioId',
         duration: 180,
         playCount: 1,
         albumCover: null,
@@ -88,5 +87,5 @@ class DatabaseClient {
 
 /// Исключение для ошибок базы данных
 class DatabaseException extends AppException {
-  DatabaseException(String message) : super(message);
+  DatabaseException(super.message);
 }

@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:retrofit/retrofit.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:front/domain/entities/audio_track.dart';
+import 'package:retrofit/retrofit.dart';
 
 part 'api_client.g.dart';
 

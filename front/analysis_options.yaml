@@ -1,1 +1,18 @@
 include: package:flutter_lints/flutter.yaml
+analyzer:
+  errors:
+    invalid_annotation_target: ignore
+    unrelated_type_equality_checks: warning
+    duplicate_ignore: ignore # https://github.com/dart-lang/mockito/issues/795
+#! keep sync with other analysis_options.yaml.
+linter:
+  rules:
+    - unawaited_futures
+    - avoid_dynamic_calls
+    - always_use_package_imports
+    # As an Android Studio "sort import on save" option
+    - directives_ordering
+    - prefer_const_constructors
+    - prefer_const_declarations
+formatter:
+  page_width: 80

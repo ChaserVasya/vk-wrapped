@@ -20,7 +20,7 @@ class DetailedStatisticsScreen extends StatelessWidget {
           bloc.add(DetailedStatisticsEvent.loadStatistics(tracks));
         } else {
           // Если треки не переданы, загружаем из кэша
-          bloc.add(DetailedStatisticsEvent.loadFromCache());
+          bloc.add(const DetailedStatisticsEvent.loadFromCache());
         }
         return bloc;
       },

@@ -1,15 +1,15 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:injectable/injectable.dart';
-import 'package:front/domain/services/cache_service_interface.dart';
-import 'package:front/data/services/token_service.dart';
 import 'package:front/data/services/export_service.dart';
+import 'package:front/data/services/token_service.dart';
+import 'package:front/domain/services/cache_service_interface.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
+import 'package:injectable/injectable.dart';
 
 part 'settings_bloc.freezed.dart';
+part 'settings_effect.dart';
 part 'settings_event.dart';
 part 'settings_state.dart';
-part 'settings_effect.dart';
 
 @injectable
 class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:front/ui/screens/home_screen.dart';
-import 'package:front/ui/screens/statistics_screen.dart';
-import 'package:front/ui/screens/settings_screen.dart';
-import 'package:front/ui/screens/detailed_statistics_screen.dart';
 import 'package:front/internal/di/di.dart';
+import 'package:front/ui/screens/detailed_statistics_screen.dart';
+import 'package:front/ui/screens/home_screen.dart';
+import 'package:front/ui/screens/settings_screen.dart';
+import 'package:front/ui/screens/statistics_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

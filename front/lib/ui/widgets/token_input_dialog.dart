@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:front/data/services/token_generator.dart';
 import 'package:front/data/services/token_service.dart';
 import 'package:front/internal/di/di.dart';
