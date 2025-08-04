@@ -63,6 +63,7 @@ class DatabaseClient {
   /// Получает детальную информацию о треке с VK API
   Future<AudioTrack> getTrackDetails(String fullId) async {
     try {
+      //todo
       // Здесь нужно добавить запрос к VK API для получения деталей трека
       // Пока возвращаем базовую информацию
       final parts = fullId.split('_');

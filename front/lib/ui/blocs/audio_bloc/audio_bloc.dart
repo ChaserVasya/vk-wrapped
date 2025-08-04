@@ -52,7 +52,7 @@ class AudioBloc extends Bloc<AudioEvent, AudioState> {
 
   final GetAudioTracksUseCase _getAudioTracksUseCase;
   final GetUserAudioUseCase _getUserAudioUseCase;
-  final CacheServiceInterface _cacheService;
+  final CacheService _cacheService;
 
   FutureOr<void> _onLoadUserAudio(
     _LoadUserAudio event,

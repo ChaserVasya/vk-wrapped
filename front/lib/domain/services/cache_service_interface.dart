@@ -1,6 +1,6 @@
 import 'package:front/domain/entities/audio_track.dart';
 
-abstract class CacheServiceInterface {
+abstract class CacheService {
   Future<void> cacheTracks(List<AudioTrack> tracks);
   Future<List<AudioTrack>> getCachedTracks();
   Future<void> cacheStatistics(String key, Map<String, dynamic> statistics);

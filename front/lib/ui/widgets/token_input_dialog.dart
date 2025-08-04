@@ -90,7 +90,8 @@ class _TokenInputDialogState extends State<TokenInputDialog> {
   }
 
   Future<void> _openTokenUrl() async {
-    final url = TokenGenerator.generateTokenUrl();
+    final tokenGenerator = getIt<TokenGenerator>();
+    final url = tokenGenerator.generateTokenUrl();
     final uri = Uri.parse(url);
 
     if (await canLaunchUrl(uri)) {
