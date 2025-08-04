@@ -64,27 +64,26 @@ class _View extends StatefulWidget {
 }
 
 class _ViewState extends State<_View> {
-  final _tokenController = TextEditingController();
+  final _tokenRequestUrlController = TextEditingController();
   final _vkAppIdController = TextEditingController();
 
   @override
   void initState() {
     final state = context.read<TokenSetupBloc>().state;
-    _tokenController.text = state.currentToken ?? '';
     _vkAppIdController.text = state.vkAppId;
     super.initState();
   }
 
   @override
   void dispose() {
-    _tokenController.dispose();
+    _tokenRequestUrlController.dispose();
     _vkAppIdController.dispose();
     super.dispose();
   }
 
   Future<void> _saveToken(BuildContext context) async {
     context.read<TokenSetupBloc>().add(
-      TokenSetupEvent.vkTokenResponseProvided(_tokenController.text),
+      TokenSetupEvent.vkTokenResponseProvided(_tokenRequestUrlController.text),
     );
   }
 
@@ -133,14 +132,15 @@ class _ViewState extends State<_View> {
                         ),
                         const Gap(16),
                         const Text(
-                          'VK Personal Token:',
+                          'Ссылка из адресной строки браузера:',
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const Gap(8),
                         TextField(
-                          controller: _tokenController,
+                          controller: _tokenRequestUrlController,
                           decoration: const InputDecoration(
-                            hintText: 'v1.1234567890abcdef...',
+                            hintText:
+                                'https://oauth.vk.com/blank.html#access_token=vk1.a.skY...',
                             border: OutlineInputBorder(),
                           ),
                           onEditingComplete: () => _saveToken(context),
@@ -168,8 +168,9 @@ class _ViewState extends State<_View> {
                           const Text(
                             '1. Нажмите "Получить токен" и все последующие кнопочки в браузере пока не появится текст "Пожалуйста, не копируйте данные из адресной строки ..."',
                           ),
-                          const Text('2. Скопируйте данные из адресной строки'),
-                          const Text('3. Вставьте их в поле ниже'),
+                          const Text(
+                            '2. Скопируйте данные из адресной строки в поле выше',
+                          ),
                           const Gap(16),
                           SizedBox(
                             child: ElevatedButton.icon(

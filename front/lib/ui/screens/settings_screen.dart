@@ -279,12 +279,15 @@ class _ViewState extends State<_View> {
                           child: ElevatedButton(
                             onPressed: state is SettingsState$Loading
                                 ? null
-                                : () {
-                                    Navigator.of(context).push(
+                                : () async {
+                                    await Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) =>
                                             const TokenSetupScreen(),
                                       ),
+                                    );
+                                    context.read<SettingsBloc>().add(
+                                      const SettingsEvent.loadCurrentData(),
                                     );
                                   },
                             style: ElevatedButton.styleFrom(
