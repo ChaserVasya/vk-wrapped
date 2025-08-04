@@ -1,19 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:injectable/injectable.dart';
+import 'package:front/internal/di/di.dart';
+import 'package:front/ui/blocs/audio_bloc.dart';
+import 'package:front/ui/screens/home_screen.dart';
+import 'package:front/ui/screens/statistics_screen.dart';
+import 'package:front/ui/screens/settings_screen.dart';
+import 'package:front/ui/screens/detailed_statistics_screen.dart';
 
-void main() {
-  runApp(const MainApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await configureDependencies();
+  runApp(const VkWrappedApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+class VkWrappedApp extends StatelessWidget {
+  const VkWrappedApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
+    return MultiBlocProvider(
+      providers: [BlocProvider(create: (_) => getIt<AudioBloc>())],
+      child: MaterialApp(
+        title: 'VK Wrapped',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4C75A3)),
         ),
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const HomeScreen(),
+          '/statistics': (context) => const StatisticsScreen(),
+          '/settings': (context) => const SettingsScreen(),
+          '/detailed-statistics': (context) =>
+              const DetailedStatisticsScreen(tracks: []),
+        },
       ),
     );
   }
