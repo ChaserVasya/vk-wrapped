@@ -46,6 +46,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i361.Dio>(() => registerModule.dio);
     gh.lazySingleton<_i458.TokenGenerator>(() => _i458.TokenGenerator());
     gh.lazySingleton<_i1056.ExportService>(() => _i1056.ExportService());
+    gh.factory<_i69.SettingsBloc>(
+      () => _i69.SettingsBloc(
+        cacheService: gh<_i34.PrefsStorage>(),
+        tokenService: gh<InvalidType>(),
+        exportService: gh<_i1056.ExportService>(),
+      ),
+    );
     gh.factory<_i921.DetailedStatisticsBloc>(
       () => _i921.DetailedStatisticsBloc(
         gh<_i34.PrefsStorage>(),
@@ -54,13 +61,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i988.VkService>(
       () => _i988.VkService(gh<_i34.PrefsStorage>(), gh<_i543.VkApiClient>()),
-    );
-    gh.factory<_i69.SettingsBloc>(
-      () => _i69.SettingsBloc(
-        cacheService: gh<InvalidType>(),
-        tokenService: gh<InvalidType>(),
-        exportService: gh<_i1056.ExportService>(),
-      ),
     );
     gh.factory<_i693.AudioRepository>(
       () => _i693.AudioRepository(
@@ -72,17 +72,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i297.AuthStorage>(
       () => _i34.PrefsStorage(gh<_i460.SharedPreferencesWithCache>()),
     );
+    gh.factory<_i667.AudioBloc>(
+      () => _i667.AudioBloc(
+        gh<_i34.PrefsStorage>(),
+        gh<InvalidType>(),
+        gh<_i693.AudioRepository>(),
+      ),
+    );
     gh.factory<_i35.TokenSetupBloc>(
       () => _i35.TokenSetupBloc(
         gh<_i297.AuthStorage>(),
         gh<_i458.TokenGenerator>(),
-      ),
-    );
-    gh.factory<_i667.AudioBloc>(
-      () => _i667.AudioBloc(
-        gh<InvalidType>(),
-        gh<InvalidType>(),
-        gh<_i693.AudioRepository>(),
       ),
     );
     return this;
