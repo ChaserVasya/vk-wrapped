@@ -102,15 +102,9 @@ class __$LoadUserAudioCopyWithImpl<$Res>
 /// @nodoc
 
 class _LoadAudioTracks implements AudioEvent {
-  const _LoadAudioTracks({required final List<String> trackIds})
-    : _trackIds = trackIds;
+  const _LoadAudioTracks({required this.trackIds});
 
-  final List<String> _trackIds;
-  List<String> get trackIds {
-    if (_trackIds is EqualUnmodifiableListView) return _trackIds;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_trackIds);
-  }
+  final IList<String> trackIds;
 
   /// Create a copy of AudioEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -124,12 +118,12 @@ class _LoadAudioTracks implements AudioEvent {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _LoadAudioTracks &&
-            const DeepCollectionEquality().equals(other._trackIds, _trackIds));
+            const DeepCollectionEquality().equals(other.trackIds, trackIds));
   }
 
   @override
   int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_trackIds));
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(trackIds));
 
   @override
   String toString() {
@@ -145,7 +139,7 @@ abstract mixin class _$LoadAudioTracksCopyWith<$Res>
     $Res Function(_LoadAudioTracks) _then,
   ) = __$LoadAudioTracksCopyWithImpl;
   @useResult
-  $Res call({List<String> trackIds});
+  $Res call({IList<String> trackIds});
 }
 
 /// @nodoc
@@ -163,9 +157,9 @@ class __$LoadAudioTracksCopyWithImpl<$Res>
     return _then(
       _LoadAudioTracks(
         trackIds: null == trackIds
-            ? _self._trackIds
+            ? _self.trackIds
             : trackIds // ignore: cast_nullable_to_non_nullable
-                  as List<String>,
+                  as IList<String>,
       ),
     );
   }
@@ -255,7 +249,7 @@ class _ClearCache implements AudioEvent {
 
 /// @nodoc
 mixin _$AudioState {
-  CommonStates<List<AudioTrack>> get tracks;
+  CommonStates<IList<AudioTrack>> get tracks;
   CommonStates<String> get token;
 
   /// Create a copy of AudioState
@@ -291,9 +285,12 @@ abstract mixin class $AudioStateCopyWith<$Res> {
   ) = _$AudioStateCopyWithImpl;
   @useResult
   $Res call({
-    CommonStates<List<AudioTrack>> tracks,
+    CommonStates<IList<AudioTrack>> tracks,
     CommonStates<String> token,
   });
+
+  $CommonStatesCopyWith<IList<AudioTrack>, $Res> get tracks;
+  $CommonStatesCopyWith<String, $Res> get token;
 }
 
 /// @nodoc
@@ -309,16 +306,148 @@ class _$AudioStateCopyWithImpl<$Res> implements $AudioStateCopyWith<$Res> {
   @override
   $Res call({Object? tracks = null, Object? token = null}) {
     return _then(
-      AudioState(
+      _self.copyWith(
         tracks: null == tracks
             ? _self.tracks
             : tracks // ignore: cast_nullable_to_non_nullable
-                  as CommonStates<List<AudioTrack>>,
+                  as CommonStates<IList<AudioTrack>>,
         token: null == token
             ? _self.token
             : token // ignore: cast_nullable_to_non_nullable
                   as CommonStates<String>,
       ),
     );
+  }
+
+  /// Create a copy of AudioState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CommonStatesCopyWith<IList<AudioTrack>, $Res> get tracks {
+    return $CommonStatesCopyWith<IList<AudioTrack>, $Res>(_self.tracks, (
+      value,
+    ) {
+      return _then(_self.copyWith(tracks: value));
+    });
+  }
+
+  /// Create a copy of AudioState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CommonStatesCopyWith<String, $Res> get token {
+    return $CommonStatesCopyWith<String, $Res>(_self.token, (value) {
+      return _then(_self.copyWith(token: value));
+    });
+  }
+}
+
+/// @nodoc
+
+class _AudioState implements AudioState {
+  const _AudioState({
+    this.tracks = const CommonStates.loading(),
+    this.token = const CommonStates.loading(),
+  });
+
+  @override
+  @JsonKey()
+  final CommonStates<IList<AudioTrack>> tracks;
+  @override
+  @JsonKey()
+  final CommonStates<String> token;
+
+  /// Create a copy of AudioState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$AudioStateCopyWith<_AudioState> get copyWith =>
+      __$AudioStateCopyWithImpl<_AudioState>(this, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _AudioState &&
+            (identical(other.tracks, tracks) || other.tracks == tracks) &&
+            (identical(other.token, token) || other.token == token));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, tracks, token);
+
+  @override
+  String toString() {
+    return 'AudioState(tracks: $tracks, token: $token)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$AudioStateCopyWith<$Res>
+    implements $AudioStateCopyWith<$Res> {
+  factory _$AudioStateCopyWith(
+    _AudioState value,
+    $Res Function(_AudioState) _then,
+  ) = __$AudioStateCopyWithImpl;
+  @override
+  @useResult
+  $Res call({
+    CommonStates<IList<AudioTrack>> tracks,
+    CommonStates<String> token,
+  });
+
+  @override
+  $CommonStatesCopyWith<IList<AudioTrack>, $Res> get tracks;
+  @override
+  $CommonStatesCopyWith<String, $Res> get token;
+}
+
+/// @nodoc
+class __$AudioStateCopyWithImpl<$Res> implements _$AudioStateCopyWith<$Res> {
+  __$AudioStateCopyWithImpl(this._self, this._then);
+
+  final _AudioState _self;
+  final $Res Function(_AudioState) _then;
+
+  /// Create a copy of AudioState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({Object? tracks = null, Object? token = null}) {
+    return _then(
+      _AudioState(
+        tracks: null == tracks
+            ? _self.tracks
+            : tracks // ignore: cast_nullable_to_non_nullable
+                  as CommonStates<IList<AudioTrack>>,
+        token: null == token
+            ? _self.token
+            : token // ignore: cast_nullable_to_non_nullable
+                  as CommonStates<String>,
+      ),
+    );
+  }
+
+  /// Create a copy of AudioState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CommonStatesCopyWith<IList<AudioTrack>, $Res> get tracks {
+    return $CommonStatesCopyWith<IList<AudioTrack>, $Res>(_self.tracks, (
+      value,
+    ) {
+      return _then(_self.copyWith(tracks: value));
+    });
+  }
+
+  /// Create a copy of AudioState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CommonStatesCopyWith<String, $Res> get token {
+    return $CommonStatesCopyWith<String, $Res>(_self.token, (value) {
+      return _then(_self.copyWith(token: value));
+    });
   }
 }

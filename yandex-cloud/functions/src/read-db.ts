@@ -15,9 +15,13 @@ interface ErrorResponse {
     body: string;
 }
 
-interface DatabaseResponse {
-    currentSessions: TrackSession[];
-    completedSessions: TrackSession[];
+// Конвертирует TrackSession в camelCase формат для Flutter
+function convertToCamelCase(session: TrackSession): Record<string, unknown> {
+    return {
+        fullId: session.full_id,
+        firstObserved: session.first_observed.getTime() / 1000, // конвертируем в секунды
+        lastSeen: session.last_seen.getTime() / 1000, // конвертируем в секунды
+    };
 }
 
 export async function handler(): Promise<SuccessResponse | ErrorResponse> {
@@ -32,29 +36,24 @@ export async function handler(): Promise<SuccessResponse | ErrorResponse> {
             throw new Error(`Driver has not become ready in ${timeout}ms!`);
         }
 
-        // Читаем активные сессии
-        const currentSessions = await databaseService.getAllCurrentSessions(50);
-
         // Читаем завершенные сессии
         const completedSessions = await databaseService.getCompletedSessions(50);
+
+        // Конвертируем в camelCase
+        const convertedSessions = completedSessions.map(convertToCamelCase);
 
         // Закрываем соединение
         await databaseService.close();
 
-        const response: DatabaseResponse = {
-            currentSessions: currentSessions,
-            completedSessions: completedSessions
-        };
-
         LoggerService.logPollingComplete();
-        return createSuccessResponse(response);
+        return createSuccessResponse(convertedSessions);
     } catch (error) {
         LoggerService.logErrorDetails(error, 'Read Handler');
         return createErrorResponse(error);
     }
 }
 
-function createSuccessResponse(data: DatabaseResponse): SuccessResponse {
+function createSuccessResponse(data: Record<string, unknown>[]): SuccessResponse {
     return {
         statusCode: 200,
         headers: {

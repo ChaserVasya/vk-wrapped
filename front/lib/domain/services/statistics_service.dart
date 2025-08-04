@@ -1,28 +1,27 @@
 import 'package:front/domain/entities/audio_track.dart';
-import 'package:front/domain/exceptions/app_exception.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:injectable/injectable.dart';
 
 /// Улучшенный сервис для анализа статистики
 @lazySingleton
 class StatisticsService {
   /// Анализирует любимые треки
-  List<AudioTrack> getFavoriteTracks(List<AudioTrack> tracks) {
-    final sortedTracks = List<AudioTrack>.from(tracks);
-    sortedTracks.sort((a, b) => b.playCount.compareTo(a.playCount));
-    return sortedTracks.take(10).toList();
+  IList<AudioTrack> getFavoriteTracks(IList<AudioTrack> tracks) {
+    final sortedTracks = tracks.sort((a, b) => b.playCount.compareTo(a.playCount));
+    return sortedTracks.take(10).toIList();
   }
 
   /// Анализирует общую статистику
-  Map<String, dynamic> getOverallStatistics(List<AudioTrack> tracks) {
+  IMap<String, dynamic> getOverallStatistics(IList<AudioTrack> tracks) {
     if (tracks.isEmpty) {
-      return {
+      return const IMapConst({
         'totalTracks': 0,
         'totalDuration': 0,
         'averageDuration': 0,
         'totalPlayCount': 0,
         'averagePlayCount': 0,
         'totalListeningTime': 0,
-      };
+      });
     }
 
     final totalDuration = tracks.fold<int>(
@@ -37,18 +36,18 @@ class StatisticsService {
     final averageDuration = totalDuration / tracks.length;
     final averagePlayCount = totalPlayCount / tracks.length;
 
-    return {
+    return IMapConst({
       'totalTracks': tracks.length,
       'totalDuration': totalDuration,
       'averageDuration': averageDuration.round(),
       'totalPlayCount': totalPlayCount,
       'averagePlayCount': averagePlayCount.round(),
       'totalListeningTime': totalListeningTime,
-    };
+    });
   }
 
   /// Анализирует статистику по артистам
-  Map<String, int> getArtistStatistics(List<AudioTrack> tracks) {
+  IMap<String, int> getArtistStatistics(IList<AudioTrack> tracks) {
     final artistCounts = <String, int>{};
 
     for (final track in tracks) {
@@ -61,11 +60,11 @@ class StatisticsService {
       artistCounts.entries.toList()..sort((a, b) => b.value.compareTo(a.value)),
     );
 
-    return sortedArtists;
+    return sortedArtists.toIMap();
   }
 
   /// Анализирует статистику по времени прослушивания
-  Map<String, int> getTimeStatistics(List<AudioTrack> tracks) {
+  IMap<String, int> getTimeStatistics(IList<AudioTrack> tracks) {
     final timeCounts = <String, int>{};
 
     for (final track in tracks) {
@@ -76,7 +75,7 @@ class StatisticsService {
       }
     }
 
-    return timeCounts;
+    return timeCounts.toIMap();
   }
 
   /// Получает временной слот
@@ -88,7 +87,7 @@ class StatisticsService {
   }
 
   /// Анализирует жанры (по названию трека)
-  Map<String, int> getGenreStatistics(List<AudioTrack> tracks) {
+  IMap<String, int> getGenreStatistics(IList<AudioTrack> tracks) {
     final genreCounts = <String, int>{};
 
     for (final track in tracks) {
@@ -102,7 +101,7 @@ class StatisticsService {
       genreCounts.entries.toList()..sort((a, b) => b.value.compareTo(a.value)),
     );
 
-    return sortedGenres;
+    return sortedGenres.toIMap();
   }
 
   /// Определяет жанр по названию трека
@@ -121,28 +120,24 @@ class StatisticsService {
   }
 
   /// Получает полную статистику с кэшированием
-  Future<Map<String, dynamic>> getFullStatistics(
-    List<AudioTrack> tracks,
+  Future<IMap<String, dynamic>> getFullStatistics(
+    IList<AudioTrack> tracks,
   ) async {
-    try {
-      final overallStats = getOverallStatistics(tracks);
-      final artistStats = getArtistStatistics(tracks);
-      final genreStats = getGenreStatistics(tracks);
-      final timeStats = getTimeStatistics(tracks);
-      final favoriteTracks = getFavoriteTracks(tracks);
+    final overallStats = getOverallStatistics(tracks);
+    final artistStats = getArtistStatistics(tracks);
+    final genreStats = getGenreStatistics(tracks);
+    final timeStats = getTimeStatistics(tracks);
+    final favoriteTracks = getFavoriteTracks(tracks);
 
-      final fullStats = {
-        'overall': overallStats,
-        'artists': artistStats,
-        'genres': genreStats,
-        'timeSlots': timeStats,
-        'favoriteTracks': favoriteTracks.map((t) => t.toJson()).toList(),
-        'generatedAt': DateTime.now().toIso8601String(),
-      };
+    final fullStats = IMapConst({
+      'overall': overallStats,
+      'artists': artistStats,
+      'genres': genreStats,
+      'timeSlots': timeStats,
+      'favoriteTracks': favoriteTracks.map((t) => t.toJson()).toIList(),
+      'generatedAt': DateTime.now().toIso8601String(),
+    });
 
-      return fullStats;
-    } catch (e) {
-      throw CacheException('Failed to generate full statistics: $e');
-    }
+    return fullStats;
   }
 }

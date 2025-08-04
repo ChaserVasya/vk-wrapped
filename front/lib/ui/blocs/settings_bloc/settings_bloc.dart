@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:front/data/services/cache_service.dart';
 import 'package:front/data/services/export_service.dart';
 import 'package:front/data/services/token_service.dart';
-import 'package:front/domain/services/cache_service_interface.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:injectable/injectable.dart';
 

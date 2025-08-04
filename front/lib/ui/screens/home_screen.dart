@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/home_bloc/home_bloc.dart';
-import 'package:front/ui/widgets/token_input_dialog.dart';
+import 'package:front/ui/screens/token_setup_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -24,7 +24,11 @@ class HomeScreen extends StatelessWidget {
                 context,
               ).showSnackBar(SnackBar(content: Text('Ошибка: $message')));
             case HomeEffect$ShowTokenDialog():
-              showTokenInputDialog(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const TokenSetupScreen(),
+                ),
+              );
           }
         },
         child: Scaffold(

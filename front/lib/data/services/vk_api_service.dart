@@ -1,103 +1,56 @@
-import 'package:dio/dio.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:front/data/services/database_client.dart';
 import 'package:front/data/services/token_service.dart';
 import 'package:front/data/services/vk_api_client.dart';
 import 'package:front/domain/entities/audio_track.dart';
 import 'package:injectable/injectable.dart';
 
-@injectable
+@lazySingleton
 class VkApiService {
-  VkApiClient? _client;
+  final VkApiClient _client;
   final DatabaseClient _databaseClient;
   final TokenService _tokenService;
 
-  VkApiService(this._databaseClient, this._tokenService);
+  VkApiService(this._databaseClient, this._tokenService, this._client);
 
-  void setToken(String token) {
-    final dio = Dio();
-    _client = VkApiClient(dio, baseUrl: 'https://api.vk.com/method');
-  }
-
-  Future<List<AudioTrack>> getAudioById(List<String> audioIds) async {
-    if (_client == null) {
-      throw Exception('VK API client not initialized. Set token first.');
-    }
-
+  Future<IList<AudioTrack>> getAudioById(IList<String> audioIds) async {
     if (audioIds.isEmpty) {
-      return [];
+      return const IListConst([]);
     }
 
+    final token = await _tokenService.getToken();
     final audiosParam = audioIds.join(',');
-    final response = await _client!.getAudioById(
+    final response = await _client.getAudioById(
       audios: audiosParam,
-      accessToken: await _getAccessToken(),
+      accessToken: token!,
     );
 
     return response.response
         .map((vkTrack) => _convertVkTrackToAudioTrack(vkTrack))
-        .toList();
+        .toIList();
   }
 
   Future<AudioTrack?> getSingleAudioById(String audioId) async {
-    final tracks = await getAudioById([audioId]);
+    final tracks = await getAudioById([audioId].toIList());
     return tracks.isNotEmpty ? tracks.first : null;
   }
 
   /// Получает аудио пользователя из базы данных
-  Future<List<AudioTrack>> getUserAudio({int? count, int? offset}) async {
-    try {
-      // Получаем сессии из базы данных
-      final sessions = await _databaseClient.getUserSessions();
+  Future<IList<AudioTrack>> getUserAudio({int? count, int? offset}) async {
+    // Получаем сессии из базы данных
+    final sessions = await _databaseClient.getUserSessions();
 
-      // Если есть VK API клиент, получаем детали треков
-      if (_client != null) {
-        final detailedTracks = <AudioTrack>[];
-        for (final session in sessions) {
-          try {
-            final trackDetails = await getSingleAudioById(session.id);
-            if (trackDetails != null) {
-              detailedTracks.add(trackDetails);
-            } else {
-              detailedTracks.add(session);
-            }
-          } catch (e) {
-            // Если не удалось получить детали, используем базовую информацию
-            detailedTracks.add(session);
-          }
-        }
-        return detailedTracks;
+    // Если есть VK API клиент, получаем детали треков
+    final detailedTracks = <AudioTrack>[];
+    for (final session in sessions) {
+      final trackDetails = await getSingleAudioById(session.id);
+      if (trackDetails != null) {
+        detailedTracks.add(trackDetails);
+      } else {
+        detailedTracks.add(session);
       }
-
-      // Если нет VK API клиента, возвращаем базовую информацию из сессий
-      return sessions;
-    } catch (e) {
-      throw Exception('Failed to get user audio: $e');
     }
-  }
-
-  /// Получает популярные аудио
-  Future<List<AudioTrack>> getPopularAudio({int? count, int? offset}) async {
-    if (_client == null) {
-      throw Exception('VK API client not initialized. Set token first.');
-    }
-
-    final response = await _client!.getPopularAudio(
-      count: count,
-      offset: offset,
-      accessToken: await _getAccessToken(),
-    );
-
-    return response.response
-        .map((vkTrack) => _convertVkTrackToAudioTrack(vkTrack))
-        .toList();
-  }
-
-  Future<String> _getAccessToken() async {
-    final token = await _tokenService.getToken();
-    if (token == null || token.isEmpty) {
-      throw Exception('VK API token not found. Please set token first.');
-    }
-    return token;
+    return detailedTracks.toIList();
   }
 
   AudioTrack _convertVkTrackToAudioTrack(VkAudioTrack vkTrack) {
