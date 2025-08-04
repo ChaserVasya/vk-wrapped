@@ -26,10 +26,6 @@ export class DatabaseService {
     });
   }
 
-  get driverInstance(): Driver {
-    return this.driver;
-  }
-
   /**
  * Преобразует строку YDB в TrackSession
  * @param row - строка из YDB с полями full_id, first_observed, last_seen

@@ -1,86 +1,92 @@
-import 'dart:io';
-import 'dart:convert';
+import 'package:dio/dio.dart';
+import 'package:front/domain/entities/audio_track.dart';
+import 'package:front/domain/exceptions/app_exception.dart';
+import 'package:injectable/injectable.dart';
+import 'package:front/data/services/api_client.dart';
 
-/// Клиент для получения данных из базы данных
+/// Клиент для работы с базой данных через Yandex Cloud Functions
+@injectable
 class DatabaseClient {
-  static const String _functionsPath = '../yandex-cloud/functions';
+  final ApiClient _apiClient;
 
-  /// Получает данные из базы данных
-  static Future<Map<String, dynamic>> getDatabaseData() async {
+  DatabaseClient(this._apiClient);
+
+  /// Получает все сессии пользователя с бэкенда
+  Future<List<AudioTrack>> getUserSessions() async {
     try {
-      // Запускаем TypeScript скрипт
-      final result = await Process.run(
-        'npm',
-        ['run', 'read-db'],
-        workingDirectory: _functionsPath,
-        runInShell: true,
-      );
+      final response = await _apiClient.getUserSessions();
 
-      if (result.exitCode != 0) {
-        // При ошибке ищем JSON в stderr
-        try {
-          final errorJson = _extractJsonFromOutput(result.stderr.toString());
-          final errorData = jsonDecode(errorJson);
+      // Преобразуем сессии в AudioTrack
+      final currentSessions = response.currentSessions;
+      final completedSessions = response.completedSessions;
 
-          if (errorData['error'] != null) {
-            final statusCode = errorData['statusCode'] ?? 500;
-            throw Exception(
-              'Database error ($statusCode): ${errorData['error']}',
-            );
-          }
-        } catch (e) {
-          // Если не удалось распарсить JSON ошибки, попробуем в stdout
-          try {
-            final errorJson = _extractJsonFromOutput(result.stdout.toString());
-            final errorData = jsonDecode(errorJson);
+      final allSessions = [...currentSessions, ...completedSessions];
 
-            if (errorData['error'] != null) {
-              final statusCode = errorData['statusCode'] ?? 500;
-              throw Exception(
-                'Database error ($statusCode): ${errorData['error']}',
-              );
-            }
-          } catch (e2) {
-            // Если не удалось распарсить JSON ошибки
-            throw Exception('TypeScript script failed: ${result.stderr}');
-          }
-        }
-      }
-
-      // При успехе ищем JSON в stdout
-      final jsonString = _extractJsonFromOutput(result.stdout.toString());
-      final jsonData = jsonDecode(jsonString);
-
-      return jsonData;
+      return allSessions.map((session) => _mapSessionToTrack(session)).toList();
     } catch (e) {
-      throw Exception('Error fetching database data: $e');
+      throw DatabaseException('Failed to fetch user sessions: $e');
     }
   }
 
-  /// Извлекает JSON из вывода npm
-  static String _extractJsonFromOutput(String output) {
-    final lines = output.split('\n');
+  /// Преобразует сессию из бэкенда в AudioTrack
+  AudioTrack _mapSessionToTrack(Map<String, dynamic> session) {
+    final fullId = session['full_id'] as String? ?? '';
 
-    // Ищем начало JSON (строку с {)
-    int startIndex = -1;
-    for (int i = lines.length - 1; i >= 0; i--) {
-      final line = lines[i].trim();
-      if (line.startsWith('{')) {
-        startIndex = i;
-        break;
-      }
-    }
+    // Парсим full_id для получения информации о треке
+    // full_id обычно в формате "owner_id_audio_id"
+    final parts = fullId.split('_');
+    final ownerId = parts.isNotEmpty ? parts[0] : '0';
+    final audioId = parts.length > 1 ? parts[1] : '0';
 
-    if (startIndex == -1) {
-      throw Exception('No JSON start found in output');
-    }
+    final firstObserved =
+        DateTime.tryParse(session['first_observed'] as String? ?? '') ??
+        DateTime.now();
+    final lastSeen =
+        DateTime.tryParse(session['last_seen'] as String? ?? '') ??
+        DateTime.now();
 
-    // Собираем JSON из строк начиная с startIndex
-    final jsonLines = lines
-        .skip(startIndex)
-        .takeWhile((line) => line.trim().isNotEmpty);
-    final jsonString = jsonLines.join('\n');
+    // Вычисляем количество прослушиваний на основе времени
+    final duration = lastSeen.difference(firstObserved).inSeconds;
+    final playCount = (duration / 180).round(); // Примерно 3 минуты на трек
 
-    return jsonString;
+    return AudioTrack(
+      id: audioId,
+      title: 'Unknown Track', // Нужно получать с VK API
+      artist: 'Unknown Artist', // Нужно получать с VK API
+      url: 'https://vk.com/audio${ownerId}_${audioId}',
+      duration: duration,
+      playCount: playCount,
+      albumCover: null,
+      lastPlayed: lastSeen,
+    );
   }
+
+  /// Получает детальную информацию о треке с VK API
+  Future<AudioTrack> getTrackDetails(String fullId) async {
+    try {
+      // Здесь нужно добавить запрос к VK API для получения деталей трека
+      // Пока возвращаем базовую информацию
+      final parts = fullId.split('_');
+      final ownerId = parts.isNotEmpty ? parts[0] : '0';
+      final audioId = parts.length > 1 ? parts[1] : '0';
+
+      return AudioTrack(
+        id: audioId,
+        title: 'Track $audioId',
+        artist: 'Artist',
+        url: 'https://vk.com/audio${ownerId}_${audioId}',
+        duration: 180,
+        playCount: 1,
+        albumCover: null,
+        lastPlayed: DateTime.now(),
+      );
+    } catch (e) {
+      throw DatabaseException('Failed to get track details: $e');
+    }
+  }
+}
+
+/// Исключение для ошибок базы данных
+class DatabaseException extends AppException {
+  DatabaseException(String message) : super(message);
 }

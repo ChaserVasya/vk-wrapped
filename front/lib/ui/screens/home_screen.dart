@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:front/features/utils/lib/src/bloc/safe_bloc.dart';
+import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/home_bloc/home_bloc.dart';
 
@@ -92,9 +92,7 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     ElevatedButton.icon(
                       onPressed: () {
-                        context.read<HomeBloc>().add(
-                          const HomeEvent.showTokenDialog(),
-                        );
+                        Navigator.of(context).pushNamed('/settings');
                       },
                       icon: const Icon(Icons.vpn_key),
                       label: const Text('Настроить VK токен'),

@@ -12,4 +12,6 @@ abstract class CacheServiceInterface {
   Future<void> clearCache();
   Future<bool> isCacheStale();
   Future<DateTime?> getLastCacheUpdate();
+  Future<void> saveClientId(String clientId);
+  Future<String?> getClientId();
 }

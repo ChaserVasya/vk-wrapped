@@ -5,4 +5,5 @@ sealed class DetailedStatisticsEvent with _$DetailedStatisticsEvent {
   const factory DetailedStatisticsEvent.loadStatistics(
     List<AudioTrack> tracks,
   ) = _LoadStatistics;
+  const factory DetailedStatisticsEvent.loadFromCache() = _LoadFromCache;
 }

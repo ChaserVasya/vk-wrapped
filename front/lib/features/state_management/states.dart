@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:front/ui/widgets/loading_widget.dart';
 
 class DoNotShowState extends StatelessWidget {
   const DoNotShowState({super.key});
@@ -91,7 +92,7 @@ class LoadingState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: CircularProgressIndicator.adaptive());
+    return const LoadingWidget();
   }
 }
 

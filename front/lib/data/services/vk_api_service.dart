@@ -1,10 +1,14 @@
 import 'package:front/domain/entities/audio_track.dart';
 import 'package:front/data/services/vk_api_client.dart';
+import 'package:front/data/services/database_client.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class VkApiService {
   VkApiClient? _client;
+  final DatabaseClient _databaseClient;
+
+  VkApiService(this._databaseClient);
 
   void setToken(String token) {
     _client = VkApiClient(token);
@@ -28,14 +32,36 @@ class VkApiService {
     return response != null ? AudioTrack.fromJson(response) : null;
   }
 
-  /// Получает аудио пользователя
+  /// Получает аудио пользователя из базы данных
   Future<List<AudioTrack>> getUserAudio({int? count, int? offset}) async {
-    if (_client == null) {
-      throw Exception('VK API client not initialized. Set token first.');
-    }
+    try {
+      // Получаем сессии из базы данных
+      final sessions = await _databaseClient.getUserSessions();
 
-    final response = await _client!.getUserAudio(count: count, offset: offset);
-    return response.map((json) => AudioTrack.fromJson(json)).toList();
+      // Если есть VK API клиент, получаем детали треков
+      if (_client != null) {
+        final detailedTracks = <AudioTrack>[];
+        for (final session in sessions) {
+          try {
+            final trackDetails = await _client!.getSingleAudioById(session.id);
+            if (trackDetails != null) {
+              detailedTracks.add(AudioTrack.fromJson(trackDetails));
+            } else {
+              detailedTracks.add(session);
+            }
+          } catch (e) {
+            // Если не удалось получить детали, используем базовую информацию
+            detailedTracks.add(session);
+          }
+        }
+        return detailedTracks;
+      }
+
+      // Если нет VK API клиента, возвращаем базовую информацию из сессий
+      return sessions;
+    } catch (e) {
+      throw Exception('Failed to get user audio: $e');
+    }
   }
 
   /// Получает популярные аудио

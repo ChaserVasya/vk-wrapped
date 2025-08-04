@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/domain/entities/audio_track.dart';
 import 'package:front/features/state_management/states.dart';
-import 'package:front/features/utils/lib/src/bloc/safe_bloc.dart';
+import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/detailed_statistics_bloc/detailed_statistics_bloc.dart';
 
@@ -14,9 +14,16 @@ class DetailedStatisticsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          getIt<DetailedStatisticsBloc>()
-            ..add(DetailedStatisticsEvent.loadStatistics(tracks)),
+      create: (context) {
+        final bloc = getIt<DetailedStatisticsBloc>();
+        if (tracks.isNotEmpty) {
+          bloc.add(DetailedStatisticsEvent.loadStatistics(tracks));
+        } else {
+          // Если треки не переданы, загружаем из кэша
+          bloc.add(DetailedStatisticsEvent.loadFromCache());
+        }
+        return bloc;
+      },
       child: EffectListener<DetailedStatisticsBloc, DetailedStatisticsEffect>(
         listener: (context, effect) {
           switch (effect) {

@@ -1,9 +1,7 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:bloc_presentation/bloc_presentation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:project_utils/utils.dart';
+import 'package:front/domain/exceptions/app_exception.dart';
 
 export 'package:bloc_presentation/bloc_presentation.dart'
     show BlocPresentationWidgetListener;
@@ -15,9 +13,8 @@ typedef EffectBase = Object;
 /// named effects (defaults are declarative).
 ///
 /// On any unhandled error it undo state and emits side effect error.
-abstract class SafeBloc<E, S> extends InterceptedBloc<E, S>
+abstract class SafeBloc<E, S> extends Bloc<E, S>
     with
-        HandlerAtomic,
         BlocPresentationMixin<S, EffectBase>,
         EffectEmitterMixin,
         ErrorEmitterMixin {
@@ -31,10 +28,6 @@ abstract class EffectBloc<E, S> extends Bloc<E, S>
         EffectEmitterMixin,
         ErrorEmitterMixin {
   EffectBloc(super.initialState);
-
-  /// Provides the [HandlerAtomic] functional as a method for optional usage.
-  Future<void> handleSafe(Emitter<S> emit, FutureOr Function() handler) =>
-      HandlerAtomic.asFunction(this, emit, state, handler);
 }
 
 mixin EffectEmitterMixin<S>
@@ -54,14 +47,11 @@ mixin ErrorEmitterMixin<S> on BlocBase<S>, EffectEmitterMixin<S> {
 
   @protected
   void emitErrorEffect(Object error, {StackTrace? st}) {
-    emitPresentation(AppException.from(error, st: st));
+    emitPresentation(AppException(error.toString(), originalError: error));
   }
 }
 
-typedef EffectWidgetListener<P> = void Function(
-  BuildContext context,
-  P effect,
-);
+typedef EffectWidgetListener<P> = void Function(BuildContext context, P effect);
 
 class EffectListener<B extends EffectEmitterMixin, E extends EffectBase>
     extends BlocPresentationListener<B, EffectBase> {
@@ -70,10 +60,12 @@ class EffectListener<B extends EffectEmitterMixin, E extends EffectBase>
     super.bloc,
     super.child,
     required EffectWidgetListener<E> listener,
-  }) : super(listener: (context, effect) {
-          if (effect is! E) return;
-          listener(context, effect);
-        });
+  }) : super(
+         listener: (context, effect) {
+           if (effect is! E) return;
+           listener(context, effect);
+         },
+       );
 }
 
 /// Class for cases when state undoing on error of [SafeBloc] is undesired

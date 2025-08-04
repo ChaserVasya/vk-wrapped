@@ -6,52 +6,81 @@ import 'package:front/features/state_management/states.dart';
 import 'package:front/features/state_management/common_states.dart';
 import 'package:front/ui/screens/detailed_statistics_screen.dart';
 import 'package:front/domain/entities/audio_track.dart';
+import 'package:front/internal/di/di.dart';
 
-class StatisticsScreen extends StatelessWidget {
+class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
 
   @override
+  State<StatisticsScreen> createState() => _StatisticsScreenState();
+}
+
+class _StatisticsScreenState extends State<StatisticsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Загружаем данные при инициализации экрана
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      getIt<AudioBloc>().add(const AudioEvent.loadUserAudio(count: 50));
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Статистика')),
-      body: BlocBuilder<AudioBloc, AudioState>(
-        builder: (context, state) {
-          return _buildBody(context, state);
-        },
-      ),
-      floatingActionButton: BlocBuilder<AudioBloc, AudioState>(
-        builder: (context, state) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              FloatingActionButton(
-                onPressed: () {
-                  context.read<AudioBloc>().add(
-                    const AudioEvent.loadUserAudio(count: 50),
-                  );
-                },
-                child: const Icon(Icons.refresh),
-              ),
-              if (state.tracks.isData &&
-                  (state.tracks.dataOrNull?.isNotEmpty ?? false)) ...[
-                const SizedBox(height: 16),
-                FloatingActionButton.extended(
+    return BlocProvider.value(
+      value: getIt<AudioBloc>(),
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Статистика')),
+        body: BlocBuilder<AudioBloc, AudioState>(
+          builder: (context, state) {
+            print('🔄 UI: State changed - tracks: ${state.tracks.runtimeType}');
+            print(
+              '🔄 UI: State details - isData: ${state.tracks.isData}, isError: ${state.tracks.isError}, isLoading: ${state.tracks.isLoading}',
+            );
+            if (state.tracks.isData) {
+              print(
+                '🔄 UI: Data tracks count: ${state.tracks.dataOrNull?.length ?? 0}',
+              );
+            }
+            return _buildBody(context, state);
+          },
+        ),
+        floatingActionButton: BlocBuilder<AudioBloc, AudioState>(
+          builder: (context, state) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                FloatingActionButton(
+                  heroTag: 'refresh_button',
                   onPressed: () {
-                    final tracks = state.tracks.dataOrNull ?? [];
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            DetailedStatisticsScreen(tracks: tracks),
-                      ),
+                    context.read<AudioBloc>().add(
+                      const AudioEvent.loadUserAudio(count: 50),
                     );
                   },
-                  label: const Text('Детальная статистика'),
-                  icon: const Icon(Icons.analytics),
+                  child: const Icon(Icons.refresh),
                 ),
+                if (state.tracks.isData &&
+                    (state.tracks.dataOrNull?.isNotEmpty ?? false)) ...[
+                  const SizedBox(height: 16),
+                  FloatingActionButton.extended(
+                    heroTag: 'detailed_stats_button',
+                    onPressed: () {
+                      final tracks = state.tracks.dataOrNull ?? [];
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              DetailedStatisticsScreen(tracks: tracks),
+                        ),
+                      );
+                    },
+                    label: const Text('Детальная статистика'),
+                    icon: const Icon(Icons.analytics),
+                  ),
+                ],
               ],
-            ],
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
