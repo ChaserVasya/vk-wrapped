@@ -3,7 +3,7 @@ import 'package:front/internal/di/di.dart';
 import 'package:front/ui/screens/detailed_statistics_screen.dart';
 import 'package:front/ui/screens/home_screen.dart';
 import 'package:front/ui/screens/settings_screen.dart';
-import 'package:front/ui/screens/statistics_screen.dart';
+import 'package:front/ui/screens/detailed_statistics_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const HomeScreen(),
-        '/statistics': (context) => const StatisticsScreen(),
+        '/statistics': (context) => const DetailedStatisticsScreen(),
         '/settings': (context) => const SettingsScreen(),
         '/detailed-statistics': (context) => const DetailedStatisticsScreen(),
       },

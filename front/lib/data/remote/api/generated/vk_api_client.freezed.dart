@@ -20,6 +20,11 @@ mixin _$VkAudioTrack {
   String get artist;
   int get duration;
   String get url;
+  int? get date;
+  int? get genreId;
+  int? get lyricsId;
+  VkAlbum? get album;
+  List<VkMainArtist>? get mainArtists;
 
   /// Create a copy of VkAudioTrack
   /// with the given fields replaced by the non-null parameter values.
@@ -42,17 +47,38 @@ mixin _$VkAudioTrack {
             (identical(other.artist, artist) || other.artist == artist) &&
             (identical(other.duration, duration) ||
                 other.duration == duration) &&
-            (identical(other.url, url) || other.url == url));
+            (identical(other.url, url) || other.url == url) &&
+            (identical(other.date, date) || other.date == date) &&
+            (identical(other.genreId, genreId) || other.genreId == genreId) &&
+            (identical(other.lyricsId, lyricsId) ||
+                other.lyricsId == lyricsId) &&
+            (identical(other.album, album) || other.album == album) &&
+            const DeepCollectionEquality().equals(
+              other.mainArtists,
+              mainArtists,
+            ));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, ownerId, title, artist, duration, url);
+  int get hashCode => Object.hash(
+    runtimeType,
+    id,
+    ownerId,
+    title,
+    artist,
+    duration,
+    url,
+    date,
+    genreId,
+    lyricsId,
+    album,
+    const DeepCollectionEquality().hash(mainArtists),
+  );
 
   @override
   String toString() {
-    return 'VkAudioTrack(id: $id, ownerId: $ownerId, title: $title, artist: $artist, duration: $duration, url: $url)';
+    return 'VkAudioTrack(id: $id, ownerId: $ownerId, title: $title, artist: $artist, duration: $duration, url: $url, date: $date, genreId: $genreId, lyricsId: $lyricsId, album: $album, mainArtists: $mainArtists)';
   }
 }
 
@@ -70,6 +96,11 @@ abstract mixin class $VkAudioTrackCopyWith<$Res> {
     String artist,
     int duration,
     String url,
+    int? date,
+    int? genreId,
+    int? lyricsId,
+    VkAlbum? album,
+    List<VkMainArtist>? mainArtists,
   });
 }
 
@@ -91,6 +122,11 @@ class _$VkAudioTrackCopyWithImpl<$Res> implements $VkAudioTrackCopyWith<$Res> {
     Object? artist = null,
     Object? duration = null,
     Object? url = null,
+    Object? date = freezed,
+    Object? genreId = freezed,
+    Object? lyricsId = freezed,
+    Object? album = freezed,
+    Object? mainArtists = freezed,
   }) {
     return _then(
       VkAudioTrack(
@@ -118,6 +154,26 @@ class _$VkAudioTrackCopyWithImpl<$Res> implements $VkAudioTrackCopyWith<$Res> {
             ? _self.url
             : url // ignore: cast_nullable_to_non_nullable
                   as String,
+        date: freezed == date
+            ? _self.date
+            : date // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        genreId: freezed == genreId
+            ? _self.genreId
+            : genreId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        lyricsId: freezed == lyricsId
+            ? _self.lyricsId
+            : lyricsId // ignore: cast_nullable_to_non_nullable
+                  as int?,
+        album: freezed == album
+            ? _self.album
+            : album // ignore: cast_nullable_to_non_nullable
+                  as VkAlbum?,
+        mainArtists: freezed == mainArtists
+            ? _self.mainArtists
+            : mainArtists // ignore: cast_nullable_to_non_nullable
+                  as List<VkMainArtist>?,
       ),
     );
   }

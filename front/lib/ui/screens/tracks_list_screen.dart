@@ -103,24 +103,36 @@ class _View extends StatelessWidget {
   Widget _buildTrackCard(VkAudioTrack track, int index) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Основная информация о треке
             Row(
               children: [
-                CircleAvatar(
-                  backgroundColor: Colors.blue,
-                  child: Text(
-                    '$index',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                // Номер трека
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '$index',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ),
                 const Gap(12),
+                // Информация о треке
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -147,63 +159,204 @@ class _View extends StatelessWidget {
                     ],
                   ),
                 ),
-              ],
-            ),
-            const Gap(12),
-            Row(
-              children: [
-                Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
-                const Gap(4),
-                Text(
-                  _formatDuration(track.duration),
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-                const Spacer(),
-                Icon(Icons.music_note, size: 16, color: Colors.grey[600]),
-                const Gap(4),
-                Text(
-                  'ID: ${track.id}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-            const Gap(8),
-            Row(
-              children: [
-                Icon(Icons.person, size: 16, color: Colors.grey[600]),
-                const Gap(4),
-                Text(
-                  'Owner: ${track.ownerId}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-                const Spacer(),
-                Text(
-                  'Full ID: ${track.fullId}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-            if (track.url.isNotEmpty) ...[
-              const Gap(8),
-              Row(
-                children: [
-                  Icon(Icons.link, size: 16, color: Colors.grey[600]),
-                  const Gap(4),
-                  Expanded(
-                    child: Text(
-                      track.url,
-                      style: TextStyle(fontSize: 12, color: Colors.blue[600]),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                // Длительность
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    _formatDuration(track.duration),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[700],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
+
+            const Gap(12),
+
+            // Дополнительная информация
+            if (track.album != null || track.mainArtists != null) ...[
+              _buildAdditionalInfo(track),
+              const Gap(8),
+            ],
+
+            // Техническая информация
+            _buildTechnicalInfo(track),
+
+            // URL трека (если есть)
+            if (track.url.isNotEmpty) ...[
+              const Gap(8),
+              _buildUrlSection(track.url),
             ],
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildAdditionalInfo(VkAudioTrack track) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Альбом
+        if (track.album != null) ...[
+          Row(
+            children: [
+              Icon(Icons.album, size: 16, color: Colors.grey[600]),
+              const Gap(4),
+              Expanded(
+                child: Text(
+                  'Альбом: ${track.album!.title}',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          const Gap(4),
+        ],
+
+        // Основные исполнители
+        if (track.mainArtists != null && track.mainArtists!.isNotEmpty) ...[
+          Row(
+            children: [
+              Icon(Icons.person, size: 16, color: Colors.grey[600]),
+              const Gap(4),
+              Expanded(
+                child: Text(
+                  'Исполнители: ${track.mainArtists!.map((artist) => artist.name).join(', ')}',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildTechnicalInfo(VkAudioTrack track) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Icon(Icons.music_note, size: 16, color: Colors.grey[600]),
+            const Gap(4),
+            Text(
+              'ID: ${track.id}',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
+            const Spacer(),
+            Icon(Icons.person_outline, size: 16, color: Colors.grey[600]),
+            const Gap(4),
+            Text(
+              'Owner: ${track.ownerId}',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
+          ],
+        ),
+        const Gap(4),
+        Row(
+          children: [
+            Icon(Icons.link, size: 16, color: Colors.grey[600]),
+            const Gap(4),
+            Expanded(
+              child: Text(
+                'Full ID: ${track.fullId}',
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (track.date != null) ...[
+              const Gap(8),
+              Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
+              const Gap(4),
+              Text(
+                _formatDate(track.date!),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+            ],
+          ],
+        ),
+        if (track.genreId != null || track.lyricsId != null) ...[
+          const Gap(4),
+          Row(
+            children: [
+              if (track.genreId != null) ...[
+                Icon(Icons.category, size: 16, color: Colors.grey[600]),
+                const Gap(4),
+                Text(
+                  'Genre: ${track.genreId}',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+              ],
+              if (track.lyricsId != null) ...[
+                const Spacer(),
+                Icon(Icons.text_snippet, size: 16, color: Colors.grey[600]),
+                const Gap(4),
+                Text(
+                  'Lyrics: ${track.lyricsId}',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+              ],
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildUrlSection(String url) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.blue[50],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.blue[200]!),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.play_circle_outline, size: 16, color: Colors.blue[600]),
+          const Gap(4),
+          Expanded(
+            child: Text(
+              url,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.blue[600],
+                decoration: TextDecoration.underline,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(int timestamp) {
+    final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+    return '${date.day}.${date.month}.${date.year}';
+  }
+
+  String _formatDuration(int seconds) {
+    final minutes = seconds ~/ 60;
+    final remainingSeconds = seconds % 60;
+    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
   Widget _buildErrorState(BuildContext context, AppException error) {
@@ -276,11 +429,5 @@ class _View extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  String _formatDuration(int seconds) {
-    final minutes = seconds ~/ 60;
-    final remainingSeconds = seconds % 60;
-    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 }
