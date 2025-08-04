@@ -40,32 +40,125 @@ class VkAudioTrack with _$VkAudioTrack {
   /// Used for search by vk api
   String get fullId => '${ownerId}_$id';
 
-  @override
+  @JsonKey(name: 'id')
   final int id;
-  @override
+  @JsonKey(name: 'owner_id')
   final int ownerId;
-  @override
+  @JsonKey(name: 'title')
   final String title;
-  @override
+  @JsonKey(name: 'artist')
   final String artist;
-  @override
+  @JsonKey(name: 'duration')
   final int duration;
-  @override
+  @JsonKey(name: 'url')
   final String url;
+  @JsonKey(name: 'date')
+  final int? date;
+  @JsonKey(name: 'genre_id')
+  final int? genreId;
+  @JsonKey(name: 'lyrics_id')
+  final int? lyricsId;
 
-  VkAudioTrack({
+  @JsonKey(name: 'album')
+  final VkAlbum? album;
+  @JsonKey(name: 'main_artists')
+  final List<VkMainArtist>? mainArtists;
+
+  const VkAudioTrack({
     required this.id,
     required this.ownerId,
     required this.title,
     required this.artist,
     required this.duration,
     required this.url,
+    this.date,
+    this.genreId,
+    this.lyricsId,
+    this.album,
+    this.mainArtists,
   });
 
   factory VkAudioTrack.fromJson(Map<String, dynamic> json) =>
       _$VkAudioTrackFromJson(json);
 
   Map<String, dynamic> toJson() => _$VkAudioTrackToJson(this);
+}
+
+@JsonSerializable()
+class VkAlbum {
+  @JsonKey(name: 'id')
+  final int id;
+  @JsonKey(name: 'title')
+  final String title;
+  @JsonKey(name: 'owner_id')
+  final int ownerId;
+  @JsonKey(name: 'thumb')
+  final VkThumb? thumb;
+  @JsonKey(name: 'main_color')
+  final String? mainColor;
+
+  const VkAlbum({
+    required this.id,
+    required this.title,
+    required this.ownerId,
+    this.thumb,
+    this.mainColor,
+  });
+
+  factory VkAlbum.fromJson(Map<String, dynamic> json) =>
+      _$VkAlbumFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VkAlbumToJson(this);
+}
+
+@JsonSerializable()
+class VkThumb {
+  @JsonKey(name: 'width')
+  final int width;
+  @JsonKey(name: 'height')
+  final int height;
+  @JsonKey(name: 'id')
+  final String id;
+  @JsonKey(name: 'photo_34')
+  final String? photo34;
+  @JsonKey(name: 'photo_135')
+  final String? photo135;
+  @JsonKey(name: 'photo_300')
+  final String? photo300;
+  @JsonKey(name: 'photo_600')
+  final String? photo600;
+
+  const VkThumb({
+    required this.width,
+    required this.height,
+    required this.id,
+    this.photo34,
+    this.photo135,
+    this.photo300,
+    this.photo600,
+  });
+
+  factory VkThumb.fromJson(Map<String, dynamic> json) =>
+      _$VkThumbFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VkThumbToJson(this);
+}
+
+@JsonSerializable()
+class VkMainArtist {
+  @JsonKey(name: 'name')
+  final String name;
+  @JsonKey(name: 'domain')
+  final String? domain;
+  @JsonKey(name: 'id')
+  final String id;
+
+  const VkMainArtist({required this.name, this.domain, required this.id});
+
+  factory VkMainArtist.fromJson(Map<String, dynamic> json) =>
+      _$VkMainArtistFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VkMainArtistToJson(this);
 }
 
 @JsonSerializable()

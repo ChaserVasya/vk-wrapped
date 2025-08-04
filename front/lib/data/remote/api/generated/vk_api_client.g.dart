@@ -19,21 +19,86 @@ Map<String, dynamic> _$VkAudioResponseToJson(VkAudioResponse instance) =>
 
 VkAudioTrack _$VkAudioTrackFromJson(Map<String, dynamic> json) => VkAudioTrack(
   id: (json['id'] as num).toInt(),
-  ownerId: (json['ownerId'] as num).toInt(),
+  ownerId: (json['owner_id'] as num).toInt(),
   title: json['title'] as String,
   artist: json['artist'] as String,
   duration: (json['duration'] as num).toInt(),
   url: json['url'] as String,
+  date: (json['date'] as num?)?.toInt(),
+  genreId: (json['genre_id'] as num?)?.toInt(),
+  lyricsId: (json['lyrics_id'] as num?)?.toInt(),
+  album: json['album'] == null
+      ? null
+      : VkAlbum.fromJson(json['album'] as Map<String, dynamic>),
+  mainArtists: (json['main_artists'] as List<dynamic>?)
+      ?.map((e) => VkMainArtist.fromJson(e as Map<String, dynamic>))
+      .toList(),
 );
 
 Map<String, dynamic> _$VkAudioTrackToJson(VkAudioTrack instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'ownerId': instance.ownerId,
+      'owner_id': instance.ownerId,
       'title': instance.title,
       'artist': instance.artist,
       'duration': instance.duration,
       'url': instance.url,
+      'date': instance.date,
+      'genre_id': instance.genreId,
+      'lyrics_id': instance.lyricsId,
+      'album': instance.album,
+      'main_artists': instance.mainArtists,
+    };
+
+VkAlbum _$VkAlbumFromJson(Map<String, dynamic> json) => VkAlbum(
+  id: (json['id'] as num).toInt(),
+  title: json['title'] as String,
+  ownerId: (json['owner_id'] as num).toInt(),
+  thumb: json['thumb'] == null
+      ? null
+      : VkThumb.fromJson(json['thumb'] as Map<String, dynamic>),
+  mainColor: json['main_color'] as String?,
+);
+
+Map<String, dynamic> _$VkAlbumToJson(VkAlbum instance) => <String, dynamic>{
+  'id': instance.id,
+  'title': instance.title,
+  'owner_id': instance.ownerId,
+  'thumb': instance.thumb,
+  'main_color': instance.mainColor,
+};
+
+VkThumb _$VkThumbFromJson(Map<String, dynamic> json) => VkThumb(
+  width: (json['width'] as num).toInt(),
+  height: (json['height'] as num).toInt(),
+  id: json['id'] as String,
+  photo34: json['photo_34'] as String?,
+  photo135: json['photo_135'] as String?,
+  photo300: json['photo_300'] as String?,
+  photo600: json['photo_600'] as String?,
+);
+
+Map<String, dynamic> _$VkThumbToJson(VkThumb instance) => <String, dynamic>{
+  'width': instance.width,
+  'height': instance.height,
+  'id': instance.id,
+  'photo_34': instance.photo34,
+  'photo_135': instance.photo135,
+  'photo_300': instance.photo300,
+  'photo_600': instance.photo600,
+};
+
+VkMainArtist _$VkMainArtistFromJson(Map<String, dynamic> json) => VkMainArtist(
+  name: json['name'] as String,
+  domain: json['domain'] as String?,
+  id: json['id'] as String,
+);
+
+Map<String, dynamic> _$VkMainArtistToJson(VkMainArtist instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'domain': instance.domain,
+      'id': instance.id,
     };
 
 VkArtist _$VkArtistFromJson(Map<String, dynamic> json) => VkArtist(
