@@ -21,7 +21,21 @@ class TokenGenerator {
 
   String? extractTokenFromUrl(String url) {
     final uri = Uri.parse(url);
+
+    // Проверяем query параметры (для старых форматов)
     final queryParams = uri.queryParameters;
-    return queryParams['access_token'];
+    final tokenFromQuery = queryParams['access_token'];
+    if (tokenFromQuery != null) {
+      return tokenFromQuery;
+    }
+
+    // Проверяем фрагмент URL (после #)
+    final fragment = uri.fragment;
+    if (fragment.isNotEmpty) {
+      final fragmentParams = Uri.splitQueryString(fragment);
+      return fragmentParams['access_token'];
+    }
+
+    return null;
   }
 }

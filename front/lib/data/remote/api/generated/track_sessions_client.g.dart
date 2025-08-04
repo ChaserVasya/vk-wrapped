@@ -20,12 +20,12 @@ class _TrackSessionsClient implements TrackSessionsClient {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<IList<TrackSession>> getSessions() async {
+  Future<List<TrackSession>> getSessions() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<IList<TrackSession>>(
+    final _options = _setStreamType<List<TrackSession>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -35,13 +35,12 @@ class _TrackSessionsClient implements TrackSessionsClient {
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late IList<TrackSession> _value;
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<TrackSession> _value;
     try {
-      _value = IList<TrackSession>.fromJson(
-        _result.data!,
-        (json) => TrackSession.fromJson(json as Map<String, dynamic>),
-      );
+      _value = _result.data!
+          .map((dynamic i) => TrackSession.fromJson(i as Map<String, dynamic>))
+          .toList();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

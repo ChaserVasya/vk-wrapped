@@ -1,8 +1,6 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:front/data/local/prefs_storage.dart';
-import 'package:front/domain/entities/audio_track.dart';
 import 'package:front/domain/services/statistics_service.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:injectable/injectable.dart';
@@ -15,12 +13,11 @@ part 'detailed_statistics_state.dart';
 @injectable
 class DetailedStatisticsBloc
     extends EffectBloc<DetailedStatisticsEvent, DetailedStatisticsState> {
-  DetailedStatisticsBloc(this._cacheService, this._statisticsService)
+  DetailedStatisticsBloc(this._statisticsService)
     : super(const DetailedStatisticsState.initial()) {
     on<_Init>(_onInit);
   }
 
-  final PrefsStorage _cacheService;
   final StatisticsService _statisticsService;
 
   Future<void> _onInit(
@@ -30,29 +27,6 @@ class DetailedStatisticsBloc
     emit(const DetailedStatisticsState.loading());
     try {
       final statistics = await _statisticsService.getFullStatistics();
-      emit(DetailedStatisticsState.data(statistics: statistics));
-    } catch (e) {
-      emit(DetailedStatisticsState.error(message: e.toString()));
-      emitEffect(DetailedStatisticsEffect.error(message: e.toString()));
-    }
-  }
-
-  Future<void> _onLoadFromCache(
-    _LoadFromCache event,
-    Emitter<DetailedStatisticsState> emit,
-  ) async {
-    emit(const DetailedStatisticsState.loading());
-
-    try {
-      final cachedTracks = await _cacheService.getCachedTracks();
-      if (cachedTracks.isEmpty) {
-        emit(const DetailedStatisticsState.error(message: 'Нет данных в кэше'));
-        return;
-      }
-
-      final statistics = await _statisticsService.getFullStatistics(
-        cachedTracks,
-      );
       emit(DetailedStatisticsState.data(statistics: statistics));
     } catch (e) {
       emit(DetailedStatisticsState.error(message: e.toString()));

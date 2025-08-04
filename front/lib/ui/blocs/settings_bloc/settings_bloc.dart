@@ -1,8 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:front/data/local/prefs_storage.dart';
 import 'package:front/data/local/export_service.dart';
-import 'package:front/data/local/vk_token_storage.dart';
+import 'package:front/data/local/prefs_storage.dart';
+import 'package:front/domain/repositories/audio_repository.dart';
+import 'package:front/domain/storages/auth_storage.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:injectable/injectable.dart';
 
@@ -14,37 +15,21 @@ part 'settings_state.dart';
 @injectable
 class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
   final PrefsStorage _cacheService;
-  final VkTokenStorage _tokenService;
+  final AudioRepository _audioRepository;
   final ExportService _exportService;
+  final AuthStorage _authStorage;
 
-  SettingsBloc({
-    required PrefsStorage cacheService,
-    required VkTokenStorage tokenService,
-    required ExportService exportService,
-  }) : _cacheService = cacheService,
-       _tokenService = tokenService,
-       _exportService = exportService,
-       super(const SettingsState.initial()) {
-    on<_CheckTokenStatus>(_onCheckTokenStatus);
+  SettingsBloc(
+    this._cacheService,
+    this._audioRepository,
+    this._exportService,
+    this._authStorage,
+  ) : super(const SettingsState.initial()) {
     on<_ClearToken>(_onClearToken);
     on<_SaveToken>(_onSaveToken);
     on<_ClearCache>(_onClearCache);
     on<_ExportData>(_onExportData);
     on<_LoadCurrentData>(_onLoadCurrentData);
-  }
-
-  Future<void> _onCheckTokenStatus(
-    _CheckTokenStatus event,
-    Emitter<SettingsState> emit,
-  ) async {
-    try {
-      emit(const SettingsState.loading());
-      final hasToken = await _tokenService.hasToken();
-      emit(SettingsState.tokenConfigured(hasToken: hasToken));
-      emitEffect(SettingsEffect.showTokenDialog(hasToken: hasToken));
-    } catch (e) {
-      emitEffect(SettingsEffect.error(message: e.toString()));
-    }
   }
 
   Future<void> _onClearToken(
@@ -53,7 +38,7 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
   ) async {
     try {
       emit(const SettingsState.loading());
-      await _tokenService.clearToken();
+      await _cacheService.clearToken();
       emit(const SettingsState.tokenConfigured(hasToken: false));
       emitEffect(const SettingsEffect.tokenCleared());
     } catch (e) {
@@ -67,7 +52,7 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
   ) async {
     try {
       emit(const SettingsState.loading());
-      await _tokenService.saveToken(event.token);
+      await _authStorage.saveToken(event.token);
       emit(const SettingsState.tokenConfigured(hasToken: true));
       emitEffect(const SettingsEffect.tokenSaved());
     } catch (e) {
@@ -81,7 +66,7 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
   ) async {
     try {
       emit(const SettingsState.loading());
-      await _cacheService.clearCache();
+      await _cacheService.clear();
       emit(const SettingsState.cacheStatus(isCleared: true));
       emitEffect(const SettingsEffect.cacheCleared());
     } catch (e) {
@@ -95,7 +80,7 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
   ) async {
     try {
       emit(const SettingsState.loading());
-      final tracks = await _cacheService.getCachedTracks();
+      final tracks = await _audioRepository.getListenedAudio();
 
       if (tracks.isEmpty) {
         emitEffect(const SettingsEffect.noDataToExport());
@@ -116,15 +101,15 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
     try {
       emit(const SettingsState.loading());
 
-      final hasToken = await _tokenService.hasToken();
-      final currentToken = await _tokenService.getToken();
-      final clientId = await _tokenService.getClientId();
+      final hasToken = _authStorage.getToken() != null;
+      final currentToken = _authStorage.getToken();
+      final clientId = _authStorage.getVkAppId();
 
       emit(
         SettingsState.currentData(
           hasToken: hasToken,
           currentToken: currentToken,
-          clientId: clientId,
+          clientId: clientId ?? 'Дефолтный (От Kate mobile, лол)',
         ),
       );
     } catch (e) {

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/internal/di/di.dart';
-import 'package:front/ui/blocs/audio_bloc/audio_bloc.dart';
 import 'package:front/ui/screens/detailed_statistics_screen.dart';
 import 'package:front/ui/screens/home_screen.dart';
 import 'package:front/ui/screens/settings_screen.dart';
-import 'package:front/ui/screens/statistics_screen.dart';
+import 'package:front/ui/screens/tracks_list_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,22 +17,25 @@ class VkWrappedApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [BlocProvider(create: (_) => getIt<AudioBloc>())],
-      child: MaterialApp(
-        title: 'VK Wrapped',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4C75A3)),
+    return MaterialApp(
+      title: 'VK Wrapped',
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4C75A3)),
+        textTheme: const TextTheme(
+          bodySmall: TextStyle(fontSize: 12, color: Colors.grey),
         ),
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const HomeScreen(),
-          '/statistics': (context) => const StatisticsScreen(),
-          '/settings': (context) => const SettingsScreen(),
-          '/detailed-statistics': (context) => const DetailedStatisticsScreen(),
-        },
+        inputDecorationTheme: InputDecorationTheme(
+          hintStyle: TextStyle(color: Colors.grey[400]),
+        ),
       ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const HomeScreen(),
+        '/tracks': (context) => const TracksListScreen(),
+        '/settings': (context) => const SettingsScreen(),
+        '/detailed-statistics': (context) => const DetailedStatisticsScreen(),
+      },
     );
   }
 }

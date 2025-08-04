@@ -141,75 +141,6 @@ class SettingsEffect$NoDataToExport implements SettingsEffect {
 
 /// @nodoc
 
-class SettingsEffect$ShowTokenDialog implements SettingsEffect {
-  const SettingsEffect$ShowTokenDialog({required this.hasToken});
-
-  final bool hasToken;
-
-  /// Create a copy of SettingsEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $SettingsEffect$ShowTokenDialogCopyWith<SettingsEffect$ShowTokenDialog>
-  get copyWith =>
-      _$SettingsEffect$ShowTokenDialogCopyWithImpl<
-        SettingsEffect$ShowTokenDialog
-      >(this, _$identity);
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is SettingsEffect$ShowTokenDialog &&
-            (identical(other.hasToken, hasToken) ||
-                other.hasToken == hasToken));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, hasToken);
-
-  @override
-  String toString() {
-    return 'SettingsEffect.showTokenDialog(hasToken: $hasToken)';
-  }
-}
-
-/// @nodoc
-abstract mixin class $SettingsEffect$ShowTokenDialogCopyWith<$Res>
-    implements $SettingsEffectCopyWith<$Res> {
-  factory $SettingsEffect$ShowTokenDialogCopyWith(
-    SettingsEffect$ShowTokenDialog value,
-    $Res Function(SettingsEffect$ShowTokenDialog) _then,
-  ) = _$SettingsEffect$ShowTokenDialogCopyWithImpl;
-  @useResult
-  $Res call({bool hasToken});
-}
-
-/// @nodoc
-class _$SettingsEffect$ShowTokenDialogCopyWithImpl<$Res>
-    implements $SettingsEffect$ShowTokenDialogCopyWith<$Res> {
-  _$SettingsEffect$ShowTokenDialogCopyWithImpl(this._self, this._then);
-
-  final SettingsEffect$ShowTokenDialog _self;
-  final $Res Function(SettingsEffect$ShowTokenDialog) _then;
-
-  /// Create a copy of SettingsEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({Object? hasToken = null}) {
-    return _then(
-      SettingsEffect$ShowTokenDialog(
-        hasToken: null == hasToken
-            ? _self.hasToken
-            : hasToken // ignore: cast_nullable_to_non_nullable
-                  as bool,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
 class SettingsEffect$Error implements SettingsEffect {
   const SettingsEffect$Error({required this.message});
 
@@ -296,26 +227,6 @@ mixin _$SettingsEvent {
 /// @nodoc
 class $SettingsEventCopyWith<$Res> {
   $SettingsEventCopyWith(SettingsEvent _, $Res Function(SettingsEvent) __);
-}
-
-/// @nodoc
-
-class _CheckTokenStatus implements SettingsEvent {
-  const _CheckTokenStatus();
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _CheckTokenStatus);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'SettingsEvent.checkTokenStatus()';
-  }
 }
 
 /// @nodoc

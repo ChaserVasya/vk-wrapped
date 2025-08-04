@@ -20,28 +20,18 @@ class TokenSetupBloc extends EffectBloc<TokenSetupEvent, TokenSetupState> {
   final TokenGenerator _tokenGenerator;
 
   TokenSetupBloc(this._authStorage, this._tokenGenerator)
-    : super(
-        const TokenSetupState(
-          vkAppId: 'loading...',
-          currentToken: null,
-          tokenGenerationUrl: null,
-        ),
-      ) {
-    on<_Initial>(_onInitial);
+    : super(() {
+        final vkAppId = _authStorage.getVkAppId() ?? Config.fallbackVkAppId;
+        final currentToken = _authStorage.getToken();
+        final tokenGenerationUrl = _tokenGenerator.generateAuthUrl(vkAppId);
+        return TokenSetupState(
+          vkAppId: vkAppId,
+          currentToken: currentToken,
+          tokenGenerationUrl: tokenGenerationUrl,
+        );
+      }()) {
     on<_VkTokenResponseProvided>(_onVkTokenResponseProvided);
     on<_VkAppIdSaved>(_onVkAppIdSaved);
-  }
-
-  Future<void> _onInitial(_Initial event, Emitter<TokenSetupState> emit) async {
-    final currentToken = _authStorage.getToken();
-
-    emit(
-      TokenSetupState(
-        vkAppId: _authStorage.getVkAppId() ?? Config.fallbackVkAppId,
-        currentToken: currentToken,
-        tokenGenerationUrl: null,
-      ),
-    );
   }
 
   Future<void> _onVkTokenResponseProvided(

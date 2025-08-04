@@ -1,15 +1,18 @@
 import 'package:dio/dio.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:injectable/injectable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'generated/vk_api_client.g.dart';
 part 'generated/vk_api_client.freezed.dart';
 
+@lazySingleton
 @RestApi(baseUrl: 'https://api.vk.com/method')
 abstract class VkApiClient {
-  factory VkApiClient(Dio dio, {String baseUrl}) = _VkApiClient;
+  @factoryMethod
+  factory VkApiClient(Dio dio) = _VkApiClient;
 
   @GET('/audio.getById')
   Future<VkAudioResponse> getAudioById({
