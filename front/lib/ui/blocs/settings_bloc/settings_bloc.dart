@@ -109,7 +109,7 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
         SettingsState.currentData(
           hasToken: hasToken,
           currentToken: currentToken,
-          clientId: clientId ?? 'Дефолтный (От Kate mobile, лол)',
+          clientId: clientId ?? 'Рандомный (От Vk Admin, лол)',
         ),
       );
     } catch (e) {
