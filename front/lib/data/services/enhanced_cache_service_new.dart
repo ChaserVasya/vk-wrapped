@@ -1,8 +1,8 @@
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:front/domain/entities/audio_track.dart';
 import 'package:front/domain/exceptions/app_exception.dart';
 import 'package:front/domain/services/cache_service_interface.dart';
 import 'package:injectable/injectable.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Улучшенный сервис для кэширования данных
 @injectable

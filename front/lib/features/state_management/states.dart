@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
 import 'package:front/ui/widgets/loading_widget.dart';
+import 'package:gap/gap.dart';
 
 class DoNotShowState extends StatelessWidget {
   const DoNotShowState({super.key});

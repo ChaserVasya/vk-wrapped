@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
+
+import 'package:front/domain/entities/audio_track.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:front/domain/entities/audio_track.dart';
 
 /// Сервис для экспорта данных
 class ExportService {
@@ -19,7 +20,7 @@ class ExportService {
         ),
       };
 
-      final jsonString = JsonEncoder.withIndent('  ').convert(data);
+      final jsonString = const JsonEncoder.withIndent('  ').convert(data);
 
       // Получаем временную директорию
       final directory = await getTemporaryDirectory();
@@ -45,7 +46,7 @@ class ExportService {
         'statistics': statistics,
       };
 
-      final jsonString = JsonEncoder.withIndent('  ').convert(data);
+      final jsonString = const JsonEncoder.withIndent('  ').convert(data);
 
       // Получаем временную директорию
       final directory = await getTemporaryDirectory();

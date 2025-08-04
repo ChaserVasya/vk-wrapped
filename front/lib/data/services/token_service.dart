@@ -1,5 +1,5 @@
-import 'package:front/domain/services/cache_service_interface.dart';
 import 'package:front/domain/exceptions/app_exception.dart';
+import 'package:front/domain/services/cache_service_interface.dart';
 import 'package:injectable/injectable.dart';
 
 /// Сервис для управления VK токенами

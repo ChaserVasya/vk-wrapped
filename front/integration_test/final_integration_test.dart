@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:integration_test/integration_test.dart';
-import 'package:front/main.dart' as app;
 import 'package:front/internal/di/di.dart';
+import 'package:front/main.dart' as app;
 import 'package:front/ui/widgets/loading_widget.dart' show useTestLoadingWidget;
+import 'package:integration_test/integration_test.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

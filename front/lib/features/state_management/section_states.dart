@@ -22,8 +22,8 @@ class SectionDoNotShowStub extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: const Padding(
+    return const Card(
+      child: Padding(
         padding: EdgeInsets.all(16),
         child: DoNotShowState(),
       ),
@@ -59,8 +59,8 @@ class SectionLoadingState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: const Padding(padding: EdgeInsets.all(16), child: LoadingState()),
+    return const Card(
+      child: Padding(padding: EdgeInsets.all(16), child: LoadingState()),
     );
   }
 }

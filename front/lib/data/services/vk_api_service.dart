@@ -1,6 +1,6 @@
-import 'package:front/domain/entities/audio_track.dart';
-import 'package:front/data/services/vk_api_client.dart';
 import 'package:front/data/services/database_client.dart';
+import 'package:front/data/services/vk_api_client.dart';
+import 'package:front/domain/entities/audio_track.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
