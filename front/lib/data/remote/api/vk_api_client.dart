@@ -39,6 +39,12 @@ class VkAudioTrack with _$VkAudioTrack {
   /// Used for search by vk api
   String get fullId => '${ownerId}_$id';
 
+  /// Возвращает DateTime для date (если date не null)
+  DateTime? get dateDateTime {
+    if (date == null) return null;
+    return DateTime.fromMillisecondsSinceEpoch(date! * 1000);
+  }
+
   @override
   @JsonKey(name: 'id')
   final int id;

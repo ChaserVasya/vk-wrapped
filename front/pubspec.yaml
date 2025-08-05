@@ -66,6 +66,7 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.20
   path: ^1.9.1
   pretty_dio_logger: ^1.4.0
+  flutter_native_splash: ^2.4.0
   
 dev_dependencies:
   flutter_test:
@@ -100,5 +101,17 @@ flutter_gen:
   line_length: 80
   integrations:
     flutter_svg: true
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: false
+  image_path: "assets/app_icon.jpg"
+  min_sdk_android: 21
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "assets/app_icon.jpg"
+  remove_alpha_ios: true
 flutter:
   uses-material-design: true
+  assets:
+    - assets/
+    - assets/memes/

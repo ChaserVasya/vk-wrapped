@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:gap/gap.dart';
+import 'package:intl/intl.dart';
 
 class TrackCard extends StatelessWidget {
   final VkAudioTrack track;
@@ -138,12 +139,12 @@ class TrackTechnicalInfo extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            if (track.date != null) ...[
+            if (track.dateDateTime != null) ...[
               const Gap(8),
               Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
               const Gap(4),
               Text(
-                _formatDate(track.date!),
+                _formatDate(track.dateDateTime!),
                 style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
@@ -177,9 +178,8 @@ class TrackTechnicalInfo extends StatelessWidget {
     );
   }
 
-  String _formatDate(int timestamp) {
-    final date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-    return '${date.day}.${date.month}.${date.year}';
+  String _formatDate(DateTime date) {
+    return DateFormat('dd.MM.yyyy').format(date);
   }
 }
 

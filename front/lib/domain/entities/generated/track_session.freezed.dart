@@ -15,7 +15,11 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$TrackSession {
   String get fullId;
+
+  /// В секундах (Unix timestamp)
   int get firstObserved;
+
+  /// В секундах (Unix timestamp)
   int get lastSeen;
 
   /// Create a copy of TrackSession
@@ -100,19 +104,23 @@ class _$TrackSessionCopyWithImpl<$Res> implements $TrackSessionCopyWith<$Res> {
 
 /// @nodoc
 @JsonSerializable()
-class _TrackSession implements TrackSession {
+class _TrackSession extends TrackSession {
   const _TrackSession({
     required this.fullId,
     required this.firstObserved,
     required this.lastSeen,
-  });
+  }) : super._();
   factory _TrackSession.fromJson(Map<String, dynamic> json) =>
       _$TrackSessionFromJson(json);
 
   @override
   final String fullId;
+
+  /// В секундах (Unix timestamp)
   @override
   final int firstObserved;
+
+  /// В секундах (Unix timestamp)
   @override
   final int lastSeen;
 
