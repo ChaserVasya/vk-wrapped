@@ -6,6 +6,7 @@ import 'package:front/features/utils/bloc/safe_listeners.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/settings_bloc/settings_bloc.dart';
 import 'package:front/ui/screens/token_setup_screen.dart';
+import 'package:front/ui/widgets/extensions.dart';
 import 'package:front/ui/widgets/loading_widget.dart';
 import 'package:gap/gap.dart';
 
@@ -47,33 +48,26 @@ class _Listeners extends StatelessWidget {
           listener: (context, effect) {
             switch (effect) {
               case SettingsEffect$TokenCleared():
-                _showSnackBar(context, 'Токен удален');
+                context.showSnackBar('Токен удален');
               case SettingsEffect$TokenSaved():
-                _showSnackBar(context, 'Токен сохранен!');
+                context.showSnackBar('Токен сохранен!');
               case SettingsEffect$CacheCleared():
-                _showSnackBar(context, 'Кэш очищен');
+                context.showSnackBar('Кэш очищен');
               case SettingsEffect$DataExported():
-                _showSnackBar(context, 'Данные экспортированы');
+                context.showSnackBar('Данные экспортированы');
               case SettingsEffect$NoDataToExport():
-                _showSnackBar(
-                  context,
+                context.showSnackBar(
                   'Нет данных для экспорта. Сначала загрузите музыку.',
                 );
 
               case SettingsEffect$Error(message: final message):
-                _showSnackBar(context, 'Ошибка: $message');
+                context.showSnackBar('Ошибка: $message');
             }
           },
         ),
       ],
       child: child,
     );
-  }
-
-  void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
 
@@ -166,9 +160,7 @@ class _ViewState extends State<_View> {
                   IconButton(
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: currentToken));
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Токен скопирован')),
-                      );
+                      context.showSnackBar('Токен скопирован');
                     },
                     icon: const Icon(Icons.copy, size: 16),
                     padding: EdgeInsets.zero,

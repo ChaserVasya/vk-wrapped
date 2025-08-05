@@ -27,6 +27,11 @@ class VkWrappedApp extends StatelessWidget {
         inputDecorationTheme: InputDecorationTheme(
           hintStyle: TextStyle(color: Colors.grey[400]),
         ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          ),
+        ),
       ),
       initialRoute: '/',
       routes: {

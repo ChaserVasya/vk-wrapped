@@ -74,12 +74,6 @@ class _View extends StatelessWidget {
               },
               icon: const Icon(Icons.analytics),
               label: const Text('Посмотреть статистику'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-              ),
             ),
             const Gap(16),
             ElevatedButton.icon(
@@ -88,12 +82,6 @@ class _View extends StatelessWidget {
               },
               icon: const Icon(Icons.list),
               label: const Text('Список треков'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-              ),
             ),
             const Gap(16),
             ElevatedButton.icon(
@@ -102,12 +90,6 @@ class _View extends StatelessWidget {
               },
               icon: const Icon(Icons.bar_chart),
               label: const Text('Детальная статистика'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-              ),
             ),
             const Gap(16),
             ElevatedButton.icon(
@@ -116,12 +98,6 @@ class _View extends StatelessWidget {
               },
               icon: const Icon(Icons.vpn_key),
               label: const Text('Настроить VK токен'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-              ),
             ),
           ],
         ),
