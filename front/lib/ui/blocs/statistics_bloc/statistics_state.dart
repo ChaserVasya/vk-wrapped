@@ -10,9 +10,15 @@ abstract class StatisticStateData with _$StatisticStateData {
   const factory StatisticStateData({
     required IList<ArtistStats> topArtists,
     required IList<TrackWithStats> topTracks,
+    required IList<
+      ({String title, int trackCount, int totalPlayCount, int totalDuration})
+    >
+    tracksWithSameTitle,
     required Duration totalListeningTime,
     required int uniqueTracksCount,
     required int uniqueArtistsCount,
+    required int uniqueAlbumsCount,
+    required int uniqueGenresCount,
     required Duration averageTrackDuration,
     required IList<TimeOfDayStats> timeOfDayStats,
     required IList<DayOfWeekStats> dayOfWeekStats,

@@ -91,12 +91,13 @@ class _StatisticsCarouselState extends State<StatisticsCarousel> {
               _OverviewPage(data: widget.data),
               _TopArtistsPage(data: widget.data),
               _TopTracksPage(data: widget.data),
+              _TracksWithSameTitlePage(data: widget.data),
               _MonthStatsPage(data: widget.data),
               _ExtremesPage(data: widget.data),
             ],
           ),
         ),
-        _PageIndicator(currentPage: _currentPage, totalPages: 5),
+        _PageIndicator(currentPage: _currentPage, totalPages: 6),
       ],
     );
   }
@@ -109,7 +110,7 @@ class _OverviewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -145,6 +146,18 @@ class _OverviewPage extends StatelessWidget {
             title: 'Уникальных исполнителей',
             value: '${data.uniqueArtistsCount}',
             icon: Icons.person,
+          ),
+          const SizedBox(height: 16),
+          _StatCard(
+            title: 'Уникальных альбомов',
+            value: '${data.uniqueAlbumsCount}',
+            icon: Icons.album,
+          ),
+          const SizedBox(height: 16),
+          _StatCard(
+            title: 'Уникальных жанров',
+            value: '${data.uniqueGenresCount}',
+            icon: Icons.category,
           ),
           const SizedBox(height: 16),
           _StatCard(
@@ -274,6 +287,79 @@ class _TopTracksPage extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _TracksWithSameTitlePage extends StatelessWidget {
+  final StatisticStateData data;
+
+  const _TracksWithSameTitlePage({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            'Топ треков с одинаковым названием',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
+            ),
+          ),
+          const SizedBox(height: 32),
+          Expanded(
+            child: ListView.builder(
+              itemCount: data.tracksWithSameTitle.length,
+              itemBuilder: (context, index) {
+                final trackStat = data.tracksWithSameTitle[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.blue,
+                      child: Text(
+                        '${index + 1}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    title: Text(
+                      trackStat.title,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text('${trackStat.trackCount} версий'),
+                    trailing: Text(
+                      _formatDuration(
+                        Duration(seconds: trackStat.totalDuration),
+                      ),
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+    if (hours > 0) {
+      return '${hours}ч ${minutes}м';
+    }
+    return '${minutes}м';
   }
 }
 

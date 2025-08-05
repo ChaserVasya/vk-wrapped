@@ -63,6 +63,35 @@ class VkAudioTrack with _$VkAudioTrack {
     }
   }
 
+  /// Возвращает название жанра (если genreId не null)
+  String? get genreName {
+    if (genreId == null) return null;
+    const genreMap = {
+      1: 'Rock',
+      2: 'Pop',
+      3: 'Rap & Hip-Hop',
+      4: 'Easy Listening',
+      5: 'House & Dance',
+      6: 'Instrumental',
+      7: 'Metal',
+      8: 'Dubstep',
+      10: 'Drum & Bass',
+      11: 'Trance',
+      12: 'Chanson',
+      13: 'Ethnic',
+      14: 'Acoustic & Vocal',
+      15: 'Reggae',
+      16: 'Classical',
+      17: 'Indie Pop',
+      18: 'Other',
+      19: 'Speech',
+      21: 'Alternative',
+      22: 'Electropop & Disco',
+      1001: 'Jazz & Blues',
+    };
+    return genreMap[genreId];
+  }
+
   @override
   @JsonKey(name: 'id')
   final int id;

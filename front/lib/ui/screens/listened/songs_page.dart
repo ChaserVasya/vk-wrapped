@@ -55,7 +55,7 @@ class _View extends StatelessWidget {
       selector: (context) => context.watch<TracksCubit>().state,
       dataBuilder: (context, tracksWithCount) {
         final sortedTracksWithCount = tracksWithCount.toList()
-          ..sort((a, b) => b.$1.title.compareTo(a.$1.title));
+          ..sort((a, b) => b.$2.compareTo(a.$2));
 
         return Padding(
           padding: const EdgeInsets.all(16.0),

@@ -16,9 +16,13 @@ T _$identity<T>(T value) => value;
 mixin _$StatisticStateData {
   IList<ArtistStats> get topArtists;
   IList<TrackWithStats> get topTracks;
+  IList<({String title, int trackCount, int totalPlayCount, int totalDuration})>
+  get tracksWithSameTitle;
   Duration get totalListeningTime;
   int get uniqueTracksCount;
   int get uniqueArtistsCount;
+  int get uniqueAlbumsCount;
+  int get uniqueGenresCount;
   Duration get averageTrackDuration;
   IList<TimeOfDayStats> get timeOfDayStats;
   IList<DayOfWeekStats> get dayOfWeekStats;
@@ -48,12 +52,20 @@ mixin _$StatisticStateData {
               topArtists,
             ) &&
             const DeepCollectionEquality().equals(other.topTracks, topTracks) &&
+            const DeepCollectionEquality().equals(
+              other.tracksWithSameTitle,
+              tracksWithSameTitle,
+            ) &&
             (identical(other.totalListeningTime, totalListeningTime) ||
                 other.totalListeningTime == totalListeningTime) &&
             (identical(other.uniqueTracksCount, uniqueTracksCount) ||
                 other.uniqueTracksCount == uniqueTracksCount) &&
             (identical(other.uniqueArtistsCount, uniqueArtistsCount) ||
                 other.uniqueArtistsCount == uniqueArtistsCount) &&
+            (identical(other.uniqueAlbumsCount, uniqueAlbumsCount) ||
+                other.uniqueAlbumsCount == uniqueAlbumsCount) &&
+            (identical(other.uniqueGenresCount, uniqueGenresCount) ||
+                other.uniqueGenresCount == uniqueGenresCount) &&
             (identical(other.averageTrackDuration, averageTrackDuration) ||
                 other.averageTrackDuration == averageTrackDuration) &&
             const DeepCollectionEquality().equals(
@@ -83,9 +95,12 @@ mixin _$StatisticStateData {
     runtimeType,
     const DeepCollectionEquality().hash(topArtists),
     const DeepCollectionEquality().hash(topTracks),
+    const DeepCollectionEquality().hash(tracksWithSameTitle),
     totalListeningTime,
     uniqueTracksCount,
     uniqueArtistsCount,
+    uniqueAlbumsCount,
+    uniqueGenresCount,
     averageTrackDuration,
     const DeepCollectionEquality().hash(timeOfDayStats),
     const DeepCollectionEquality().hash(dayOfWeekStats),
@@ -98,7 +113,7 @@ mixin _$StatisticStateData {
 
   @override
   String toString() {
-    return 'StatisticStateData(topArtists: $topArtists, topTracks: $topTracks, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount)';
+    return 'StatisticStateData(topArtists: $topArtists, topTracks: $topTracks, tracksWithSameTitle: $tracksWithSameTitle, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, uniqueAlbumsCount: $uniqueAlbumsCount, uniqueGenresCount: $uniqueGenresCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount)';
   }
 }
 
@@ -112,9 +127,15 @@ abstract mixin class $StatisticStateDataCopyWith<$Res> {
   $Res call({
     IList<ArtistStats> topArtists,
     IList<TrackWithStats> topTracks,
+    IList<
+      ({String title, int trackCount, int totalPlayCount, int totalDuration})
+    >
+    tracksWithSameTitle,
     Duration totalListeningTime,
     int uniqueTracksCount,
     int uniqueArtistsCount,
+    int uniqueAlbumsCount,
+    int uniqueGenresCount,
     Duration averageTrackDuration,
     IList<TimeOfDayStats> timeOfDayStats,
     IList<DayOfWeekStats> dayOfWeekStats,
@@ -144,9 +165,12 @@ class _$StatisticStateDataCopyWithImpl<$Res>
   $Res call({
     Object? topArtists = null,
     Object? topTracks = null,
+    Object? tracksWithSameTitle = null,
     Object? totalListeningTime = null,
     Object? uniqueTracksCount = null,
     Object? uniqueArtistsCount = null,
+    Object? uniqueAlbumsCount = null,
+    Object? uniqueGenresCount = null,
     Object? averageTrackDuration = null,
     Object? timeOfDayStats = null,
     Object? dayOfWeekStats = null,
@@ -166,6 +190,17 @@ class _$StatisticStateDataCopyWithImpl<$Res>
             ? _self.topTracks
             : topTracks // ignore: cast_nullable_to_non_nullable
                   as IList<TrackWithStats>,
+        tracksWithSameTitle: null == tracksWithSameTitle
+            ? _self.tracksWithSameTitle
+            : tracksWithSameTitle // ignore: cast_nullable_to_non_nullable
+                  as IList<
+                    ({
+                      String title,
+                      int trackCount,
+                      int totalPlayCount,
+                      int totalDuration,
+                    })
+                  >,
         totalListeningTime: null == totalListeningTime
             ? _self.totalListeningTime
             : totalListeningTime // ignore: cast_nullable_to_non_nullable
@@ -177,6 +212,14 @@ class _$StatisticStateDataCopyWithImpl<$Res>
         uniqueArtistsCount: null == uniqueArtistsCount
             ? _self.uniqueArtistsCount
             : uniqueArtistsCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        uniqueAlbumsCount: null == uniqueAlbumsCount
+            ? _self.uniqueAlbumsCount
+            : uniqueAlbumsCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        uniqueGenresCount: null == uniqueGenresCount
+            ? _self.uniqueGenresCount
+            : uniqueGenresCount // ignore: cast_nullable_to_non_nullable
                   as int,
         averageTrackDuration: null == averageTrackDuration
             ? _self.averageTrackDuration
@@ -249,9 +292,12 @@ class _StatisticStateData implements StatisticStateData {
   const _StatisticStateData({
     required this.topArtists,
     required this.topTracks,
+    required this.tracksWithSameTitle,
     required this.totalListeningTime,
     required this.uniqueTracksCount,
     required this.uniqueArtistsCount,
+    required this.uniqueAlbumsCount,
+    required this.uniqueGenresCount,
     required this.averageTrackDuration,
     required this.timeOfDayStats,
     required this.dayOfWeekStats,
@@ -267,11 +313,20 @@ class _StatisticStateData implements StatisticStateData {
   @override
   final IList<TrackWithStats> topTracks;
   @override
+  final IList<
+    ({String title, int trackCount, int totalPlayCount, int totalDuration})
+  >
+  tracksWithSameTitle;
+  @override
   final Duration totalListeningTime;
   @override
   final int uniqueTracksCount;
   @override
   final int uniqueArtistsCount;
+  @override
+  final int uniqueAlbumsCount;
+  @override
+  final int uniqueGenresCount;
   @override
   final Duration averageTrackDuration;
   @override
@@ -307,12 +362,20 @@ class _StatisticStateData implements StatisticStateData {
               topArtists,
             ) &&
             const DeepCollectionEquality().equals(other.topTracks, topTracks) &&
+            const DeepCollectionEquality().equals(
+              other.tracksWithSameTitle,
+              tracksWithSameTitle,
+            ) &&
             (identical(other.totalListeningTime, totalListeningTime) ||
                 other.totalListeningTime == totalListeningTime) &&
             (identical(other.uniqueTracksCount, uniqueTracksCount) ||
                 other.uniqueTracksCount == uniqueTracksCount) &&
             (identical(other.uniqueArtistsCount, uniqueArtistsCount) ||
                 other.uniqueArtistsCount == uniqueArtistsCount) &&
+            (identical(other.uniqueAlbumsCount, uniqueAlbumsCount) ||
+                other.uniqueAlbumsCount == uniqueAlbumsCount) &&
+            (identical(other.uniqueGenresCount, uniqueGenresCount) ||
+                other.uniqueGenresCount == uniqueGenresCount) &&
             (identical(other.averageTrackDuration, averageTrackDuration) ||
                 other.averageTrackDuration == averageTrackDuration) &&
             const DeepCollectionEquality().equals(
@@ -342,9 +405,12 @@ class _StatisticStateData implements StatisticStateData {
     runtimeType,
     const DeepCollectionEquality().hash(topArtists),
     const DeepCollectionEquality().hash(topTracks),
+    const DeepCollectionEquality().hash(tracksWithSameTitle),
     totalListeningTime,
     uniqueTracksCount,
     uniqueArtistsCount,
+    uniqueAlbumsCount,
+    uniqueGenresCount,
     averageTrackDuration,
     const DeepCollectionEquality().hash(timeOfDayStats),
     const DeepCollectionEquality().hash(dayOfWeekStats),
@@ -357,7 +423,7 @@ class _StatisticStateData implements StatisticStateData {
 
   @override
   String toString() {
-    return 'StatisticStateData(topArtists: $topArtists, topTracks: $topTracks, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount)';
+    return 'StatisticStateData(topArtists: $topArtists, topTracks: $topTracks, tracksWithSameTitle: $tracksWithSameTitle, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, uniqueAlbumsCount: $uniqueAlbumsCount, uniqueGenresCount: $uniqueGenresCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount)';
   }
 }
 
@@ -373,9 +439,15 @@ abstract mixin class _$StatisticStateDataCopyWith<$Res>
   $Res call({
     IList<ArtistStats> topArtists,
     IList<TrackWithStats> topTracks,
+    IList<
+      ({String title, int trackCount, int totalPlayCount, int totalDuration})
+    >
+    tracksWithSameTitle,
     Duration totalListeningTime,
     int uniqueTracksCount,
     int uniqueArtistsCount,
+    int uniqueAlbumsCount,
+    int uniqueGenresCount,
     Duration averageTrackDuration,
     IList<TimeOfDayStats> timeOfDayStats,
     IList<DayOfWeekStats> dayOfWeekStats,
@@ -407,9 +479,12 @@ class __$StatisticStateDataCopyWithImpl<$Res>
   $Res call({
     Object? topArtists = null,
     Object? topTracks = null,
+    Object? tracksWithSameTitle = null,
     Object? totalListeningTime = null,
     Object? uniqueTracksCount = null,
     Object? uniqueArtistsCount = null,
+    Object? uniqueAlbumsCount = null,
+    Object? uniqueGenresCount = null,
     Object? averageTrackDuration = null,
     Object? timeOfDayStats = null,
     Object? dayOfWeekStats = null,
@@ -429,6 +504,17 @@ class __$StatisticStateDataCopyWithImpl<$Res>
             ? _self.topTracks
             : topTracks // ignore: cast_nullable_to_non_nullable
                   as IList<TrackWithStats>,
+        tracksWithSameTitle: null == tracksWithSameTitle
+            ? _self.tracksWithSameTitle
+            : tracksWithSameTitle // ignore: cast_nullable_to_non_nullable
+                  as IList<
+                    ({
+                      String title,
+                      int trackCount,
+                      int totalPlayCount,
+                      int totalDuration,
+                    })
+                  >,
         totalListeningTime: null == totalListeningTime
             ? _self.totalListeningTime
             : totalListeningTime // ignore: cast_nullable_to_non_nullable
@@ -440,6 +526,14 @@ class __$StatisticStateDataCopyWithImpl<$Res>
         uniqueArtistsCount: null == uniqueArtistsCount
             ? _self.uniqueArtistsCount
             : uniqueArtistsCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        uniqueAlbumsCount: null == uniqueAlbumsCount
+            ? _self.uniqueAlbumsCount
+            : uniqueAlbumsCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        uniqueGenresCount: null == uniqueGenresCount
+            ? _self.uniqueGenresCount
+            : uniqueGenresCount // ignore: cast_nullable_to_non_nullable
                   as int,
         averageTrackDuration: null == averageTrackDuration
             ? _self.averageTrackDuration

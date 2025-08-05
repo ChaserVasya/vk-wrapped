@@ -18,6 +18,9 @@ class StatisticsService {
     final totalListeningTime = _getTotalListeningTime(tracks, sessions);
     final uniqueTracksCount = _getUniqueTracksCount(sessions);
     final uniqueArtistsCount = _getUniqueArtistsCount(tracks, sessions);
+    final uniqueAlbumsCount = _getUniqueAlbumsCount(tracks);
+    final uniqueGenresCount = _getUniqueGenresCount(tracks);
+    final tracksWithSameTitle = _getTracksWithSameTitle(tracks);
     final averageTrackDuration = _getAverageTrackDuration(tracks, sessions);
     final timeOfDayStats = _getTimeOfDayStats(sessions);
     final dayOfWeekStats = _getDayOfWeekStats(sessions);
@@ -30,9 +33,12 @@ class StatisticsService {
     return StatisticStateData(
       topArtists: topArtists,
       topTracks: topTracks,
+      tracksWithSameTitle: tracksWithSameTitle,
       totalListeningTime: totalListeningTime,
       uniqueTracksCount: uniqueTracksCount,
       uniqueArtistsCount: uniqueArtistsCount,
+      uniqueAlbumsCount: uniqueAlbumsCount,
+      uniqueGenresCount: uniqueGenresCount,
       averageTrackDuration: averageTrackDuration,
       timeOfDayStats: timeOfDayStats,
       dayOfWeekStats: dayOfWeekStats,
@@ -305,6 +311,72 @@ class StatisticsService {
   /// Общее количество прослушиваний
   int _getTotalPlayCount(IList<TrackSession> sessions) {
     return sessions.length;
+  }
+
+  /// Количество уникальных альбомов
+  int _getUniqueAlbumsCount(IList<VkAudioTrack> tracks) {
+    final uniqueAlbums = <String>{};
+    for (final track in tracks) {
+      if (track.album != null) {
+        uniqueAlbums.add('${track.album!.id}_${track.album!.ownerId}');
+      }
+    }
+    return uniqueAlbums.length;
+  }
+
+  /// Количество уникальных жанров
+  int _getUniqueGenresCount(IList<VkAudioTrack> tracks) {
+    final uniqueGenres = <String>{};
+    for (final track in tracks) {
+      if (track.genreName != null) {
+        uniqueGenres.add(track.genreName!);
+      }
+    }
+    return uniqueGenres.length;
+  }
+
+  /// Топ треков с одинаковым названием
+  IList<({String title, int trackCount, int totalPlayCount, int totalDuration})>
+  _getTracksWithSameTitle(IList<VkAudioTrack> tracks) {
+    final titleStats =
+        <String, ({int trackCount, int totalPlayCount, int totalDuration})>{};
+
+    // Подсчитываем статистику для каждого названия
+    for (final track in tracks) {
+      final title = track.title.trim();
+
+      if (titleStats.containsKey(title)) {
+        final current = titleStats[title]!;
+        titleStats[title] = (
+          trackCount: current.trackCount + 1,
+          totalPlayCount: current.totalPlayCount + 1,
+          totalDuration: current.totalDuration + track.duration,
+        );
+      } else {
+        titleStats[title] = (
+          trackCount: 1,
+          totalPlayCount: 1,
+          totalDuration: track.duration,
+        );
+      }
+    }
+
+    // Фильтруем только те названия, у которых больше одного трека
+    final tracksWithSameTitle =
+        titleStats.entries
+            .where((entry) => entry.value.trackCount > 1)
+            .map(
+              (entry) => (
+                title: entry.key,
+                trackCount: entry.value.trackCount,
+                totalPlayCount: entry.value.totalPlayCount,
+                totalDuration: entry.value.totalDuration,
+              ),
+            )
+            .toList()
+          ..sort((a, b) => b.trackCount.compareTo(a.trackCount));
+
+    return tracksWithSameTitle.take(10).toIList();
   }
 }
 

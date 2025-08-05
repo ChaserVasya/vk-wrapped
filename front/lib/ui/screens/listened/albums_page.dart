@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:front/features/state_management/common_states.dart';
 import 'package:front/internal/di/di.dart';
-import 'package:front/ui/blocs/albums_cubit.dart';
+import 'package:front/ui/blocs/albums_with_artists_cubit.dart';
 import 'package:front/ui/widgets/album_card.dart';
 import 'package:front/ui/widgets/common_state_handler.dart';
 import 'package:gap/gap.dart';
@@ -26,7 +26,7 @@ class _Providers extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<AlbumsCubit>()..init(),
+      create: (context) => getIt<AlbumsWithArtistsCubit>()..init(),
       child: child,
     );
   }
@@ -49,10 +49,10 @@ class _View extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CommonStateHandler<
-      CommonStates<IList<(VkAlbum, int)>>,
-      IList<(VkAlbum, int)>
+      CommonStates<IList<(VkAlbum, IList<String>, int)>>,
+      IList<(VkAlbum, IList<String>, int)>
     >(
-      selector: (context) => context.watch<AlbumsCubit>().state,
+      selector: (context) => context.watch<AlbumsWithArtistsCubit>().state,
       dataBuilder: (context, albumsWithCount) {
         return Padding(
           padding: const EdgeInsets.all(16.0),
@@ -73,14 +73,18 @@ class _View extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.7,
+                    childAspectRatio: 0.65,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                   ),
                   itemCount: albumsWithCount.length,
                   itemBuilder: (context, index) {
-                    final (album, trackCount) = albumsWithCount[index];
-                    return AlbumCard(album: album, trackCount: trackCount);
+                    final (album, artists, trackCount) = albumsWithCount[index];
+                    return AlbumCard(
+                      album: album,
+                      trackCount: trackCount,
+                      artists: artists,
+                    );
                   },
                 ),
               ),
@@ -88,7 +92,7 @@ class _View extends StatelessWidget {
           ),
         );
       },
-      onRefreshRequested: () => context.read<AlbumsCubit>().init(),
+      onRefreshRequested: () => context.read<AlbumsWithArtistsCubit>().init(),
     );
   }
 }

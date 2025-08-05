@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:front/ui/widgets/thumb_image.dart';
@@ -6,8 +7,14 @@ import 'package:gap/gap.dart';
 class AlbumCard extends StatelessWidget {
   final VkAlbum album;
   final int? trackCount;
+  final IList<String>? artists;
 
-  const AlbumCard({super.key, required this.album, this.trackCount});
+  const AlbumCard({
+    super.key,
+    required this.album,
+    this.trackCount,
+    this.artists,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +37,15 @@ class AlbumCard extends StatelessWidget {
               Text(
                 'Треков: $trackCount',
                 style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+            ],
+            if (artists != null && artists!.isNotEmpty) ...[
+              const Gap(4),
+              Text(
+                'Авторы: ${artists!.join(', ')}',
+                style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ],
