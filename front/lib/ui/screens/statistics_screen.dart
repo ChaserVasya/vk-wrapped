@@ -7,6 +7,7 @@ import 'package:front/ui/blocs/statistics_bloc/statistics_event.dart';
 import 'package:front/ui/blocs/statistics_bloc/statistics_state.dart';
 import 'package:front/ui/widgets/common_state_handler.dart';
 import 'package:front/ui/widgets/safe_listeners.dart';
+import 'package:intl/intl.dart';
 
 @RoutePage()
 class StatisticsScreen extends StatelessWidget {
@@ -519,7 +520,7 @@ class _ExtremesPage extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
-    return '${date.day}.${date.month}.${date.year}';
+    return DateFormat('dd.MM.yyyy').format(date);
   }
 }
 

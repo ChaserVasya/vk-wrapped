@@ -163,9 +163,7 @@ class StatisticsService {
     final timeStats = <int, TimeOfDayStats>{};
 
     for (final session in sessions) {
-      final hour = DateTime.fromMillisecondsSinceEpoch(
-        session.firstObserved,
-      ).hour;
+      final hour = session.firstObservedDateTime.hour;
       if (timeStats.containsKey(hour)) {
         timeStats[hour] = timeStats[hour]!.copyWith(
           playCount: timeStats[hour]!.playCount + 1,
@@ -185,9 +183,7 @@ class StatisticsService {
     final dayStats = <int, DayOfWeekStats>{};
 
     for (final session in sessions) {
-      final weekday = DateTime.fromMillisecondsSinceEpoch(
-        session.firstObserved,
-      ).weekday;
+      final weekday = session.firstObservedDateTime.weekday;
       if (dayStats.containsKey(weekday)) {
         dayStats[weekday] = dayStats[weekday]!.copyWith(
           playCount: dayStats[weekday]!.playCount + 1,
@@ -207,9 +203,7 @@ class StatisticsService {
     final monthStats = <int, MonthStats>{};
 
     for (final session in sessions) {
-      final month = DateTime.fromMillisecondsSinceEpoch(
-        session.firstObserved,
-      ).month;
+      final month = session.firstObservedDateTime.month;
       if (monthStats.containsKey(month)) {
         monthStats[month] = monthStats[month]!.copyWith(
           playCount: monthStats[month]!.playCount + 1,
@@ -231,10 +225,19 @@ class StatisticsService {
     final dayStats = <DateTime, int>{};
 
     for (final session in sessions) {
-      final day = DateTime.fromMillisecondsSinceEpoch(session.firstObserved);
-      final dayStart = DateTime(day.year, day.month, day.day);
+      // Проверяем что timestamp корректный (не 0 и не слишком старый)
+      if (session.firstObserved <= 0) continue;
+
+      final day = session.firstObservedDateTime;
+      // Дополнительная проверка что дата не слишком старая (до 2020 года)
+      if (day.year < 2020) continue;
+
+      final dayStart = session.firstObservedDay;
       dayStats[dayStart] = (dayStats[dayStart] ?? 0) + 1;
     }
+
+    // Если нет корректных дат, возвращаем null
+    if (dayStats.isEmpty) return null;
 
     final mostActiveDay = dayStats.entries
         .reduce((a, b) => a.value > b.value ? a : b)
