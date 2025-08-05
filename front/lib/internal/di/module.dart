@@ -29,10 +29,6 @@ abstract class RegisterModule {
   PrefsStorage prefsStorage(SharedPreferencesWithCache prefs) =>
       PrefsStorage(prefs);
 
-  @injectable
-  StatisticsBloc statisticsBloc(StatisticsService statisticsService) =>
-      StatisticsBloc(statisticsService);
-
   @lazySingleton
   QueryExecutor get drift => driftDatabase(name: 'app_database');
 }

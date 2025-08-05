@@ -53,12 +53,18 @@ class TrackAlbums extends Table {
   IntColumn get trackOwnerId => integer()();
   IntColumn get albumId => integer()();
   IntColumn get albumOwnerId => integer()();
+
+  @override
+  Set<Column> get primaryKey => {trackId, trackOwnerId, albumId, albumOwnerId};
 }
 
 class AlbumThumbs extends Table {
   IntColumn get albumId => integer()();
   IntColumn get albumOwnerId => integer()();
   TextColumn get thumbId => text()();
+
+  @override
+  Set<Column> get primaryKey => {albumId, albumOwnerId, thumbId};
 }
 
 @DriftDatabase(

@@ -11,12 +11,11 @@ class ShowErrorSafeListener<B extends ErrorEmitterMixin>
     String? Function(AppException)? messageBuilder,
     BlocPresentationWidgetListener<AppException>? delegateListener,
   }) : super(
-         listener: (context, error) {
-           if (delegateListener != null) {
-             delegateListener(context, error);
-             return;
-           }
-           context.showSnackBar(error.toString());
+         listener: (context, state) {
+           String? message = messageBuilder?.call(state);
+           message ??= state.constructMessageInUI(context, state);
+           final errorInfo = state.debugInfo;
+           context.showSnackBar(message, errorInfo: errorInfo);
          },
        );
 }

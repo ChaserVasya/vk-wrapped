@@ -28,7 +28,7 @@ class AudioTrackCard extends StatelessWidget {
                   width: 56,
                   height: 56,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
+                  errorBuilder: (context, error, st) {
                     return Container(
                       width: 56,
                       height: 56,

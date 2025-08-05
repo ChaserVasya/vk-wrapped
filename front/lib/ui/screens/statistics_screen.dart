@@ -1,12 +1,12 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:front/features/utils/bloc/safe_listeners.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/statistics_bloc/statistics_bloc.dart';
 import 'package:front/ui/blocs/statistics_bloc/statistics_event.dart';
 import 'package:front/ui/blocs/statistics_bloc/statistics_state.dart';
-import 'package:front/ui/widgets/loading_state.dart';
+import 'package:front/ui/widgets/common_state_handler.dart';
+import 'package:front/ui/widgets/safe_listeners.dart';
 
 @RoutePage()
 class StatisticsScreen extends StatelessWidget {
@@ -35,14 +35,12 @@ class StatisticsView extends StatelessWidget {
           backgroundColor: Colors.blue,
           foregroundColor: Colors.white,
         ),
-        body: BlocBuilder<StatisticsBloc, StatisticsState>(
-          builder: (context, state) {
-            return switch (state) {
-              StatisticsState$LoadingState() => const LoadingStateWidget(),
-              StatisticsState$DataState() => StatisticsCarousel(data: state),
-              _ => const LoadingStateWidget(),
-            };
-          },
+        body: CommonStateHandler<StatisticsState, StatisticStateData>(
+          selector: (context) => context.watch<StatisticsBloc>().state,
+          dataBuilder: (context, data) => StatisticsCarousel(data: data),
+          onRefreshRequested: () => context.read<StatisticsBloc>().add(
+            const StatisticsEvent.loadStatistics(),
+          ),
         ),
       ),
     );
@@ -50,7 +48,7 @@ class StatisticsView extends StatelessWidget {
 }
 
 class StatisticsCarousel extends StatefulWidget {
-  final StatisticsState$DataState data;
+  final StatisticStateData data;
 
   const StatisticsCarousel({super.key, required this.data});
 
@@ -104,7 +102,7 @@ class _StatisticsCarouselState extends State<StatisticsCarousel> {
 }
 
 class _OverviewPage extends StatelessWidget {
-  final StatisticsState$DataState data;
+  final StatisticStateData data;
 
   const _OverviewPage({required this.data});
 
@@ -169,7 +167,7 @@ class _OverviewPage extends StatelessWidget {
 }
 
 class _TopArtistsPage extends StatelessWidget {
-  final StatisticsState$DataState data;
+  final StatisticStateData data;
 
   const _TopArtistsPage({required this.data});
 
@@ -240,7 +238,7 @@ class _TopArtistsPage extends StatelessWidget {
 }
 
 class _TopTracksPage extends StatelessWidget {
-  final StatisticsState$DataState data;
+  final StatisticStateData data;
 
   const _TopTracksPage({required this.data});
 
@@ -308,7 +306,7 @@ class _TopTracksPage extends StatelessWidget {
 }
 
 class _TimeStatsPage extends StatelessWidget {
-  final StatisticsState$DataState data;
+  final StatisticStateData data;
 
   const _TimeStatsPage({required this.data});
 
@@ -361,7 +359,7 @@ class _TimeStatsPage extends StatelessWidget {
 }
 
 class _DayStatsPage extends StatelessWidget {
-  final StatisticsState$DataState data;
+  final StatisticStateData data;
 
   const _DayStatsPage({required this.data});
 
@@ -417,7 +415,7 @@ class _DayStatsPage extends StatelessWidget {
 }
 
 class _MonthStatsPage extends StatelessWidget {
-  final StatisticsState$DataState data;
+  final StatisticStateData data;
 
   const _MonthStatsPage({required this.data});
 
@@ -473,7 +471,7 @@ class _MonthStatsPage extends StatelessWidget {
 }
 
 class _ExtremesPage extends StatelessWidget {
-  final StatisticsState$DataState data;
+  final StatisticStateData data;
 
   const _ExtremesPage({required this.data});
 

@@ -98,7 +98,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i347.StatisticsService(gh<_i693.AudioRepository>()),
     );
     gh.factory<_i58.StatisticsBloc>(
-      () => registerModule.statisticsBloc(gh<_i347.StatisticsService>()),
+      () => _i58.StatisticsBloc(gh<_i347.StatisticsService>()),
     );
     return this;
   }

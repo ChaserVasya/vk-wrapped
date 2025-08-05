@@ -40,19 +40,22 @@ class DriftAudioStorage implements AudioStorage {
         if (albumData != null) {
           // Получаем thumb для альбома
           VkThumb? thumb;
-          final albumThumb =
+          final albumThumbs =
               await (_database.select(_database.albumThumbs)..where(
                     (at) =>
                         at.albumId.equals(albumData.id) &
                         at.albumOwnerId.equals(albumData.ownerId),
                   ))
-                  .getSingleOrNull();
+                  .get();
+
+          final albumThumb = albumThumbs.isNotEmpty ? albumThumbs.first : null;
 
           if (albumThumb != null) {
-            final thumbData =
-                await (_database.select(_database.thumbs)
-                      ..where((t) => t.thumbId.equals(albumThumb.thumbId)))
-                    .getSingleOrNull();
+            final thumbsData = await (_database.select(
+              _database.thumbs,
+            )..where((t) => t.thumbId.equals(albumThumb.thumbId))).get();
+
+            final thumbData = thumbsData.isNotEmpty ? thumbsData.first : null;
 
             if (thumbData != null) {
               thumb = VkThumb(

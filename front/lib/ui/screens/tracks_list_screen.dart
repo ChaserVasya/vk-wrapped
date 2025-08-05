@@ -6,9 +6,9 @@ import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:front/features/state_management/common_states.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/tracks_cubit.dart';
+import 'package:front/ui/widgets/common_state_handler.dart';
 import 'package:front/ui/widgets/empty_state.dart';
-import 'package:front/ui/widgets/error_state.dart';
-import 'package:front/ui/widgets/loading_state.dart';
+import 'package:front/ui/widgets/safe_listeners.dart';
 import 'package:front/ui/widgets/track_card.dart';
 
 @RoutePage()
@@ -63,31 +63,20 @@ class _View extends StatelessWidget {
           ),
         ],
       ),
-      body: BlocBuilder<TracksCubit, CommonStates<IList<VkAudioTrack>>>(
-        builder: (context, state) {
-          return _buildBody(context, state);
-        },
-      ),
+      body:
+          CubitStateHandler<
+            TracksCubit,
+            CommonStates<IList<VkAudioTrack>>,
+            IList<VkAudioTrack>
+          >(
+            dataBuilder: (context, tracks) {
+              return tracks.isEmpty
+                  ? const EmptyStateWidget(text: 'Нет треков для отображения')
+                  : _buildTracksList(tracks);
+            },
+            onRefreshRequested: () => context.read<TracksCubit>().init(),
+          ),
     );
-  }
-
-  Widget _buildBody(
-    BuildContext context,
-    CommonStates<IList<VkAudioTrack>> state,
-  ) {
-    switch (state) {
-      case CommonStateLoading<IList<VkAudioTrack>>():
-        return const LoadingStateWidget();
-      case CommonStateData<IList<VkAudioTrack>>(data: final tracks):
-        return tracks.isEmpty
-            ? const EmptyStateWidget(text: 'Нет треков для отображения')
-            : _buildTracksList(tracks);
-      case CommonStateError<IList<VkAudioTrack>>(e: final error):
-        return ErrorStateWidget(
-          error,
-          onRefresh: () => context.read<TracksCubit>().init(),
-        );
-    }
   }
 
   Widget _buildTracksList(IList<VkAudioTrack> tracks) {
