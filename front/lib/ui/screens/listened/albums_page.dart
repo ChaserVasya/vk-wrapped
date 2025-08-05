@@ -48,9 +48,12 @@ class _View extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CommonStateHandler<CommonStates<IList<VkAlbum>>, IList<VkAlbum>>(
+    return CommonStateHandler<
+      CommonStates<IList<(VkAlbum, int)>>,
+      IList<(VkAlbum, int)>
+    >(
       selector: (context) => context.watch<AlbumsCubit>().state,
-      dataBuilder: (context, albums) {
+      dataBuilder: (context, albumsWithCount) {
         return Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -70,22 +73,14 @@ class _View extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.8,
+                    childAspectRatio: 0.7,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                   ),
-                  itemCount: albums.length,
+                  itemCount: albumsWithCount.length,
                   itemBuilder: (context, index) {
-                    final album = albums[index];
-                    return AlbumCard(
-                      album: album,
-                      onTap: () {
-                        // TODO: Добавить навигацию к трекам альбома
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Альбом: ${album.title}')),
-                        );
-                      },
-                    );
+                    final (album, trackCount) = albumsWithCount[index];
+                    return AlbumCard(album: album, trackCount: trackCount);
                   },
                 ),
               ),

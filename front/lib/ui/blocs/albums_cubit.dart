@@ -7,7 +7,7 @@ import 'package:front/features/state_management/common_states.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
-class AlbumsCubit extends Cubit<CommonStates<IList<VkAlbum>>> {
+class AlbumsCubit extends Cubit<CommonStates<IList<(VkAlbum, int)>>> {
   AlbumsCubit(this._audioRepository) : super(const CommonStates.loading());
 
   final AudioRepository _audioRepository;
@@ -15,8 +15,8 @@ class AlbumsCubit extends Cubit<CommonStates<IList<VkAlbum>>> {
   Future<void> init() async {
     try {
       emit(const CommonStates.loading());
-      final albums = await _audioRepository.getAlbums();
-      emit(CommonStates.data(albums));
+      final albumsWithCount = await _audioRepository.getAlbumsWithTrackCount();
+      emit(CommonStates.data(albumsWithCount));
     } catch (e, s) {
       emit(CommonStates.error(AppException.from(e, st: s)));
     }

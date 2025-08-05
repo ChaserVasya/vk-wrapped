@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$StatisticStateData {
   IList<ArtistStats> get topArtists;
-  IList<TrackStats> get topTracks;
+  IList<TrackWithStats> get topTracks;
   Duration get totalListeningTime;
   int get uniqueTracksCount;
   int get uniqueArtistsCount;
@@ -23,9 +23,9 @@ mixin _$StatisticStateData {
   IList<TimeOfDayStats> get timeOfDayStats;
   IList<DayOfWeekStats> get dayOfWeekStats;
   IList<MonthStats> get monthStats;
-  DateTime? get mostActiveDay;
-  TrackStats? get longestTrack;
-  TrackStats? get shortestTrack;
+  MostActiveDayStats? get mostActiveDay;
+  VkAudioTrack? get longestTrack;
+  VkAudioTrack? get shortestTrack;
   int get totalPlayCount;
 
   /// Create a copy of StatisticStateData
@@ -111,7 +111,7 @@ abstract mixin class $StatisticStateDataCopyWith<$Res> {
   @useResult
   $Res call({
     IList<ArtistStats> topArtists,
-    IList<TrackStats> topTracks,
+    IList<TrackWithStats> topTracks,
     Duration totalListeningTime,
     int uniqueTracksCount,
     int uniqueArtistsCount,
@@ -119,11 +119,14 @@ abstract mixin class $StatisticStateDataCopyWith<$Res> {
     IList<TimeOfDayStats> timeOfDayStats,
     IList<DayOfWeekStats> dayOfWeekStats,
     IList<MonthStats> monthStats,
-    DateTime? mostActiveDay,
-    TrackStats? longestTrack,
-    TrackStats? shortestTrack,
+    MostActiveDayStats? mostActiveDay,
+    VkAudioTrack? longestTrack,
+    VkAudioTrack? shortestTrack,
     int totalPlayCount,
   });
+
+  $VkAudioTrackCopyWith<$Res>? get longestTrack;
+  $VkAudioTrackCopyWith<$Res>? get shortestTrack;
 }
 
 /// @nodoc
@@ -162,7 +165,7 @@ class _$StatisticStateDataCopyWithImpl<$Res>
         topTracks: null == topTracks
             ? _self.topTracks
             : topTracks // ignore: cast_nullable_to_non_nullable
-                  as IList<TrackStats>,
+                  as IList<TrackWithStats>,
         totalListeningTime: null == totalListeningTime
             ? _self.totalListeningTime
             : totalListeningTime // ignore: cast_nullable_to_non_nullable
@@ -194,21 +197,49 @@ class _$StatisticStateDataCopyWithImpl<$Res>
         mostActiveDay: freezed == mostActiveDay
             ? _self.mostActiveDay
             : mostActiveDay // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
+                  as MostActiveDayStats?,
         longestTrack: freezed == longestTrack
             ? _self.longestTrack
             : longestTrack // ignore: cast_nullable_to_non_nullable
-                  as TrackStats?,
+                  as VkAudioTrack?,
         shortestTrack: freezed == shortestTrack
             ? _self.shortestTrack
             : shortestTrack // ignore: cast_nullable_to_non_nullable
-                  as TrackStats?,
+                  as VkAudioTrack?,
         totalPlayCount: null == totalPlayCount
             ? _self.totalPlayCount
             : totalPlayCount // ignore: cast_nullable_to_non_nullable
                   as int,
       ),
     );
+  }
+
+  /// Create a copy of StatisticStateData
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $VkAudioTrackCopyWith<$Res>? get longestTrack {
+    if (_self.longestTrack == null) {
+      return null;
+    }
+
+    return $VkAudioTrackCopyWith<$Res>(_self.longestTrack!, (value) {
+      return _then(_self.copyWith(longestTrack: value));
+    });
+  }
+
+  /// Create a copy of StatisticStateData
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $VkAudioTrackCopyWith<$Res>? get shortestTrack {
+    if (_self.shortestTrack == null) {
+      return null;
+    }
+
+    return $VkAudioTrackCopyWith<$Res>(_self.shortestTrack!, (value) {
+      return _then(_self.copyWith(shortestTrack: value));
+    });
   }
 }
 
@@ -234,7 +265,7 @@ class _StatisticStateData implements StatisticStateData {
   @override
   final IList<ArtistStats> topArtists;
   @override
-  final IList<TrackStats> topTracks;
+  final IList<TrackWithStats> topTracks;
   @override
   final Duration totalListeningTime;
   @override
@@ -250,11 +281,11 @@ class _StatisticStateData implements StatisticStateData {
   @override
   final IList<MonthStats> monthStats;
   @override
-  final DateTime? mostActiveDay;
+  final MostActiveDayStats? mostActiveDay;
   @override
-  final TrackStats? longestTrack;
+  final VkAudioTrack? longestTrack;
   @override
-  final TrackStats? shortestTrack;
+  final VkAudioTrack? shortestTrack;
   @override
   final int totalPlayCount;
 
@@ -341,7 +372,7 @@ abstract mixin class _$StatisticStateDataCopyWith<$Res>
   @useResult
   $Res call({
     IList<ArtistStats> topArtists,
-    IList<TrackStats> topTracks,
+    IList<TrackWithStats> topTracks,
     Duration totalListeningTime,
     int uniqueTracksCount,
     int uniqueArtistsCount,
@@ -349,11 +380,16 @@ abstract mixin class _$StatisticStateDataCopyWith<$Res>
     IList<TimeOfDayStats> timeOfDayStats,
     IList<DayOfWeekStats> dayOfWeekStats,
     IList<MonthStats> monthStats,
-    DateTime? mostActiveDay,
-    TrackStats? longestTrack,
-    TrackStats? shortestTrack,
+    MostActiveDayStats? mostActiveDay,
+    VkAudioTrack? longestTrack,
+    VkAudioTrack? shortestTrack,
     int totalPlayCount,
   });
+
+  @override
+  $VkAudioTrackCopyWith<$Res>? get longestTrack;
+  @override
+  $VkAudioTrackCopyWith<$Res>? get shortestTrack;
 }
 
 /// @nodoc
@@ -392,7 +428,7 @@ class __$StatisticStateDataCopyWithImpl<$Res>
         topTracks: null == topTracks
             ? _self.topTracks
             : topTracks // ignore: cast_nullable_to_non_nullable
-                  as IList<TrackStats>,
+                  as IList<TrackWithStats>,
         totalListeningTime: null == totalListeningTime
             ? _self.totalListeningTime
             : totalListeningTime // ignore: cast_nullable_to_non_nullable
@@ -424,20 +460,48 @@ class __$StatisticStateDataCopyWithImpl<$Res>
         mostActiveDay: freezed == mostActiveDay
             ? _self.mostActiveDay
             : mostActiveDay // ignore: cast_nullable_to_non_nullable
-                  as DateTime?,
+                  as MostActiveDayStats?,
         longestTrack: freezed == longestTrack
             ? _self.longestTrack
             : longestTrack // ignore: cast_nullable_to_non_nullable
-                  as TrackStats?,
+                  as VkAudioTrack?,
         shortestTrack: freezed == shortestTrack
             ? _self.shortestTrack
             : shortestTrack // ignore: cast_nullable_to_non_nullable
-                  as TrackStats?,
+                  as VkAudioTrack?,
         totalPlayCount: null == totalPlayCount
             ? _self.totalPlayCount
             : totalPlayCount // ignore: cast_nullable_to_non_nullable
                   as int,
       ),
     );
+  }
+
+  /// Create a copy of StatisticStateData
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $VkAudioTrackCopyWith<$Res>? get longestTrack {
+    if (_self.longestTrack == null) {
+      return null;
+    }
+
+    return $VkAudioTrackCopyWith<$Res>(_self.longestTrack!, (value) {
+      return _then(_self.copyWith(longestTrack: value));
+    });
+  }
+
+  /// Create a copy of StatisticStateData
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $VkAudioTrackCopyWith<$Res>? get shortestTrack {
+    if (_self.shortestTrack == null) {
+      return null;
+    }
+
+    return $VkAudioTrackCopyWith<$Res>(_self.shortestTrack!, (value) {
+      return _then(_self.copyWith(shortestTrack: value));
+    });
   }
 }

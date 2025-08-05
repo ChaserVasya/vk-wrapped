@@ -5,39 +5,34 @@ import 'package:gap/gap.dart';
 
 class AlbumCard extends StatelessWidget {
   final VkAlbum album;
-  final VoidCallback? onTap;
+  final int? trackCount;
 
-  const AlbumCard({super.key, required this.album, this.onTap});
+  const AlbumCard({super.key, required this.album, this.trackCount});
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildAlbumCover(),
-              const Gap(8),
-              Text(
-                album.title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildAlbumCover(),
+            const Gap(8),
+            Text(
+              album.title,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            if (trackCount != null) ...[
               const Gap(4),
               Text(
-                'ID: ${album.id}',
+                'Треков: $trackCount',
                 style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
-          ),
+          ],
         ),
       ),
     );
