@@ -25,6 +25,7 @@ import 'package:front/domain/services/statistics_service.dart' as _i347;
 import 'package:front/domain/services/token_generator.dart' as _i458;
 import 'package:front/domain/storages/auth_storage.dart' as _i297;
 import 'package:front/internal/di/module.dart' as _i90;
+import 'package:front/ui/blocs/albums_cubit.dart' as _i77;
 import 'package:front/ui/blocs/settings_bloc/settings_bloc.dart' as _i69;
 import 'package:front/ui/blocs/statistics_bloc/statistics_bloc.dart' as _i58;
 import 'package:front/ui/blocs/token_setup_bloc/token_setup_bloc.dart' as _i35;
@@ -42,6 +43,7 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
+    gh.factory<_i77.AlbumsCubit>(() => _i77.AlbumsCubit());
     gh.factory<_i347.StatisticsService>(() => _i347.StatisticsService());
     await gh.singletonAsync<_i460.SharedPreferencesWithCache>(
       () => registerModule.prefs,

@@ -21,22 +21,15 @@ class NetworkDebugInfoTile extends StatelessWidget {
 
     String? dioMessage;
 
-    if (error is NetworkException) {
-      dioMessage = error.dioMessage;
-      if (dioMessage?.isEmpty == true) {
+    // Убираем проверку на NetworkException, так как его больше нет
+    // Просто используем оригинальную ошибку
+    if (error.originalError != null) {
+      dioMessage = error.originalError.toString();
+      if (dioMessage.isEmpty) {
         dioMessage = null;
       }
-      error = AppException.fromDynamic(error.originalError, st: error.st);
     }
 
-    final networkDebugInfo = error is NetworkException
-        ? error.networkDebugInfo
-        : null;
-    final statusCode = networkDebugInfo?.statusCode;
-    final method = networkDebugInfo?.method;
-    final source = networkDebugInfo?.source;
-    final query = networkDebugInfo?.query;
-    final data = networkDebugInfo?.data;
     final st = error.st;
 
     return Row(
@@ -51,17 +44,6 @@ class NetworkDebugInfoTile extends StatelessWidget {
             children: [
               if (dioMessage != null)
                 Text(dioMessage, style: const TextStyle(fontSize: 16)),
-              if (statusCode != null)
-                Text(
-                  'Status Code: $statusCode',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              if (source != null && method != null)
-                Text('$method $source', style: const TextStyle(fontSize: 16)),
-              if (query != null)
-                Text('Query: $query', style: const TextStyle(fontSize: 16)),
-              if (data != null)
-                Text('Body: $data', style: const TextStyle(fontSize: 16)),
               if (st != null) ...[
                 const Gap(8),
                 const Text(

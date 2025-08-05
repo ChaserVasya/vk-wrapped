@@ -89,6 +89,14 @@ class _View extends StatelessWidget {
             const Gap(16),
             ElevatedButton.icon(
               onPressed: () {
+                context.router.push(const AlbumsListRoute());
+              },
+              icon: const Icon(Icons.album),
+              label: const Text('Альбомы'),
+            ),
+            const Gap(16),
+            ElevatedButton.icon(
+              onPressed: () {
                 context.router.push(const SettingsRoute());
               },
               icon: const Icon(Icons.vpn_key),

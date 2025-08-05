@@ -5,14 +5,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:front/features/state_management/common_states.dart';
 import 'package:front/internal/di/di.dart';
-import 'package:front/ui/blocs/tracks_cubit.dart';
+import 'package:front/ui/blocs/albums_cubit.dart';
+import 'package:front/ui/widgets/album_card.dart';
 import 'package:front/ui/widgets/common_state_handler.dart';
 import 'package:front/ui/widgets/empty_state.dart';
-import 'package:front/ui/widgets/enhanced_track_card.dart';
 
 @RoutePage()
-class TracksListScreen extends StatelessWidget {
-  const TracksListScreen({super.key});
+class AlbumsListScreen extends StatelessWidget {
+  const AlbumsListScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class _Providers extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<TracksCubit>()..init(),
+      create: (context) => getIt<AlbumsCubit>()..init(),
       child: child,
     );
   }
@@ -52,11 +52,11 @@ class _View extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Список треков'),
+        title: const Text('Альбомы'),
         actions: [
           IconButton(
             onPressed: () {
-              context.read<TracksCubit>().init();
+              context.read<AlbumsCubit>().init();
             },
             icon: const Icon(Icons.refresh),
           ),
@@ -64,27 +64,41 @@ class _View extends StatelessWidget {
       ),
       body:
           CubitStateHandler<
-            TracksCubit,
-            CommonStates<IList<VkAudioTrack>>,
-            IList<VkAudioTrack>
+            AlbumsCubit,
+            CommonStates<IList<VkAlbum>>,
+            IList<VkAlbum>
           >(
-            dataBuilder: (context, tracks) {
-              return tracks.isEmpty
-                  ? const EmptyStateWidget(text: 'Нет треков для отображения')
-                  : _buildTracksList(tracks);
+            dataBuilder: (context, albums) {
+              return albums.isEmpty
+                  ? const EmptyStateWidget(text: 'Нет альбомов для отображения')
+                  : _buildAlbumsGrid(albums);
             },
-            onRefreshRequested: () => context.read<TracksCubit>().init(),
+            onRefreshRequested: () => context.read<AlbumsCubit>().init(),
           ),
     );
   }
 
-  Widget _buildTracksList(IList<VkAudioTrack> tracks) {
-    return ListView.builder(
+  Widget _buildAlbumsGrid(IList<VkAlbum> albums) {
+    return GridView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: tracks.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.8,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemCount: albums.length,
       itemBuilder: (context, index) {
-        final track = tracks[index];
-        return EnhancedTrackCard(track: track, index: index + 1);
+        final album = albums[index];
+        return AlbumCard(
+          album: album,
+          onTap: () {
+            // TODO: Добавить навигацию к трекам альбома
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text('Альбом: ${album.title}')));
+          },
+        );
       },
     );
   }

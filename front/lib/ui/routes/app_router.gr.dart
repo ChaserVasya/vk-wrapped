@@ -11,6 +11,22 @@
 part of 'app_router.dart';
 
 /// generated route for
+/// [AlbumsListScreen]
+class AlbumsListRoute extends PageRouteInfo<void> {
+  const AlbumsListRoute({List<PageRouteInfo>? children})
+    : super(AlbumsListRoute.name, initialChildren: children);
+
+  static const String name = 'AlbumsListRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const AlbumsListScreen();
+    },
+  );
+}
+
+/// generated route for
 /// [HomeScreen]
 class HomeRoute extends PageRouteInfo<void> {
   const HomeRoute({List<PageRouteInfo>? children})

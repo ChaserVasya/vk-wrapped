@@ -1,0 +1,113 @@
+---
+alwaysApply: true
+---
+
+# Правило обработки ошибок с обязательным использованием stacktrace
+
+## Основные принципы
+
+### Обязательное использование stacktrace
+
+**ВСЕГДА использовать stacktrace при обработке ошибок**
+
+- ✅ **`catch (e, st)`** - обязательно получать stacktrace
+- ✅ **`AppException.from(e, st: st)`** - передавать stacktrace в исключение
+- ❌ **`catch (e)`** - запрещено игнорировать stacktrace
+- ❌ **`AppException(e.toString())`** - запрещено создавать без stacktrace
+
+### Унифицированный подход к созданию исключений
+
+**ВСЕГДА использовать `AppException.from()` для создания исключений**
+
+- ✅ **`AppException.from(e, st: st)`** - универсальный способ
+- ✅ **Автоматическое определение типа** - если объект уже AppException, возвращается как есть
+- ❌ **`AppException(e.toString(), st: st)`** - не использовать напрямую
+- ❌ **`AppException.withStackTrace()`** - не использовать для простых случаев
+
+## Сниппет для catch блока
+
+**ОБЯЗАТЕЛЬНО использовать следующий шаблон:**
+
+```dart
+} catch (e, st) {
+  emit(CommonStates.error(AppException.from(e, st: st)));
+}
+```
+
+### Алгоритм обработки ошибок
+
+1. **Получать stacktrace** - `catch (e, st)`
+2. **Создавать через from** - `AppException.from(e, st: st)`
+3. **Эмитить в состояние** - `emit(CommonStates.error(...))`
+
+## Примеры правильного использования
+
+### ✅ Правильно - в bloc'ах
+
+```dart
+Future<void> loadData() async {
+  try {
+    emit(const CommonStates.loading());
+    final data = await repository.getData();
+    emit(CommonStates.data(data));
+  } catch (e, st) {
+    emit(CommonStates.error(AppException.from(e, st: st)));
+  }
+}
+```
+
+### ✅ Правильно - в сервисах
+
+```dart
+Future<void> processData() async {
+  try {
+    // логика обработки
+  } catch (e, st) {
+    throw AppException.from(e, st: st);
+  }
+}
+```
+
+### ❌ Неправильно - без stacktrace
+
+```dart
+} catch (e) { // ПЛОХО - нет stacktrace
+  emit(CommonStates.error(AppException(e.toString()))); // ПЛОХО - без stacktrace
+}
+```
+
+### ❌ Неправильно - сложные конструкции
+
+```dart
+} catch (e, st) {
+  // Если ошибка уже AppException, используем её как есть
+  if (e is AppException) {
+    emit(CommonStates.error(e));
+  } else {
+    // Иначе создаем AppException из ошибки
+    emit(CommonStates.error(AppException.from(e, st: st)));
+  }
+} // ПЛОХО - слишком сложно, AppException.from уже делает это автоматически
+```
+
+## Специальные исключения
+
+### NoTokenException
+
+**AppException.from автоматически обрабатывает специальные исключения:**
+
+```dart
+} catch (e, st) {
+  emit(CommonStates.error(AppException.from(e, st: st)));
+}
+```
+
+**NoTokenException уже наследуется от AppException, поэтому AppException.from вернет его как есть.**
+
+## Приоритет
+
+**КРИТИЧЕСКИ ВЫСОКИЙ ПРИОРИТЕТ** - всегда использовать stacktrace и унифицированный подход к созданию исключений.
+
+## Исключения
+
+Нет исключений - правило должно соблюдаться всегда для обеспечения качества отладки и единообразия кода.

@@ -120,11 +120,12 @@ class $AssetsMemesGen {
 class Assets {
   const Assets._();
 
+  static const AssetGenImage appIcon = AssetGenImage('assets/app_icon.jpg');
   static const $AssetsMemesGen memes = $AssetsMemesGen();
   static const AssetGenImage splash = AssetGenImage('assets/splash.jpg');
 
   /// List of all assets
-  static List<AssetGenImage> get values => [splash];
+  static List<AssetGenImage> get values => [appIcon, splash];
 }
 
 class AssetGenImage {

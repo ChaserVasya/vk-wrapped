@@ -1,62 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:front/data/remote/api/vk_api_client.dart';
+import 'package:front/ui/widgets/thumb_image.dart';
 
 class AudioTrackCard extends StatelessWidget {
-  const AudioTrackCard({
-    super.key,
-    required this.title,
-    required this.artist,
-    this.albumCover,
-    this.duration,
-    this.playCount,
-  });
+  const AudioTrackCard({super.key, required this.track, this.playCount});
 
-  final String title;
-  final String artist;
-  final String? albumCover;
-  final int? duration;
+  final VkAudioTrack track;
   final int? playCount;
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
-        leading: albumCover != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  albumCover!,
-                  width: 56,
-                  height: 56,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, st) {
-                    return Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.music_note),
-                    );
-                  },
-                ),
-              )
-            : Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(Icons.music_note),
-              ),
+        leading: _buildAlbumCover(),
         title: Text(
-          title,
+          track.title,
           style: const TextStyle(fontWeight: FontWeight.bold),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        subtitle: Text(artist, maxLines: 1, overflow: TextOverflow.ellipsis),
+        subtitle: Text(
+          track.artist,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         trailing: playCount != null
             ? Text(
                 '$playCount',
@@ -65,8 +32,34 @@ class AudioTrackCard extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               )
-            : null,
+            : Text(
+                _formatDuration(track.duration),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
       ),
     );
+  }
+
+  Widget _buildAlbumCover() {
+    return ThumbImage(
+      thumb: track.album?.thumb,
+      width: 56,
+      height: 56,
+      fallback: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(Icons.music_note),
+      ),
+    );
+  }
+
+  String _formatDuration(int seconds) {
+    final minutes = seconds ~/ 60;
+    final remainingSeconds = seconds % 60;
+    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 }
