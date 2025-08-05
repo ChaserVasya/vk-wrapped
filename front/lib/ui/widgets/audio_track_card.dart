@@ -19,23 +19,59 @@ class AudioTrackCard extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        subtitle: Text(
-          track.artistsNames,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              track.artistsNames,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            if (track.album != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                track.album!.title,
+                style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+            if (track.genreName != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                track.genreName!,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey[600],
+                  fontStyle: FontStyle.italic,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ],
         ),
-        trailing: playCount != null
-            ? Text(
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              _formatDuration(track.duration),
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
+            if (playCount != null) ...[
+              const SizedBox(height: 2),
+              Text(
                 '$playCount прослушиваний',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,
+                  fontSize: 11,
                 ),
-              )
-            : Text(
-                _formatDuration(track.duration),
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
+            ],
+          ],
+        ),
       ),
     );
   }

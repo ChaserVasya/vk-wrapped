@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:front/ui/screens/listened/albums_page.dart';
 import 'package:front/ui/screens/listened/artists_page.dart';
+import 'package:front/ui/screens/listened/genres_page.dart';
 import 'package:front/ui/screens/listened/songs_page.dart';
 
 @RoutePage()
@@ -60,10 +61,11 @@ class _ListenedCarouselState extends State<ListenedCarousel> {
               const ArtistsPage(),
               const AlbumsPage(),
               const SongsPage(),
+              const GenresPage(),
             ],
           ),
         ),
-        _PageIndicator(currentPage: _currentPage, totalPages: 3),
+        _PageIndicator(currentPage: _currentPage, totalPages: 4),
       ],
     );
   }

@@ -47,7 +47,6 @@ class AudioRepository {
   Future<IList<(VkAudioTrack, int)>> getTracksWithPlayCount() async {
     final (tracks, sessions) = await getAudioData();
     final trackPlayCount = <String, int>{};
-
     // Подсчитываем количество прослушиваний для каждого трека
     for (final session in sessions) {
       final track = tracks.firstWhere((t) => t.fullId == session.fullId);
@@ -164,5 +163,164 @@ class AudioRepository {
     }).toIList();
 
     return albumsWithCount;
+  }
+
+  /// Получает альбомы с авторами и количеством треков
+  Future<IList<(VkAlbum, IList<String>, int)>>
+  getAlbumsWithArtistsAndTrackCount() async {
+    final tracks = await getListenedAudio();
+    final albumData =
+        <String, ({VkAlbum album, Set<String> artists, int trackCount})>{};
+
+    // Подсчитываем данные для каждого альбома
+    for (final track in tracks) {
+      if (track.album != null) {
+        final albumKey = '${track.album!.id}_${track.album!.ownerId}';
+
+        if (albumData.containsKey(albumKey)) {
+          final current = albumData[albumKey]!;
+          albumData[albumKey] = (
+            album: current.album,
+            artists: current.artists..addAll(track.artists),
+            trackCount: current.trackCount + 1,
+          );
+        } else {
+          albumData[albumKey] = (
+            album: track.album!,
+            artists: track.artists.toSet(),
+            trackCount: 1,
+          );
+        }
+      }
+    }
+
+    // Создаем результат с сортировкой по количеству треков
+    final albumsWithArtists =
+        albumData.values
+            .map(
+              (data) => (data.album, data.artists.toIList(), data.trackCount),
+            )
+            .toList()
+          ..sort((a, b) => b.$3.compareTo(a.$3));
+
+    return albumsWithArtists.toIList();
+  }
+
+  /// Получает статистику по жанрам
+  Future<IList<({String genre, int songCount, int totalDuration})>>
+  getGenreStats() async {
+    final tracks = await getListenedAudio();
+    final genreStats = <String, ({int songCount, int totalDuration})>{};
+
+    // Подсчитываем статистику для каждого жанра
+    for (final track in tracks) {
+      if (track.genreName != null) {
+        final genre = track.genreName!;
+
+        if (genreStats.containsKey(genre)) {
+          final current = genreStats[genre]!;
+          genreStats[genre] = (
+            songCount: current.songCount + 1,
+            totalDuration: current.totalDuration + track.duration,
+          );
+        } else {
+          genreStats[genre] = (songCount: 1, totalDuration: track.duration);
+        }
+      }
+    }
+
+    // Сортируем по количеству песен
+    final sortedGenreStats =
+        genreStats.entries
+            .map(
+              (entry) => (
+                genre: entry.key,
+                songCount: entry.value.songCount,
+                totalDuration: entry.value.totalDuration,
+              ),
+            )
+            .toList()
+          ..sort((a, b) => b.songCount.compareTo(a.songCount));
+
+    return sortedGenreStats.toIList();
+  }
+
+  /// Получает количество уникальных альбомов
+  Future<int> getUniqueAlbumsCount() async {
+    final tracks = await getListenedAudio();
+    final uniqueAlbums = <String>{};
+
+    for (final track in tracks) {
+      if (track.album != null) {
+        uniqueAlbums.add('${track.album!.id}_${track.album!.ownerId}');
+      }
+    }
+
+    return uniqueAlbums.length;
+  }
+
+  /// Получает количество уникальных жанров
+  Future<int> getUniqueGenresCount() async {
+    final tracks = await getListenedAudio();
+    final uniqueGenres = <String>{};
+
+    for (final track in tracks) {
+      if (track.genreName != null) {
+        uniqueGenres.add(track.genreName!);
+      }
+    }
+
+    return uniqueGenres.length;
+  }
+
+  /// Получает топ треков с одинаковым названием
+  Future<
+    IList<
+      ({String title, int trackCount, int totalPlayCount, int totalDuration})
+    >
+  >
+  getTracksWithSameTitle() async {
+    final tracks = await getListenedAudio();
+    final titleStats =
+        <String, ({int trackCount, int totalPlayCount, int totalDuration})>{};
+
+    // Подсчитываем статистику для каждого названия
+    for (final track in tracks) {
+      final title = track.title.trim();
+
+      if (titleStats.containsKey(title)) {
+        final current = titleStats[title]!;
+        titleStats[title] = (
+          trackCount: current.trackCount + 1,
+          totalPlayCount:
+              current.totalPlayCount +
+              1, // Каждый трек считается как одно прослушивание
+          totalDuration: current.totalDuration + track.duration,
+        );
+      } else {
+        titleStats[title] = (
+          trackCount: 1,
+          totalPlayCount: 1,
+          totalDuration: track.duration,
+        );
+      }
+    }
+
+    // Фильтруем только те названия, у которых больше одного трека
+    final tracksWithSameTitle =
+        titleStats.entries
+            .where((entry) => entry.value.trackCount > 1)
+            .map(
+              (entry) => (
+                title: entry.key,
+                trackCount: entry.value.trackCount,
+                totalPlayCount: entry.value.totalPlayCount,
+                totalDuration: entry.value.totalDuration,
+              ),
+            )
+            .toList()
+          ..sort((a, b) => b.trackCount.compareTo(a.trackCount));
+
+    return tracksWithSameTitle.toIList();
   }
 }

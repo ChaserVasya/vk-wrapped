@@ -27,7 +27,9 @@ import 'package:front/domain/services/token_generator.dart' as _i458;
 import 'package:front/domain/storages/auth_storage.dart' as _i297;
 import 'package:front/internal/di/module.dart' as _i90;
 import 'package:front/ui/blocs/albums_cubit.dart' as _i77;
+import 'package:front/ui/blocs/albums_with_artists_cubit.dart' as _i868;
 import 'package:front/ui/blocs/artists_cubit.dart' as _i567;
+import 'package:front/ui/blocs/genres_cubit.dart' as _i977;
 import 'package:front/ui/blocs/settings_bloc/settings_bloc.dart' as _i69;
 import 'package:front/ui/blocs/statistics_bloc/statistics_bloc.dart' as _i58;
 import 'package:front/ui/blocs/token_setup_bloc/token_setup_bloc.dart' as _i35;
@@ -108,6 +110,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i567.ArtistsCubit>(
       () => _i567.ArtistsCubit(gh<_i693.AudioRepository>()),
+    );
+    gh.factory<_i977.GenresCubit>(
+      () => _i977.GenresCubit(gh<_i693.AudioRepository>()),
+    );
+    gh.factory<_i868.AlbumsWithArtistsCubit>(
+      () => _i868.AlbumsWithArtistsCubit(gh<_i693.AudioRepository>()),
     );
     gh.factory<_i58.StatisticsBloc>(
       () => _i58.StatisticsBloc(
