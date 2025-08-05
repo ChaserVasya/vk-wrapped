@@ -1,5 +1,5 @@
 name: front
-description: Mobifitness for trainer
+description: VK Wrapped - статистика прослушивания музыки
 publish_to: 'none'
 version: 1.10.1+110
 environment:
