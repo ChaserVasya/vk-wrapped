@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 class EmptyStateWidget extends StatelessWidget {
   final String text;
@@ -12,7 +13,7 @@ class EmptyStateWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.inbox_outlined, size: 64, color: Colors.grey[400]),
-          const SizedBox(height: 16),
+          const Gap(16),
           Text(
             text,
             style: TextStyle(fontSize: 16, color: Colors.grey[600]),

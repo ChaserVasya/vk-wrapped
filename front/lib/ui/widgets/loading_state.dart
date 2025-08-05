@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:front/ui/widgets/loading_widget.dart';
+import 'package:gap/gap.dart';
 
 class LoadingStateWidget extends StatelessWidget {
   const LoadingStateWidget({super.key});
@@ -9,7 +10,7 @@ class LoadingStateWidget extends StatelessWidget {
     return const Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [LoadingWidget(), SizedBox(height: 16), Text('Загрузка...')],
+        children: [LoadingWidget(), Gap(16), Text('Загрузка...')],
       ),
     );
   }
