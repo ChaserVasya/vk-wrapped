@@ -1,0 +1,174 @@
+---
+alwaysApply: true
+---
+
+# Правило архитектуры виджетов
+
+## Основные принципы
+
+### Запрет методов формирования виджетов
+
+**ЗАПРЕЩЕНО создавать методы, которые возвращают виджеты внутри классов экранов**
+
+- ❌ **Методы типа `_buildCard()`, `_buildErrorState()`** - недопустимо
+- ❌ **Методы формирования UI в StatelessWidget/StatefulWidget** - недопустимо
+- ✅ **Отдельные классы-виджеты** - обязательно для каждого UI компонента
+- ✅ **Вынесение логики в отдельные файлы** - для переиспользования
+
+### Структура виджетов
+
+**ВСЕ виджеты ДОЛЖНЫ быть отдельными классами**
+
+```
+✅ Правильно:
+class TrackCard extends StatelessWidget { ... }
+class ErrorStateWidget extends StatelessWidget { ... }
+class LoadingStateWidget extends StatelessWidget { ... }
+
+❌ Неправильно:
+Widget _buildTrackCard() { ... }
+Widget _buildErrorState() { ... }
+```
+
+### Организация файлов
+
+**Виджеты должны быть в отдельных файлах в папке `widgets/`**
+
+```
+lib/ui/widgets/
+  ├── track_card.dart
+  ├── error_state.dart
+  ├── loading_state.dart
+  ├── empty_state.dart
+  └── ...
+```
+
+### Именование виджетов
+
+**Виджеты ДОЛЖНЫ иметь суффикс Widget для избежания конфликтов**
+
+- ✅ **`LoadingStateWidget`** - правильное именование
+- ✅ **`ErrorStateWidget`** - правильное именование
+- ✅ **`EmptyStateWidget`** - правильное именование
+- ❌ **`LoadingState`** - может конфликтовать с состояниями
+- ❌ **`ErrorState`** - может конфликтовать с состояниями
+
+## Правило единого стиля кнопок
+
+### Запрет кастомных стилей
+
+**ЗАПРЕЩЕНО использовать кастомные стили кнопок в экранах**
+
+- ❌ **`ElevatedButton.styleFrom()` в экранах** - недопустимо
+- ❌ **Дублирование стилей кнопок** - недопустимо
+- ✅ **Глобальная тема в main.dart** - обязательно
+- ✅ **Семантические цвета только в специальных случаях**
+
+### Глобальная конфигурация
+
+**ВСЕ стили кнопок ДОЛЖНЫ быть в глобальной теме**
+
+```dart
+// ✅ Правильно - в main.dart
+elevatedButtonTheme: ElevatedButtonThemeData(
+  style: ElevatedButton.styleFrom(
+    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+  ),
+),
+
+// ❌ Неправильно - в экранах
+style: ElevatedButton.styleFrom(
+  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+),
+```
+
+### Исключения для семантических цветов
+
+**ТОЛЬКО семантические цвета разрешены в экранах**
+
+```dart
+// ✅ Разрешено - семантические цвета
+style: ElevatedButton.styleFrom(
+  backgroundColor: Colors.red,    // Очистка/удаление
+  foregroundColor: Colors.white,
+),
+style: ElevatedButton.styleFrom(
+  backgroundColor: Colors.green,  // Экспорт/сохранение
+  foregroundColor: Colors.white,
+),
+```
+
+## Правило обработки исключений
+
+### Обязательное использование AppException
+
+**ВСЕ исключения ДОЛЖНЫ быть типа AppException**
+
+- ✅ **`throw AppException('message')`** - правильно
+- ❌ **`throw Exception('message')`** - запрещено
+- ❌ **`throw CustomException()`** - запрещено (кроме AppException)
+
+### Dio Interceptor
+
+**ОБЯЗАТЕЛЬНО использовать NetworkException interceptor**
+
+```dart
+// ✅ Правильно - в module.dart
+final _errorMappingInterceptor = InterceptorsWrapper(
+  onError: (error, handler) {
+    throw NetworkException(error.toString(), originalError: error);
+  },
+);
+```
+
+## Правило уведомлений
+
+### Использование context.showSnackBar
+
+**ВСЕ уведомления ДОЛЖНЫ использовать context.showSnackBar**
+
+- ✅ **`context.showSnackBar('message')`** - правильно
+- ❌ **`ScaffoldMessenger.of(context).showSnackBar()`** - запрещено
+
+## Правило ShowErrorSafeListener
+
+### Обязательное использование для Bloc'ов
+
+**ВСЕ Bloc'и с ErrorEmitterMixin ДОЛЖНЫ иметь ShowErrorSafeListener**
+
+```dart
+// ✅ Правильно
+MultiBlocListener(
+  listeners: [
+    ShowErrorSafeListener<SettingsBloc>(),
+    ShowErrorSafeListener<DetailedStatisticsBloc>(),
+  ],
+  child: child,
+)
+```
+
+### Проверка наследования
+
+**Проверять наследование от ErrorEmitterMixin перед добавлением listener**
+
+- ✅ **EffectBloc, SafeBloc** - имеют ErrorEmitterMixin
+- ❌ **Обычный Cubit** - не имеет ErrorEmitterMixin
+
+## Алгоритм рефакторинга
+
+1. **Найти методы формирования виджетов** в экранах
+2. **Создать отдельные классы-виджеты** для каждого метода
+3. **Вынести в отдельные файлы** в папку widgets/
+4. **Добавить суффикс Widget** к именам классов
+5. **Заменить вызовы методов** на использование виджетов
+6. **Убрать кастомные стили кнопок** из экранов
+7. **Проверить использование AppException** везде
+8. **Добавить ShowErrorSafeListener** где необходимо
+
+## Приоритет
+
+**КРИТИЧЕСКИ ВЫСОКИЙ ПРИОРИТЕТ** - всегда создавать отдельные классы-виджеты вместо методов формирования UI.
+
+## Исключения
+
+Нет исключений - все правила должны соблюдаться всегда для поддержания чистоты архитектуры.
