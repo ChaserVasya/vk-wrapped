@@ -1,21 +1,56 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:front/domain/entities/track_session.dart';
-import 'package:front/domain/repositories/audio_repository.dart';
+import 'package:front/ui/blocs/statistics_bloc/statistics_state.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class StatisticsService {
-  final AudioRepository _audioRepository;
+  StatisticsService();
 
-  StatisticsService(this._audioRepository);
+  /// Создает полную статистику на основе списка треков и сессий
+  StatisticStateData createStatistics(
+    IList<VkAudioTrack> tracks,
+    IList<TrackSession> sessions,
+  ) {
+    final topArtists = _getTopArtists(tracks, sessions);
+    final topTracks = _getTopTracks(tracks, sessions);
+    final totalListeningTime = _getTotalListeningTime(tracks, sessions);
+    final uniqueTracksCount = _getUniqueTracksCount(sessions);
+    final uniqueArtistsCount = _getUniqueArtistsCount(tracks, sessions);
+    final averageTrackDuration = _getAverageTrackDuration(tracks, sessions);
+    final timeOfDayStats = _getTimeOfDayStats(sessions);
+    final dayOfWeekStats = _getDayOfWeekStats(sessions);
+    final monthStats = _getMonthStats(sessions);
+    final mostActiveDay = _getMostActiveDay(sessions);
+    final longestTrack = _getLongestTrack(tracks, sessions);
+    final shortestTrack = _getShortestTrack(tracks, sessions);
+    final totalPlayCount = _getTotalPlayCount(sessions);
+
+    return StatisticStateData(
+      topArtists: topArtists,
+      topTracks: topTracks,
+      totalListeningTime: totalListeningTime,
+      uniqueTracksCount: uniqueTracksCount,
+      uniqueArtistsCount: uniqueArtistsCount,
+      averageTrackDuration: averageTrackDuration,
+      timeOfDayStats: timeOfDayStats,
+      dayOfWeekStats: dayOfWeekStats,
+      monthStats: monthStats,
+      mostActiveDay: mostActiveDay,
+      longestTrack: longestTrack,
+      shortestTrack: shortestTrack,
+      totalPlayCount: totalPlayCount,
+    );
+  }
 
   // 🎵 МУЗЫКАЛЬНАЯ СТАТИСТИКА
 
   /// Топ исполнителей по количеству прослушиваний
-  Future<IList<ArtistStats>> getTopArtists() async {
-    final tracks = await _audioRepository.getListenedAudio();
-    final sessions = await _getSessions();
-
+  IList<ArtistStats> _getTopArtists(
+    IList<VkAudioTrack> tracks,
+    IList<TrackSession> sessions,
+  ) {
     final artistStats = <String, ArtistStats>{};
 
     for (final session in sessions) {
@@ -42,10 +77,10 @@ class StatisticsService {
   }
 
   /// Топ треков по количеству прослушиваний
-  Future<IList<TrackStats>> getTopTracks() async {
-    final tracks = await _audioRepository.getListenedAudio();
-    final sessions = await _getSessions();
-
+  IList<TrackStats> _getTopTracks(
+    IList<VkAudioTrack> tracks,
+    IList<TrackSession> sessions,
+  ) {
     final trackStats = <String, TrackStats>{};
 
     for (final session in sessions) {
@@ -74,10 +109,10 @@ class StatisticsService {
   }
 
   /// Общее время прослушивания
-  Future<Duration> getTotalListeningTime() async {
-    final tracks = await _audioRepository.getListenedAudio();
-    final sessions = await _getSessions();
-
+  Duration _getTotalListeningTime(
+    IList<VkAudioTrack> tracks,
+    IList<TrackSession> sessions,
+  ) {
     int totalSeconds = 0;
     for (final session in sessions) {
       final track = tracks.firstWhere((t) => t.fullId == session.fullId);
@@ -88,18 +123,16 @@ class StatisticsService {
   }
 
   /// Количество уникальных треков
-  Future<int> getUniqueTracksCount() async {
-    final sessions = await _getSessions();
-
+  int _getUniqueTracksCount(IList<TrackSession> sessions) {
     final uniqueTrackIds = sessions.map((s) => s.fullId).toSet();
     return uniqueTrackIds.length;
   }
 
   /// Количество уникальных исполнителей
-  Future<int> getUniqueArtistsCount() async {
-    final tracks = await _audioRepository.getListenedAudio();
-    final sessions = await _getSessions();
-
+  int _getUniqueArtistsCount(
+    IList<VkAudioTrack> tracks,
+    IList<TrackSession> sessions,
+  ) {
     final uniqueArtists = <String>{};
     for (final session in sessions) {
       final track = tracks.firstWhere((t) => t.fullId == session.fullId);
@@ -110,35 +143,29 @@ class StatisticsService {
   }
 
   /// Средняя продолжительность трека
-  Future<Duration> getAverageTrackDuration() async {
-    final tracks = await _audioRepository.getListenedAudio();
-    final sessions = await _getSessions();
-
+  Duration _getAverageTrackDuration(
+    IList<VkAudioTrack> tracks,
+    IList<TrackSession> sessions,
+  ) {
     if (sessions.isEmpty) return Duration.zero;
 
     int totalDuration = 0;
-    int trackCount = 0;
-
     for (final session in sessions) {
       final track = tracks.firstWhere((t) => t.fullId == session.fullId);
       totalDuration += track.duration;
-      trackCount++;
     }
 
-    return Duration(seconds: totalDuration ~/ trackCount);
+    return Duration(seconds: totalDuration ~/ sessions.length);
   }
 
   /// Статистика по времени суток
-  Future<IList<TimeOfDayStats>> getTimeOfDayStats() async {
-    final sessions = await _getSessions();
-
+  IList<TimeOfDayStats> _getTimeOfDayStats(IList<TrackSession> sessions) {
     final timeStats = <int, TimeOfDayStats>{};
 
     for (final session in sessions) {
       final hour = DateTime.fromMillisecondsSinceEpoch(
         session.firstObserved,
       ).hour;
-
       if (timeStats.containsKey(hour)) {
         timeStats[hour] = timeStats[hour]!.copyWith(
           playCount: timeStats[hour]!.playCount + 1,
@@ -148,22 +175,19 @@ class StatisticsService {
       }
     }
 
-    final sortedTimeStats = timeStats.values.toList()
+    final sortedStats = timeStats.values.toList()
       ..sort((a, b) => b.playCount.compareTo(a.playCount));
-    return sortedTimeStats.toIList();
+    return sortedStats.toIList();
   }
 
   /// Статистика по дням недели
-  Future<IList<DayOfWeekStats>> getDayOfWeekStats() async {
-    final sessions = await _getSessions();
-
+  IList<DayOfWeekStats> _getDayOfWeekStats(IList<TrackSession> sessions) {
     final dayStats = <int, DayOfWeekStats>{};
 
     for (final session in sessions) {
       final weekday = DateTime.fromMillisecondsSinceEpoch(
         session.firstObserved,
       ).weekday;
-
       if (dayStats.containsKey(weekday)) {
         dayStats[weekday] = dayStats[weekday]!.copyWith(
           playCount: dayStats[weekday]!.playCount + 1,
@@ -173,22 +197,19 @@ class StatisticsService {
       }
     }
 
-    final sortedDayStats = dayStats.values.toList()
+    final sortedStats = dayStats.values.toList()
       ..sort((a, b) => b.playCount.compareTo(a.playCount));
-    return sortedDayStats.toIList();
+    return sortedStats.toIList();
   }
 
   /// Статистика по месяцам
-  Future<IList<MonthStats>> getMonthStats() async {
-    final sessions = await _getSessions();
-
+  IList<MonthStats> _getMonthStats(IList<TrackSession> sessions) {
     final monthStats = <int, MonthStats>{};
 
     for (final session in sessions) {
       final month = DateTime.fromMillisecondsSinceEpoch(
         session.firstObserved,
       ).month;
-
       if (monthStats.containsKey(month)) {
         monthStats[month] = monthStats[month]!.copyWith(
           playCount: monthStats[month]!.playCount + 1,
@@ -198,15 +219,13 @@ class StatisticsService {
       }
     }
 
-    final sortedMonthStats = monthStats.values.toList()
-      ..sort((a, b) => a.month.compareTo(b.month));
-    return sortedMonthStats.toIList();
+    final sortedStats = monthStats.values.toList()
+      ..sort((a, b) => b.playCount.compareTo(a.playCount));
+    return sortedStats.toIList();
   }
 
   /// Самый активный день
-  Future<DateTime?> getMostActiveDay() async {
-    final sessions = await _getSessions();
-
+  DateTime? _getMostActiveDay(IList<TrackSession> sessions) {
     if (sessions.isEmpty) return null;
 
     final dayStats = <DateTime, int>{};
@@ -214,7 +233,6 @@ class StatisticsService {
     for (final session in sessions) {
       final day = DateTime.fromMillisecondsSinceEpoch(session.firstObserved);
       final dayStart = DateTime(day.year, day.month, day.day);
-
       dayStats[dayStart] = (dayStats[dayStart] ?? 0) + 1;
     }
 
@@ -226,10 +244,10 @@ class StatisticsService {
   }
 
   /// Самый длинный трек
-  Future<TrackStats?> getLongestTrack() async {
-    final tracks = await _audioRepository.getListenedAudio();
-    final sessions = await _getSessions();
-
+  TrackStats? _getLongestTrack(
+    IList<VkAudioTrack> tracks,
+    IList<TrackSession> sessions,
+  ) {
     if (sessions.isEmpty) return null;
 
     TrackStats? longestTrack;
@@ -237,7 +255,6 @@ class StatisticsService {
 
     for (final session in sessions) {
       final track = tracks.firstWhere((t) => t.fullId == session.fullId);
-
       if (track.duration > maxDuration) {
         maxDuration = track.duration;
         longestTrack = TrackStats(
@@ -254,18 +271,17 @@ class StatisticsService {
   }
 
   /// Самый короткий трек
-  Future<TrackStats?> getShortestTrack() async {
-    final tracks = await _audioRepository.getListenedAudio();
-    final sessions = await _getSessions();
-
+  TrackStats? _getShortestTrack(
+    IList<VkAudioTrack> tracks,
+    IList<TrackSession> sessions,
+  ) {
     if (sessions.isEmpty) return null;
 
     TrackStats? shortestTrack;
-    int minDuration = double.maxFinite.toInt();
+    int minDuration = 9223372036854775807; // int.maxFinite equivalent
 
     for (final session in sessions) {
       final track = tracks.firstWhere((t) => t.fullId == session.fullId);
-
       if (track.duration < minDuration) {
         minDuration = track.duration;
         shortestTrack = TrackStats(
@@ -282,15 +298,8 @@ class StatisticsService {
   }
 
   /// Общее количество прослушиваний
-  Future<int> getTotalPlayCount() async {
-    final sessions = await _getSessions();
+  int _getTotalPlayCount(IList<TrackSession> sessions) {
     return sessions.length;
-  }
-
-  // 📊 ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
-
-  Future<IList<TrackSession>> _getSessions() async {
-    return _audioRepository.getSessions();
   }
 }
 

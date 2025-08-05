@@ -140,11 +140,24 @@ class _ViewState extends State<_View> {
                         const Gap(8),
                         TextField(
                           controller: _tokenRequestUrlController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             hintText:
                                 'https://oauth.vk.com/blank.html#access_token=vk1.a.skY...',
-                            border: OutlineInputBorder(),
+                            border: const OutlineInputBorder(),
+                            suffixIcon:
+                                _tokenRequestUrlController.text.isNotEmpty
+                                ? IconButton(
+                                    onPressed: () => _saveToken(context),
+                                    icon: const Icon(Icons.check),
+                                    tooltip: 'Сохранить токен',
+                                  )
+                                : null,
                           ),
+                          onChanged: (value) {
+                            setState(() {
+                              // Перестраиваем виджет для обновления suffixIcon
+                            });
+                          },
                           onEditingComplete: () => _saveToken(context),
                         ),
                         const Gap(16),

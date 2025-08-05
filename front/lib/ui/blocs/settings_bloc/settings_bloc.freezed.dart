@@ -140,74 +140,6 @@ class SettingsEffect$NoDataToExport implements SettingsEffect {
 }
 
 /// @nodoc
-
-class SettingsEffect$Error implements SettingsEffect {
-  const SettingsEffect$Error({required this.message});
-
-  final String message;
-
-  /// Create a copy of SettingsEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $SettingsEffect$ErrorCopyWith<SettingsEffect$Error> get copyWith =>
-      _$SettingsEffect$ErrorCopyWithImpl<SettingsEffect$Error>(
-        this,
-        _$identity,
-      );
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is SettingsEffect$Error &&
-            (identical(other.message, message) || other.message == message));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, message);
-
-  @override
-  String toString() {
-    return 'SettingsEffect.error(message: $message)';
-  }
-}
-
-/// @nodoc
-abstract mixin class $SettingsEffect$ErrorCopyWith<$Res>
-    implements $SettingsEffectCopyWith<$Res> {
-  factory $SettingsEffect$ErrorCopyWith(
-    SettingsEffect$Error value,
-    $Res Function(SettingsEffect$Error) _then,
-  ) = _$SettingsEffect$ErrorCopyWithImpl;
-  @useResult
-  $Res call({String message});
-}
-
-/// @nodoc
-class _$SettingsEffect$ErrorCopyWithImpl<$Res>
-    implements $SettingsEffect$ErrorCopyWith<$Res> {
-  _$SettingsEffect$ErrorCopyWithImpl(this._self, this._then);
-
-  final SettingsEffect$Error _self;
-  final $Res Function(SettingsEffect$Error) _then;
-
-  /// Create a copy of SettingsEffect
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({Object? message = null}) {
-    return _then(
-      SettingsEffect$Error(
-        message: null == message
-            ? _self.message
-            : message // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
-}
-
-/// @nodoc
 mixin _$SettingsEvent {
   @override
   bool operator ==(Object other) {
@@ -374,150 +306,19 @@ class _LoadCurrentData implements SettingsEvent {
 }
 
 /// @nodoc
-mixin _$SettingsState {
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is SettingsState);
-  }
+mixin _$SettingsData {
+  bool get hasToken;
+  String? get currentToken;
+  String get clientId;
+  bool get isCacheCleared;
 
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'SettingsState()';
-  }
-}
-
-/// @nodoc
-class $SettingsStateCopyWith<$Res> {
-  $SettingsStateCopyWith(SettingsState _, $Res Function(SettingsState) __);
-}
-
-/// @nodoc
-
-class SettingsState$Initial implements SettingsState {
-  const SettingsState$Initial();
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is SettingsState$Initial);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'SettingsState.initial()';
-  }
-}
-
-/// @nodoc
-
-class SettingsState$Loading implements SettingsState {
-  const SettingsState$Loading();
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is SettingsState$Loading);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'SettingsState.loading()';
-  }
-}
-
-/// @nodoc
-
-class SettingsState$TokenConfigured implements SettingsState {
-  const SettingsState$TokenConfigured({required this.hasToken});
-
-  final bool hasToken;
-
-  /// Create a copy of SettingsState
+  /// Create a copy of SettingsData
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $SettingsState$TokenConfiguredCopyWith<SettingsState$TokenConfigured>
-  get copyWith =>
-      _$SettingsState$TokenConfiguredCopyWithImpl<
-        SettingsState$TokenConfigured
-      >(this, _$identity);
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is SettingsState$TokenConfigured &&
-            (identical(other.hasToken, hasToken) ||
-                other.hasToken == hasToken));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, hasToken);
-
-  @override
-  String toString() {
-    return 'SettingsState.tokenConfigured(hasToken: $hasToken)';
-  }
-}
-
-/// @nodoc
-abstract mixin class $SettingsState$TokenConfiguredCopyWith<$Res>
-    implements $SettingsStateCopyWith<$Res> {
-  factory $SettingsState$TokenConfiguredCopyWith(
-    SettingsState$TokenConfigured value,
-    $Res Function(SettingsState$TokenConfigured) _then,
-  ) = _$SettingsState$TokenConfiguredCopyWithImpl;
-  @useResult
-  $Res call({bool hasToken});
-}
-
-/// @nodoc
-class _$SettingsState$TokenConfiguredCopyWithImpl<$Res>
-    implements $SettingsState$TokenConfiguredCopyWith<$Res> {
-  _$SettingsState$TokenConfiguredCopyWithImpl(this._self, this._then);
-
-  final SettingsState$TokenConfigured _self;
-  final $Res Function(SettingsState$TokenConfigured) _then;
-
-  /// Create a copy of SettingsState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({Object? hasToken = null}) {
-    return _then(
-      SettingsState$TokenConfigured(
-        hasToken: null == hasToken
-            ? _self.hasToken
-            : hasToken // ignore: cast_nullable_to_non_nullable
-                  as bool,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class SettingsState$CacheStatus implements SettingsState {
-  const SettingsState$CacheStatus({required this.isCleared});
-
-  final bool isCleared;
-
-  /// Create a copy of SettingsState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $SettingsState$CacheStatusCopyWith<SettingsState$CacheStatus> get copyWith =>
-      _$SettingsState$CacheStatusCopyWithImpl<SettingsState$CacheStatus>(
-        this,
+  $SettingsDataCopyWith<SettingsData> get copyWith =>
+      _$SettingsDataCopyWithImpl<SettingsData>(
+        this as SettingsData,
         _$identity,
       );
 
@@ -525,129 +326,66 @@ class SettingsState$CacheStatus implements SettingsState {
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is SettingsState$CacheStatus &&
-            (identical(other.isCleared, isCleared) ||
-                other.isCleared == isCleared));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, isCleared);
-
-  @override
-  String toString() {
-    return 'SettingsState.cacheStatus(isCleared: $isCleared)';
-  }
-}
-
-/// @nodoc
-abstract mixin class $SettingsState$CacheStatusCopyWith<$Res>
-    implements $SettingsStateCopyWith<$Res> {
-  factory $SettingsState$CacheStatusCopyWith(
-    SettingsState$CacheStatus value,
-    $Res Function(SettingsState$CacheStatus) _then,
-  ) = _$SettingsState$CacheStatusCopyWithImpl;
-  @useResult
-  $Res call({bool isCleared});
-}
-
-/// @nodoc
-class _$SettingsState$CacheStatusCopyWithImpl<$Res>
-    implements $SettingsState$CacheStatusCopyWith<$Res> {
-  _$SettingsState$CacheStatusCopyWithImpl(this._self, this._then);
-
-  final SettingsState$CacheStatus _self;
-  final $Res Function(SettingsState$CacheStatus) _then;
-
-  /// Create a copy of SettingsState
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  $Res call({Object? isCleared = null}) {
-    return _then(
-      SettingsState$CacheStatus(
-        isCleared: null == isCleared
-            ? _self.isCleared
-            : isCleared // ignore: cast_nullable_to_non_nullable
-                  as bool,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class SettingsState$CurrentData implements SettingsState {
-  const SettingsState$CurrentData({
-    required this.hasToken,
-    required this.currentToken,
-    required this.clientId,
-  });
-
-  final bool hasToken;
-  final String? currentToken;
-  final String clientId;
-
-  /// Create a copy of SettingsState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $SettingsState$CurrentDataCopyWith<SettingsState$CurrentData> get copyWith =>
-      _$SettingsState$CurrentDataCopyWithImpl<SettingsState$CurrentData>(
-        this,
-        _$identity,
-      );
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is SettingsState$CurrentData &&
+            other is SettingsData &&
             (identical(other.hasToken, hasToken) ||
                 other.hasToken == hasToken) &&
             (identical(other.currentToken, currentToken) ||
                 other.currentToken == currentToken) &&
             (identical(other.clientId, clientId) ||
-                other.clientId == clientId));
+                other.clientId == clientId) &&
+            (identical(other.isCacheCleared, isCacheCleared) ||
+                other.isCacheCleared == isCacheCleared));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, hasToken, currentToken, clientId);
+  int get hashCode => Object.hash(
+    runtimeType,
+    hasToken,
+    currentToken,
+    clientId,
+    isCacheCleared,
+  );
 
   @override
   String toString() {
-    return 'SettingsState.currentData(hasToken: $hasToken, currentToken: $currentToken, clientId: $clientId)';
+    return 'SettingsData(hasToken: $hasToken, currentToken: $currentToken, clientId: $clientId, isCacheCleared: $isCacheCleared)';
   }
 }
 
 /// @nodoc
-abstract mixin class $SettingsState$CurrentDataCopyWith<$Res>
-    implements $SettingsStateCopyWith<$Res> {
-  factory $SettingsState$CurrentDataCopyWith(
-    SettingsState$CurrentData value,
-    $Res Function(SettingsState$CurrentData) _then,
-  ) = _$SettingsState$CurrentDataCopyWithImpl;
+abstract mixin class $SettingsDataCopyWith<$Res> {
+  factory $SettingsDataCopyWith(
+    SettingsData value,
+    $Res Function(SettingsData) _then,
+  ) = _$SettingsDataCopyWithImpl;
   @useResult
-  $Res call({bool hasToken, String? currentToken, String clientId});
+  $Res call({
+    bool hasToken,
+    String? currentToken,
+    String clientId,
+    bool isCacheCleared,
+  });
 }
 
 /// @nodoc
-class _$SettingsState$CurrentDataCopyWithImpl<$Res>
-    implements $SettingsState$CurrentDataCopyWith<$Res> {
-  _$SettingsState$CurrentDataCopyWithImpl(this._self, this._then);
+class _$SettingsDataCopyWithImpl<$Res> implements $SettingsDataCopyWith<$Res> {
+  _$SettingsDataCopyWithImpl(this._self, this._then);
 
-  final SettingsState$CurrentData _self;
-  final $Res Function(SettingsState$CurrentData) _then;
+  final SettingsData _self;
+  final $Res Function(SettingsData) _then;
 
-  /// Create a copy of SettingsState
+  /// Create a copy of SettingsData
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
+  @override
   $Res call({
     Object? hasToken = null,
     Object? currentToken = freezed,
     Object? clientId = null,
+    Object? isCacheCleared = null,
   }) {
     return _then(
-      SettingsState$CurrentData(
+      _self.copyWith(
         hasToken: null == hasToken
             ? _self.hasToken
             : hasToken // ignore: cast_nullable_to_non_nullable
@@ -660,6 +398,125 @@ class _$SettingsState$CurrentDataCopyWithImpl<$Res>
             ? _self.clientId
             : clientId // ignore: cast_nullable_to_non_nullable
                   as String,
+        isCacheCleared: null == isCacheCleared
+            ? _self.isCacheCleared
+            : isCacheCleared // ignore: cast_nullable_to_non_nullable
+                  as bool,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _SettingsData implements SettingsData {
+  const _SettingsData({
+    required this.hasToken,
+    required this.currentToken,
+    required this.clientId,
+    required this.isCacheCleared,
+  });
+
+  @override
+  final bool hasToken;
+  @override
+  final String? currentToken;
+  @override
+  final String clientId;
+  @override
+  final bool isCacheCleared;
+
+  /// Create a copy of SettingsData
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$SettingsDataCopyWith<_SettingsData> get copyWith =>
+      __$SettingsDataCopyWithImpl<_SettingsData>(this, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _SettingsData &&
+            (identical(other.hasToken, hasToken) ||
+                other.hasToken == hasToken) &&
+            (identical(other.currentToken, currentToken) ||
+                other.currentToken == currentToken) &&
+            (identical(other.clientId, clientId) ||
+                other.clientId == clientId) &&
+            (identical(other.isCacheCleared, isCacheCleared) ||
+                other.isCacheCleared == isCacheCleared));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    hasToken,
+    currentToken,
+    clientId,
+    isCacheCleared,
+  );
+
+  @override
+  String toString() {
+    return 'SettingsData(hasToken: $hasToken, currentToken: $currentToken, clientId: $clientId, isCacheCleared: $isCacheCleared)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$SettingsDataCopyWith<$Res>
+    implements $SettingsDataCopyWith<$Res> {
+  factory _$SettingsDataCopyWith(
+    _SettingsData value,
+    $Res Function(_SettingsData) _then,
+  ) = __$SettingsDataCopyWithImpl;
+  @override
+  @useResult
+  $Res call({
+    bool hasToken,
+    String? currentToken,
+    String clientId,
+    bool isCacheCleared,
+  });
+}
+
+/// @nodoc
+class __$SettingsDataCopyWithImpl<$Res>
+    implements _$SettingsDataCopyWith<$Res> {
+  __$SettingsDataCopyWithImpl(this._self, this._then);
+
+  final _SettingsData _self;
+  final $Res Function(_SettingsData) _then;
+
+  /// Create a copy of SettingsData
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $Res call({
+    Object? hasToken = null,
+    Object? currentToken = freezed,
+    Object? clientId = null,
+    Object? isCacheCleared = null,
+  }) {
+    return _then(
+      _SettingsData(
+        hasToken: null == hasToken
+            ? _self.hasToken
+            : hasToken // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        currentToken: freezed == currentToken
+            ? _self.currentToken
+            : currentToken // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        clientId: null == clientId
+            ? _self.clientId
+            : clientId // ignore: cast_nullable_to_non_nullable
+                  as String,
+        isCacheCleared: null == isCacheCleared
+            ? _self.isCacheCleared
+            : isCacheCleared // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }

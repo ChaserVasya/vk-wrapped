@@ -7,6 +7,4 @@ sealed class SettingsEffect with _$SettingsEffect {
   const factory SettingsEffect.cacheCleared() = SettingsEffect$CacheCleared;
   const factory SettingsEffect.dataExported() = SettingsEffect$DataExported;
   const factory SettingsEffect.noDataToExport() = SettingsEffect$NoDataToExport;
-  const factory SettingsEffect.error({required String message}) =
-      SettingsEffect$Error;
 }

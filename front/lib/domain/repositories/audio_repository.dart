@@ -14,7 +14,8 @@ class AudioRepository {
 
   AudioRepository(this._vkApiService, this._trackStorage, this._sessionsClient);
 
-  Future<IList<VkAudioTrack>> getListenedAudio() async {
+  /// Получает треки и сессии за один запрос
+  Future<(IList<VkAudioTrack>, IList<TrackSession>)> getAudioData() async {
     final localTracks = await _trackStorage.getTracks();
     final sessions = await _sessionsClient.getSessions();
 
@@ -25,18 +26,25 @@ class AudioRepository {
         .where((fullId) => !localTrackFullIds.contains(fullId))
         .toList();
 
+    IList<VkAudioTrack> tracks;
     if (missingIds.isNotEmpty) {
       final missingTracks = await _vkApiService.getAudioById(missingIds);
       await _trackStorage.updateTracks(missingTracks);
-
-      return localTracks.addAll(missingTracks);
+      tracks = localTracks.addAll(missingTracks);
+    } else {
+      tracks = localTracks;
     }
 
-    return localTracks;
+    return (tracks, sessions.toIList());
+  }
+
+  Future<IList<VkAudioTrack>> getListenedAudio() async {
+    final (tracks, _) = await getAudioData();
+    return tracks;
   }
 
   Future<IList<TrackSession>> getSessions() async {
-    final sessions = await _sessionsClient.getSessions();
-    return sessions.toIList();
+    final (_, sessions) = await getAudioData();
+    return sessions;
   }
 }
