@@ -43,17 +43,9 @@ class AudioTrackCard extends StatelessWidget {
   Widget _buildAlbumCover() {
     return ThumbImage(
       thumb: track.album?.thumb,
+      track: track,
       width: 56,
       height: 56,
-      fallback: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: const Icon(Icons.music_note),
-      ),
     );
   }
 

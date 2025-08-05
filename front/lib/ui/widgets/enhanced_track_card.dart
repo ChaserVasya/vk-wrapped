@@ -108,26 +108,9 @@ class EnhancedTrackCard extends StatelessWidget {
   Widget _buildAlbumCover() {
     return ThumbImage(
       thumb: track.album?.thumb,
+      track: track,
       width: 56,
       height: 56,
-      fallback: Container(
-        width: 56,
-        height: 56,
-        decoration: BoxDecoration(
-          color: Colors.blue[100],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Text(
-            '$index',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue[700],
-            ),
-          ),
-        ),
-      ),
     );
   }
 

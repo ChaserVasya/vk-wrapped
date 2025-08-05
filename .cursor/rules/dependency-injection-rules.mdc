@@ -1,0 +1,255 @@
+---
+alwaysApply: true
+---
+
+# Правило запрета использования getIt в методах классов
+
+## Основное требование
+
+**ЗАПРЕЩЕНО использовать getIt в методах классов - все зависимости должны инжектиться через конструктор**
+
+## Критически важные принципы
+
+### Что ЗАПРЕЩЕНО делать
+
+- ❌ **Использовать getIt в методах** - `getIt<AudioRepository>()`
+- ❌ **Получать зависимости во время выполнения** - в init(), build() и других методах
+- ❌ **Создавать зависимости внутри методов** - нарушает принципы DI
+- ❌ **Использовать Service Locator паттерн** - вместо Dependency Injection
+
+### Что ОБЯЗАТЕЛЬНО делать
+
+- ✅ **Инжектировать зависимости через конструктор** - `MyClass(this._dependency)`
+- ✅ **Объявлять зависимости как final поля** - `final AudioRepository _audioRepository;`
+- ✅ **Использовать DI контейнер только для создания объектов** - в BlocProvider
+- ✅ **Передавать зависимости явно** - через параметры конструктора
+
+## Правильная архитектура
+
+### ✅ Правильно - инжекция через конструктор
+
+```dart
+@injectable
+class MyCubit extends Cubit<MyState> {
+  MyCubit(this._audioRepository) : super(MyState.initial());
+
+  final AudioRepository _audioRepository;
+
+  Future<void> init() async {
+    try {
+      emit(const MyState.loading());
+      final data = await _audioRepository.getData(); // ХОРОШО - используем инжектированную зависимость
+      emit(MyState.data(data));
+    } catch (e, st) {
+      emit(MyState.error(AppException.from(e, st: st)));
+    }
+  }
+}
+```
+
+### ❌ Неправильно - использование getIt в методах
+
+```dart
+@injectable
+class MyCubit extends Cubit<MyState> {
+  MyCubit() : super(MyState.initial());
+
+  Future<void> init() async {
+    try {
+      emit(const MyState.loading());
+      final audioRepository = getIt<AudioRepository>(); // ПЛОХО - Service Locator
+      final data = await audioRepository.getData();
+      emit(MyState.data(data));
+    } catch (e, st) {
+      emit(MyState.error(AppException.from(e, st: st)));
+    }
+  }
+}
+```
+
+## Алгоритм создания класса с зависимостями
+
+1. **Определить зависимости** - что нужно классу для работы
+2. **Добавить в конструктор** - `MyClass(this._dependency)`
+3. **Объявить как final поля** - `final DependencyType _dependency;`
+4. **Использовать в методах** - `_dependency.method()`
+5. **НЕ использовать getIt** - в методах класса
+
+## Примеры правильного использования
+
+### Cubit с зависимостями
+
+```dart
+@injectable
+class TracksCubit extends Cubit<CommonStates<IList<VkAudioTrack>>> {
+  TracksCubit(this._audioRepository) : super(const CommonStates.loading());
+
+  final AudioRepository _audioRepository;
+
+  Future<void> init() async {
+    try {
+      emit(const CommonStates.loading());
+      final tracks = await _audioRepository.getListenedAudio(); // ХОРОШО
+      emit(CommonStates.data(tracks));
+    } catch (e, st) {
+      emit(CommonStates.error(AppException.from(e, st: st)));
+    }
+  }
+}
+```
+
+### Service с зависимостями
+
+```dart
+@injectable
+class StatisticsService {
+  StatisticsService(this._audioRepository, this._logger);
+
+  final AudioRepository _audioRepository;
+  final Logger _logger;
+
+  Future<Statistics> calculateStatistics() async {
+    try {
+      final tracks = await _audioRepository.getListenedAudio(); // ХОРОШО
+      return _calculateFromTracks(tracks);
+    } catch (e, st) {
+      _logger.error('Failed to calculate statistics', e, st); // ХОРОШО
+      rethrow;
+    }
+  }
+}
+```
+
+## Приоритет
+
+**КРИТИЧЕСКИ ВЫСОКИЙ ПРИОРИТЕТ** - всегда инжектировать зависимости через конструктор, никогда не использовать getIt в методах.
+
+## Исключения
+
+Нет исключений - правило должно соблюдаться всегда для поддержания чистоты архитектуры и принципов DI.
+
+## Последствия нарушения
+
+- ❌ **Нарушение принципов DI** - Service Locator вместо Dependency Injection
+- ❌ **Сложность тестирования** - трудно мокировать зависимости
+- ❌ **Скрытые зависимости** - не видно что нужно классу
+- ❌ **Плохая архитектура** - нарушение SOLID принципов
+
+# Правило разделения ответственности в архитектуре
+
+## Основное требование
+
+**Бизнес-логика должна находиться в репозиториях, а не в Cubit'ах/Bloc'ах**
+
+## Критически важные принципы
+
+### Что ДОЛЖНО быть в репозитории
+
+- ✅ **Извлечение уникальных данных** - фильтрация, группировка, агрегация
+- ✅ **Трансформация данных** - конвертация форматов, вычисления
+- ✅ **Бизнес-логика** - правила обработки данных
+- ✅ **Сложные запросы** - объединение нескольких источников данных
+
+### Что ДОЛЖНО быть в Cubit/Bloc
+
+- ✅ **Управление состоянием** - loading, data, error
+- ✅ **Простые вызовы репозитория** - без обработки данных
+- ✅ **Эмиссия состояний** - emit loading, data, error
+- ✅ **Обработка ошибок** - try-catch с emit error
+
+## Правильная архитектура
+
+### ✅ Правильно - бизнес-логика в репозитории
+
+```dart
+// Репозиторий - бизнес-логика
+@injectable
+class AudioRepository {
+  AudioRepository(this._audioStorage);
+
+  final AudioStorage _audioStorage;
+
+  Future<IList<String>> getArtists() async {
+    final tracks = await _audioStorage.getTracks();
+    final artists = <String>{};
+    for (final track in tracks) {
+      artists.add(track.artist); // Бизнес-логика здесь
+    }
+    return artists.toIList();
+  }
+
+  Future<IList<VkAlbum>> getAlbums() async {
+    final tracks = await _audioStorage.getTracks();
+    final albums = <VkAlbum>{};
+    for (final track in tracks) {
+      if (track.album != null) {
+        albums.add(track.album!); // Бизнес-логика здесь
+      }
+    }
+    return albums.toIList();
+  }
+}
+
+// Cubit - только управление состоянием
+@injectable
+class ArtistsCubit extends Cubit<CommonStates<IList<String>>> {
+  ArtistsCubit(this._audioRepository) : super(const CommonStates.loading());
+
+  final AudioRepository _audioRepository;
+
+  Future<void> init() async {
+    try {
+      emit(const CommonStates.loading());
+      final artists = await _audioRepository.getArtists(); // Простой вызов
+      emit(CommonStates.data(artists));
+    } catch (e, s) {
+      emit(CommonStates.error(AppException.from(e, st: s)));
+    }
+  }
+}
+```
+
+### ❌ Неправильно - бизнес-логика в Cubit
+
+```dart
+// Cubit с бизнес-логикой - ПЛОХО
+@injectable
+class ArtistsCubit extends Cubit<CommonStates<IList<String>>> {
+  ArtistsCubit(this._audioRepository) : super(const CommonStates.loading());
+
+  final AudioRepository _audioRepository;
+
+  Future<void> init() async {
+    try {
+      emit(const CommonStates.loading());
+      final tracks = await _audioRepository.getListenedAudio();
+      
+      // Бизнес-логика в Cubit - ПЛОХО
+      final artists = <String>{};
+      for (final track in tracks) {
+        artists.add(track.artist);
+      }
+      
+      emit(CommonStates.data(artists.toIList()));
+    } catch (e, s) {
+      emit(CommonStates.error(AppException.from(e, st: s)));
+    }
+  }
+}
+```
+
+## Алгоритм создания архитектуры
+
+1. **Определить бизнес-логику** - что нужно вычислить/обработать
+2. **Добавить в репозиторий** - методы с бизнес-логикой
+3. **Создать простой Cubit** - только вызовы репозитория
+4. **Управлять состоянием** - loading, data, error в Cubit
+5. **НЕ дублировать логику** - в разных местах
+
+## Приоритет
+
+**КРИТИЧЕСКИ ВЫСОКИЙ ПРИОРИТЕТ** - бизнес-логика всегда в репозиториях, Cubit'ы только управляют состоянием.
+
+## Исключения
+
+Нет исключений - правило должно соблюдаться всегда для поддержания чистой архитектуры.

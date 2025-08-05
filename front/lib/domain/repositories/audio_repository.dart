@@ -47,4 +47,24 @@ class AudioRepository {
     final (_, sessions) = await getAudioData();
     return sessions;
   }
+
+  Future<IList<String>> getArtists() async {
+    final tracks = await getListenedAudio();
+    final artists = <String>{};
+    for (final track in tracks) {
+      artists.add(track.artist);
+    }
+    return artists.toIList();
+  }
+
+  Future<IList<VkAlbum>> getAlbums() async {
+    final tracks = await getListenedAudio();
+    final albums = <VkAlbum>{};
+    for (final track in tracks) {
+      if (track.album != null) {
+        albums.add(track.album!);
+      }
+    }
+    return albums.toIList();
+  }
 }

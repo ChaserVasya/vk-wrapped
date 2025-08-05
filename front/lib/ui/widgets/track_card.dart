@@ -106,17 +106,19 @@ class TrackCard extends StatelessWidget {
         color: Colors.blue[100],
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Center(
-        child: Text(
-          '$index',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.blue[700],
-          ),
-        ),
-      ),
+      child: _getContentIcon(),
     );
+  }
+
+  Widget _getContentIcon() {
+    // Определяем тип контента на основе наличия альбома
+    if (track.album != null) {
+      // Если есть альбом - показываем иконку диска
+      return Icon(Icons.album, size: 24, color: Colors.blue[700]);
+    } else {
+      // Если нет альбома - показываем иконку ноты (отдельная песня)
+      return Icon(Icons.music_note, size: 24, color: Colors.blue[700]);
+    }
   }
 
   String? _getBestThumbUrl() {
