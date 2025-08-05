@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:front/internal/di/di.dart';
-import 'package:front/ui/screens/home_screen.dart';
-import 'package:front/ui/screens/settings_screen.dart';
-import 'package:front/ui/screens/statistics_screen.dart';
-import 'package:front/ui/screens/tracks_list_screen.dart';
+import 'package:front/ui/routes/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +13,7 @@ class VkWrappedApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'VK Wrapped',
       theme: ThemeData(
         useMaterial3: true,
@@ -33,13 +30,7 @@ class VkWrappedApp extends StatelessWidget {
           ),
         ),
       ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => const HomeScreen(),
-        '/tracks': (context) => const TracksListScreen(),
-        '/settings': (context) => const SettingsScreen(),
-        '/statistics': (context) => const StatisticsScreen(),
-      },
+      routerConfig: AppRouter().config(),
     );
   }
 }

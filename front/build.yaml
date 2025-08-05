@@ -30,3 +30,6 @@ targets:
           build_extensions:
             'bloc/{{name}}.dart': 'bloc/{{name}}.freezed.dart'
             '{{path}}/{{name}}.dart': '{{path}}/generated/{{name}}.freezed.dart'
+      auto_route_generator:auto_route_generator:
+        options:
+          format: true

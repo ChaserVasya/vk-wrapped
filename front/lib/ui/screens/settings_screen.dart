@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,11 +6,12 @@ import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/features/utils/bloc/safe_listeners.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/settings_bloc/settings_bloc.dart';
-import 'package:front/ui/screens/token_setup_screen.dart';
+import 'package:front/ui/routes/app_router.dart';
 import 'package:front/ui/widgets/extensions.dart';
 import 'package:front/ui/widgets/loading_widget.dart';
 import 'package:gap/gap.dart';
 
+@RoutePage()
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -272,11 +274,8 @@ class _ViewState extends State<_View> {
                             onPressed: state is SettingsState$Loading
                                 ? null
                                 : () async {
-                                    await Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const TokenSetupScreen(),
-                                      ),
+                                    await context.router.push(
+                                      const TokenSetupRoute(),
                                     );
                                     context.read<SettingsBloc>().add(
                                       const SettingsEvent.loadCurrentData(),

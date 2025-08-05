@@ -89,7 +89,6 @@ class StatisticsService {
 
   /// Количество уникальных треков
   Future<int> getUniqueTracksCount() async {
-    final tracks = await _audioRepository.getListenedAudio();
     final sessions = await _getSessions();
 
     final uniqueTrackIds = sessions.map((s) => s.fullId).toSet();
