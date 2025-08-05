@@ -401,12 +401,6 @@ class _View extends StatelessWidget {
                 },
                 icon: const Icon(Icons.settings),
                 label: const Text('Настроить токен'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                ),
               ),
             ] else ...[
               ElevatedButton.icon(
@@ -415,12 +409,6 @@ class _View extends StatelessWidget {
                 },
                 icon: const Icon(Icons.refresh),
                 label: const Text('Повторить'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                ),
               ),
             ],
           ],

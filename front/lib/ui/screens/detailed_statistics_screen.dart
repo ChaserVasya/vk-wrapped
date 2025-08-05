@@ -6,6 +6,7 @@ import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/features/utils/bloc/safe_listeners.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/detailed_statistics_bloc/detailed_statistics_bloc.dart';
+import 'package:front/ui/widgets/extensions.dart';
 import 'package:gap/gap.dart';
 
 class DetailedStatisticsScreen extends StatelessWidget {
@@ -47,9 +48,7 @@ class _Listeners extends StatelessWidget {
           listener: (context, effect) {
             switch (effect) {
               case DetailedStatisticsEffect$Error(message: final message):
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('Ошибка: $message')));
+                context.showSnackBar('Ошибка: $message');
             }
           },
         ),

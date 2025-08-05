@@ -1,6 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:front/data/local/prefs_storage.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
+import 'package:front/domain/exceptions/app_exception.dart';
 import 'package:injectable/injectable.dart';
 
 @lazySingleton
@@ -25,15 +26,8 @@ class VkService {
   String get _token {
     final token = _prefsStorage.getToken();
     if (token == null) {
-      throw const NoTokenException();
+      throw const AppException('VK Token отсутствует');
     }
     return token;
   }
-}
-
-class NoTokenException implements Exception {
-  const NoTokenException();
-
-  @override
-  String toString() => 'VK Token отсутствует';
 }
