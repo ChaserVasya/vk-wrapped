@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:front/features/state_management/common_states.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/settings_bloc/settings_bloc.dart';
@@ -61,9 +62,6 @@ class _Listeners extends StatelessWidget {
                 context.showSnackBar(
                   'Нет данных для экспорта. Сначала загрузите музыку.',
                 );
-
-              case SettingsEffect$Error(message: final message):
-                context.showSnackBar('Ошибка: $message');
             }
           },
         ),
@@ -83,15 +81,17 @@ class _View extends StatefulWidget {
 class _ViewState extends State<_View> {
   Widget _buildTokenStatus(SettingsState state) {
     switch (state) {
-      case SettingsState$TokenConfigured(hasToken: final hasToken):
+      case CommonStateData(data: final data):
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              hasToken ? '✅ Токен настроен' : '❌ Токен не настроен',
-              style: TextStyle(color: hasToken ? Colors.green : Colors.red),
+              data.hasToken ? '✅ Токен настроен' : '❌ Токен не настроен',
+              style: TextStyle(
+                color: data.hasToken ? Colors.green : Colors.red,
+              ),
             ),
-            if (hasToken) ...[
+            if (data.hasToken) ...[
               const Gap(8),
               const Text(
                 'Токен сохранен в приложении',
@@ -100,46 +100,44 @@ class _ViewState extends State<_View> {
             ],
           ],
         );
-      case SettingsState$Loading():
+      case CommonStateLoading():
         return const Row(
           children: [
             SizedBox(width: 16, height: 16, child: LoadingWidget()),
             Gap(8),
-            Text('Проверка токена...'),
+            Text('Загрузка...'),
           ],
         );
-      default:
-        return const Text('Статус токена неизвестен');
+      case CommonStateError():
+        return const Text('Ошибка загрузки статуса токена');
     }
   }
 
   Widget _buildCacheStatus(SettingsState state) {
     switch (state) {
-      case SettingsState$CacheStatus(isCleared: final isCleared):
+      case CommonStateData(data: final data):
         return Text(
-          isCleared ? '✅ Кэш очищен' : '📦 Кэш содержит данные',
-          style: TextStyle(color: isCleared ? Colors.green : Colors.blue),
+          data.isCacheCleared ? '✅ Кэш очищен' : '📦 Кэш содержит данные',
+          style: TextStyle(
+            color: data.isCacheCleared ? Colors.green : Colors.blue,
+          ),
         );
-      case SettingsState$Loading():
+      case CommonStateLoading():
         return const Row(
           children: [
             SizedBox(width: 16, height: 16, child: LoadingWidget()),
             Gap(8),
-            Text('Очистка кэша...'),
+            Text('Загрузка...'),
           ],
         );
-      default:
-        return const Text('Статус кэша неизвестен');
+      case CommonStateError():
+        return const Text('Ошибка загрузки статуса кэша');
     }
   }
 
   Widget _buildCurrentData(SettingsState state) {
     switch (state) {
-      case SettingsState$CurrentData(
-        hasToken: final hasToken,
-        currentToken: final currentToken,
-        clientId: final clientId,
-      ):
+      case CommonStateData(data: final data):
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -148,20 +146,25 @@ class _ViewState extends State<_View> {
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
             ),
             const Gap(8),
-            Text('Client ID: $clientId', style: const TextStyle(fontSize: 12)),
-            if (hasToken && currentToken != null) ...[
+            Text(
+              'Client ID: ${data.clientId}',
+              style: const TextStyle(fontSize: 12),
+            ),
+            if (data.hasToken && data.currentToken != null) ...[
               const Gap(4),
               Row(
                 children: [
                   Expanded(
                     child: Text(
-                      'Токен: $currentToken',
+                      'Токен: ${data.currentToken}',
                       style: const TextStyle(fontSize: 12),
                     ),
                   ),
                   IconButton(
                     onPressed: () {
-                      Clipboard.setData(ClipboardData(text: currentToken));
+                      Clipboard.setData(
+                        ClipboardData(text: data.currentToken!),
+                      );
                       context.showSnackBar('Токен скопирован');
                     },
                     icon: const Icon(Icons.copy, size: 16),
@@ -173,7 +176,7 @@ class _ViewState extends State<_View> {
             ],
           ],
         );
-      case SettingsState$Loading():
+      case CommonStateLoading():
         return const Row(
           children: [
             SizedBox(width: 16, height: 16, child: LoadingWidget()),
@@ -181,8 +184,8 @@ class _ViewState extends State<_View> {
             Text('Загрузка данных...'),
           ],
         );
-      default:
-        return const Text('Данные не загружены');
+      case CommonStateError():
+        return const Text('Ошибка загрузки данных');
     }
   }
 
@@ -251,7 +254,7 @@ class _ViewState extends State<_View> {
                           children: [
                             Expanded(
                               child: ElevatedButton(
-                                onPressed: state is SettingsState$Loading
+                                onPressed: state is CommonStateLoading
                                     ? null
                                     : () {
                                         context.read<SettingsBloc>().add(
@@ -271,7 +274,7 @@ class _ViewState extends State<_View> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: state is SettingsState$Loading
+                            onPressed: state is CommonStateLoading
                                 ? null
                                 : () async {
                                     await context.router.push(
@@ -332,7 +335,7 @@ class _ViewState extends State<_View> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: state is SettingsState$Loading
+                            onPressed: state is CommonStateLoading
                                 ? null
                                 : () {
                                     _showCacheClearDialog(context);
@@ -375,7 +378,7 @@ class _ViewState extends State<_View> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: state is SettingsState$Loading
+                            onPressed: state is CommonStateLoading
                                 ? null
                                 : () {
                                     context.read<SettingsBloc>().add(
