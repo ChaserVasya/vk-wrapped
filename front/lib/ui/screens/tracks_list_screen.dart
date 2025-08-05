@@ -5,8 +5,6 @@ import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:front/domain/exceptions/app_exception.dart';
 import 'package:front/features/state_management/common_states.dart';
 import 'package:front/features/state_management/states.dart';
-import 'package:front/features/utils/bloc/safe_bloc.dart';
-import 'package:front/features/utils/bloc/safe_listeners.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/tracks_cubit.dart';
 import 'package:gap/gap.dart';
@@ -84,7 +82,7 @@ class _View extends StatelessWidget {
       case CommonStateError<IList<VkAudioTrack>>(e: final error):
         return _buildErrorState(
           context,
-          error ?? AppException('Неизвестная ошибка'),
+          error ?? const AppException('Неизвестная ошибка'),
         );
     }
   }

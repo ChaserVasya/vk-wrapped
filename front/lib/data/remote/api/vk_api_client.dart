@@ -2,7 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
-import 'package:json_annotation/json_annotation.dart';
 import 'package:retrofit/retrofit.dart';
 
 part 'generated/vk_api_client.g.dart';
@@ -40,27 +39,38 @@ class VkAudioTrack with _$VkAudioTrack {
   /// Used for search by vk api
   String get fullId => '${ownerId}_$id';
 
+  @override
   @JsonKey(name: 'id')
   final int id;
+  @override
   @JsonKey(name: 'owner_id')
   final int ownerId;
+  @override
   @JsonKey(name: 'title')
   final String title;
+  @override
   @JsonKey(name: 'artist')
   final String artist;
+  @override
   @JsonKey(name: 'duration')
   final int duration;
+  @override
   @JsonKey(name: 'url')
   final String url;
+  @override
   @JsonKey(name: 'date')
   final int? date;
+  @override
   @JsonKey(name: 'genre_id')
   final int? genreId;
+  @override
   @JsonKey(name: 'lyrics_id')
   final int? lyricsId;
 
+  @override
   @JsonKey(name: 'album')
   final VkAlbum? album;
+  @override
   @JsonKey(name: 'main_artists')
   final List<VkMainArtist>? mainArtists;
 
