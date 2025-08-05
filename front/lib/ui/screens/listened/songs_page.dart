@@ -49,13 +49,13 @@ class _View extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CommonStateHandler<
-      CommonStates<IList<VkAudioTrack>>,
-      IList<VkAudioTrack>
+      CommonStates<IList<(VkAudioTrack, int)>>,
+      IList<(VkAudioTrack, int)>
     >(
       selector: (context) => context.watch<TracksCubit>().state,
-      dataBuilder: (context, tracks) {
-        final sortedTracks = tracks.toList()
-          ..sort((a, b) => b.title.compareTo(a.title));
+      dataBuilder: (context, tracksWithCount) {
+        final sortedTracksWithCount = tracksWithCount.toList()
+          ..sort((a, b) => b.$1.title.compareTo(a.$1.title));
 
         return Padding(
           padding: const EdgeInsets.all(16.0),
@@ -74,10 +74,10 @@ class _View extends StatelessWidget {
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
-                  itemCount: sortedTracks.length,
+                  itemCount: sortedTracksWithCount.length,
                   itemBuilder: (context, index) {
-                    final track = sortedTracks[index];
-                    return AudioTrackCard(track: track, playCount: index + 1);
+                    final (track, playCount) = sortedTracksWithCount[index];
+                    return AudioTrackCard(track: track, playCount: playCount);
                   },
                 ),
               ),

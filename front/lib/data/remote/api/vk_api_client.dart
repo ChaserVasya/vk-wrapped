@@ -45,6 +45,24 @@ class VkAudioTrack with _$VkAudioTrack {
     return DateTime.fromMillisecondsSinceEpoch(date! * 1000);
   }
 
+  /// Возвращает список имен артистов из mainArtists или разбивает artist по запятой
+  String get artistsNames {
+    if (mainArtists != null && mainArtists!.isNotEmpty) {
+      return mainArtists!.map((a) => a.name).join(', ');
+    } else {
+      return artist;
+    }
+  }
+
+  /// Возвращает список артистов как IList[String]
+  IList<String> get artists {
+    if (mainArtists != null && mainArtists!.isNotEmpty) {
+      return mainArtists!.map((a) => a.name).toIList();
+    } else {
+      return artist.split(',').map((a) => a.trim()).toIList();
+    }
+  }
+
   @override
   @JsonKey(name: 'id')
   final int id;

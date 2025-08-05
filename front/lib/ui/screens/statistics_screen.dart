@@ -1,10 +1,12 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:front/domain/services/statistics_service.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/statistics_bloc/statistics_bloc.dart';
 import 'package:front/ui/blocs/statistics_bloc/statistics_event.dart';
 import 'package:front/ui/blocs/statistics_bloc/statistics_state.dart';
+import 'package:front/ui/widgets/audio_track_card.dart';
 import 'package:front/ui/widgets/common_state_handler.dart';
 import 'package:front/ui/widgets/safe_listeners.dart';
 import 'package:intl/intl.dart';
@@ -32,7 +34,7 @@ class StatisticsView extends StatelessWidget {
       listeners: [ShowErrorSafeListener<StatisticsBloc>()],
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('VK Wrapped 2024'),
+          title: const Text('VK Wrapped'),
           backgroundColor: Colors.blue,
           foregroundColor: Colors.white,
         ),
@@ -89,14 +91,12 @@ class _StatisticsCarouselState extends State<StatisticsCarousel> {
               _OverviewPage(data: widget.data),
               _TopArtistsPage(data: widget.data),
               _TopTracksPage(data: widget.data),
-              _TimeStatsPage(data: widget.data),
-              _DayStatsPage(data: widget.data),
               _MonthStatsPage(data: widget.data),
               _ExtremesPage(data: widget.data),
             ],
           ),
         ),
-        _PageIndicator(currentPage: _currentPage, totalPages: 7),
+        _PageIndicator(currentPage: _currentPage, totalPages: 5),
       ],
     );
   }
@@ -263,148 +263,10 @@ class _TopTracksPage extends StatelessWidget {
             child: ListView.builder(
               itemCount: data.topTracks.length,
               itemBuilder: (context, index) {
-                final track = data.topTracks[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.blue,
-                      child: Text(
-                        '${index + 1}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    title: Text(
-                      track.title,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text('${track.artist} • ${track.playCount} раз'),
-                    trailing: Text(
-                      _formatDuration(Duration(seconds: track.duration)),
-                      style: const TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _formatDuration(Duration duration) {
-    final minutes = duration.inMinutes;
-    final seconds = duration.inSeconds % 60;
-    return '$minutes:${seconds.toString().padLeft(2, '0')}';
-  }
-}
-
-class _TimeStatsPage extends StatelessWidget {
-  final StatisticStateData data;
-
-  const _TimeStatsPage({required this.data});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            'Время суток',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
-            ),
-          ),
-          const SizedBox(height: 32),
-          Expanded(
-            child: ListView.builder(
-              itemCount: data.timeOfDayStats.length,
-              itemBuilder: (context, index) {
-                final timeStat = data.timeOfDayStats[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: ListTile(
-                    leading: const Icon(Icons.access_time, color: Colors.blue),
-                    title: Text(
-                      timeStat.hourLabel,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text('${timeStat.playCount} прослушиваний'),
-                    trailing: Text(
-                      '${((timeStat.playCount / data.totalPlayCount) * 100).toStringAsFixed(1)}%',
-                      style: const TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DayStatsPage extends StatelessWidget {
-  final StatisticStateData data;
-
-  const _DayStatsPage({required this.data});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            'Дни недели',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
-            ),
-          ),
-          const SizedBox(height: 32),
-          Expanded(
-            child: ListView.builder(
-              itemCount: data.dayOfWeekStats.length,
-              itemBuilder: (context, index) {
-                final dayStat = data.dayOfWeekStats[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: ListTile(
-                    leading: const Icon(
-                      Icons.calendar_today,
-                      color: Colors.blue,
-                    ),
-                    title: Text(
-                      dayStat.dayLabel,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text('${dayStat.playCount} прослушиваний'),
-                    trailing: Text(
-                      '${((dayStat.playCount / data.totalPlayCount) * 100).toStringAsFixed(1)}%',
-                      style: const TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                final trackWithStats = data.topTracks[index];
+                return AudioTrackCard(
+                  track: trackWithStats.track,
+                  playCount: trackWithStats.playCount,
                 );
               },
             ),
@@ -493,25 +355,64 @@ class _ExtremesPage extends StatelessWidget {
           ),
           const SizedBox(height: 32),
           if (data.longestTrack != null)
-            _StatCard(
-              title: 'Самый длинный трек',
-              value:
-                  '${data.longestTrack!.title}\n${data.longestTrack!.artist}',
-              icon: Icons.timer,
+            Card(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.timer, color: Colors.blue, size: 32),
+                        const SizedBox(width: 16),
+                        const Text(
+                          'Самый длинный трек',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    AudioTrackCard(track: data.longestTrack!),
+                  ],
+                ),
+              ),
             ),
-          const SizedBox(height: 16),
           if (data.shortestTrack != null)
-            _StatCard(
-              title: 'Самый короткий трек',
-              value:
-                  '${data.shortestTrack!.title}\n${data.shortestTrack!.artist}',
-              icon: Icons.timer_off,
+            Card(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.timer_off, color: Colors.blue, size: 32),
+                        const SizedBox(width: 16),
+                        const Text(
+                          'Самый короткий трек',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    AudioTrackCard(track: data.shortestTrack!),
+                  ],
+                ),
+              ),
             ),
           const SizedBox(height: 16),
           if (data.mostActiveDay != null)
             _StatCard(
               title: 'Самый активный день',
-              value: _formatDate(data.mostActiveDay!),
+              value: _formatMostActiveDay(data.mostActiveDay!),
               icon: Icons.event,
             ),
         ],
@@ -519,8 +420,18 @@ class _ExtremesPage extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
-    return DateFormat('dd.MM.yyyy').format(date);
+  String _formatMostActiveDay(MostActiveDayStats day) {
+    final duration = Duration(seconds: day.totalDuration);
+    return '${DateFormat('dd.MM.yyyy').format(day.date)}\n${day.playCount} прослушиваний, ${_formatDuration(duration)}';
+  }
+
+  String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
+    final minutes = duration.inMinutes % 60;
+    if (hours > 0) {
+      return '$hoursч $minutesм';
+    }
+    return '$minutesм';
   }
 }
 

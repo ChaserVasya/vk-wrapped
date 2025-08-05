@@ -20,13 +20,13 @@ class AudioTrackCard extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(
-          track.artist,
+          track.artistsNames,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
         trailing: playCount != null
             ? Text(
-                '$playCount',
+                '$playCount прослушиваний',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.primary,
                   fontWeight: FontWeight.bold,

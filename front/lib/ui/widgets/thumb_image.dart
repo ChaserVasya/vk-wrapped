@@ -9,16 +9,18 @@ class ThumbImage extends StatelessWidget {
   final BorderRadius? borderRadius;
   final Widget? fallback;
   final VkAudioTrack? track; // Добавляю трек для определения типа контента
+  final VkArtist? artist; // Добавляю артиста для отображения фотографий
 
   const ThumbImage({
     super.key,
-    required this.thumb,
+    this.thumb,
     required this.width,
     required this.height,
     this.fit = BoxFit.cover,
     this.borderRadius,
     this.fallback,
     this.track, // Новый параметр
+    this.artist, // Новый параметр
   });
 
   @override
@@ -60,33 +62,49 @@ class ThumbImage extends StatelessWidget {
   }
 
   Widget _buildContentIcon() {
+    // Вычисляем безопасный размер иконки
+    final iconSize = width.isFinite ? width * 0.4 : 24.0;
+
+    // Если есть артист, показываем иконку артиста
+    if (artist != null) {
+      return Icon(Icons.person, size: iconSize, color: Colors.grey[600]);
+    }
+
     // Если есть трек, определяем тип контента
     if (track != null) {
-      return _getContentIcon();
+      return _getContentIcon(iconSize);
     }
 
     // По умолчанию показываем иконку музыки
-    return Icon(Icons.music_note, size: width * 0.4, color: Colors.grey[600]);
+    return Icon(Icons.music_note, size: iconSize, color: Colors.grey[600]);
   }
 
-  Widget _getContentIcon() {
+  Widget _getContentIcon(double iconSize) {
     // Определяем тип контента на основе наличия альбома
     if (track!.album != null) {
       // Если есть альбом - показываем иконку диска
-      return Icon(Icons.album, size: width * 0.4, color: Colors.grey[600]);
+      return Icon(Icons.album, size: iconSize, color: Colors.grey[600]);
     } else {
       // Если нет альбома - показываем иконку ноты (отдельная песня)
-      return Icon(Icons.music_note, size: width * 0.4, color: Colors.grey[600]);
+      return Icon(Icons.music_note, size: iconSize, color: Colors.grey[600]);
     }
   }
 
   String? _getBestThumbUrl() {
-    if (thumb == null) return null;
+    // Сначала проверяем thumb (для альбомов)
+    if (thumb != null) {
+      // Приоритет размеров: photo300 > photo135 > photo600 > photo34
+      return thumb!.photo300 ??
+          thumb!.photo135 ??
+          thumb!.photo600 ??
+          thumb!.photo34;
+    }
 
-    // Приоритет размеров: photo300 > photo135 > photo600 > photo34
-    return thumb!.photo300 ??
-        thumb!.photo135 ??
-        thumb!.photo600 ??
-        thumb!.photo34;
+    // Затем проверяем фото артиста
+    if (artist?.photo != null) {
+      return artist!.photo;
+    }
+
+    return null;
   }
 }

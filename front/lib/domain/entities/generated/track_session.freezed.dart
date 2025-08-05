@@ -16,10 +16,10 @@ T _$identity<T>(T value) => value;
 mixin _$TrackSession {
   String get fullId;
 
-  /// В секундах (Unix timestamp)
+  /// В секундах (Unix timestamp). Первая дата, когда запрос статуса показал прослушивание этого трека
   int get firstObserved;
 
-  /// В секундах (Unix timestamp)
+  /// В секундах (Unix timestamp). Дата в которую запрос статуса показал прослушивание не этого трека
   int get lastSeen;
 
   /// Create a copy of TrackSession
@@ -116,11 +116,11 @@ class _TrackSession extends TrackSession {
   @override
   final String fullId;
 
-  /// В секундах (Unix timestamp)
+  /// В секундах (Unix timestamp). Первая дата, когда запрос статуса показал прослушивание этого трека
   @override
   final int firstObserved;
 
-  /// В секундах (Unix timestamp)
+  /// В секундах (Unix timestamp). Дата в которую запрос статуса показал прослушивание не этого трека
   @override
   final int lastSeen;
 

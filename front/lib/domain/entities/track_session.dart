@@ -9,10 +9,10 @@ abstract class TrackSession with _$TrackSession {
   const factory TrackSession({
     required String fullId,
 
-    /// В секундах (Unix timestamp)
+    /// В секундах (Unix timestamp). Первая дата, когда запрос статуса показал прослушивание этого трека
     required int firstObserved,
 
-    /// В секундах (Unix timestamp)
+    /// В секундах (Unix timestamp). Дата в которую запрос статуса показал прослушивание не этого трека
     required int lastSeen,
   }) = _TrackSession;
 

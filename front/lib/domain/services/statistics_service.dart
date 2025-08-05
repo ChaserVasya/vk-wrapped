@@ -22,7 +22,7 @@ class StatisticsService {
     final timeOfDayStats = _getTimeOfDayStats(sessions);
     final dayOfWeekStats = _getDayOfWeekStats(sessions);
     final monthStats = _getMonthStats(sessions);
-    final mostActiveDay = _getMostActiveDay(sessions);
+    final mostActiveDay = _getMostActiveDay(tracks, sessions);
     final longestTrack = _getLongestTrack(tracks, sessions);
     final shortestTrack = _getShortestTrack(tracks, sessions);
     final totalPlayCount = _getTotalPlayCount(sessions);
@@ -55,19 +55,21 @@ class StatisticsService {
 
     for (final session in sessions) {
       final track = tracks.firstWhere((t) => t.fullId == session.fullId);
-      final artist = track.artist;
 
-      if (artistStats.containsKey(artist)) {
-        artistStats[artist] = artistStats[artist]!.copyWith(
-          playCount: artistStats[artist]!.playCount + 1,
-          totalDuration: artistStats[artist]!.totalDuration + track.duration,
-        );
-      } else {
-        artistStats[artist] = ArtistStats(
-          name: artist,
-          playCount: 1,
-          totalDuration: track.duration,
-        );
+      // Считаем каждого артиста отдельно
+      for (final artist in track.artists) {
+        if (artistStats.containsKey(artist)) {
+          artistStats[artist] = artistStats[artist]!.copyWith(
+            playCount: artistStats[artist]!.playCount + 1,
+            totalDuration: artistStats[artist]!.totalDuration + track.duration,
+          );
+        } else {
+          artistStats[artist] = ArtistStats(
+            name: artist,
+            playCount: 1,
+            totalDuration: track.duration,
+          );
+        }
       }
     }
 
@@ -77,29 +79,24 @@ class StatisticsService {
   }
 
   /// Топ треков по количеству прослушиваний
-  IList<TrackStats> _getTopTracks(
+  IList<TrackWithStats> _getTopTracks(
     IList<VkAudioTrack> tracks,
     IList<TrackSession> sessions,
   ) {
-    final trackStats = <String, TrackStats>{};
+    final trackStats = <String, TrackWithStats>{};
 
     for (final session in sessions) {
       final track = tracks.firstWhere((t) => t.fullId == session.fullId);
-      final trackKey = '${track.artist} - ${track.title}';
+
+      // Используем полный ID трека как ключ для уникальности
+      final trackKey = track.fullId;
 
       if (trackStats.containsKey(trackKey)) {
         trackStats[trackKey] = trackStats[trackKey]!.copyWith(
           playCount: trackStats[trackKey]!.playCount + 1,
-          totalDuration: trackStats[trackKey]!.totalDuration + track.duration,
         );
       } else {
-        trackStats[trackKey] = TrackStats(
-          title: track.title,
-          artist: track.artist,
-          duration: track.duration,
-          playCount: 1,
-          totalDuration: track.duration,
-        );
+        trackStats[trackKey] = TrackWithStats(track: track, playCount: 1);
       }
     }
 
@@ -136,7 +133,7 @@ class StatisticsService {
     final uniqueArtists = <String>{};
     for (final session in sessions) {
       final track = tracks.firstWhere((t) => t.fullId == session.fullId);
-      uniqueArtists.add(track.artist);
+      uniqueArtists.addAll(track.artists);
     }
 
     return uniqueArtists.length;
@@ -219,10 +216,13 @@ class StatisticsService {
   }
 
   /// Самый активный день
-  DateTime? _getMostActiveDay(IList<TrackSession> sessions) {
+  MostActiveDayStats? _getMostActiveDay(
+    IList<VkAudioTrack> tracks,
+    IList<TrackSession> sessions,
+  ) {
     if (sessions.isEmpty) return null;
 
-    final dayStats = <DateTime, int>{};
+    final dayStats = <DateTime, ({int playCount, int totalDuration})>{};
 
     for (final session in sessions) {
       // Проверяем что timestamp корректный (не 0 и не слишком старый)
@@ -233,40 +233,48 @@ class StatisticsService {
       if (day.year < 2020) continue;
 
       final dayStart = session.firstObservedDay;
-      dayStats[dayStart] = (dayStats[dayStart] ?? 0) + 1;
+      final track = tracks.firstWhere((t) => t.fullId == session.fullId);
+
+      if (dayStats.containsKey(dayStart)) {
+        final current = dayStats[dayStart]!;
+        dayStats[dayStart] = (
+          playCount: current.playCount + 1,
+          totalDuration: current.totalDuration + track.duration,
+        );
+      } else {
+        dayStats[dayStart] = (playCount: 1, totalDuration: track.duration);
+      }
     }
 
     // Если нет корректных дат, возвращаем null
     if (dayStats.isEmpty) return null;
 
-    final mostActiveDay = dayStats.entries
-        .reduce((a, b) => a.value > b.value ? a : b)
-        .key;
+    final mostActiveDayEntry = dayStats.entries.reduce(
+      (a, b) => a.value.playCount > b.value.playCount ? a : b,
+    );
 
-    return mostActiveDay;
+    return MostActiveDayStats(
+      date: mostActiveDayEntry.key,
+      playCount: mostActiveDayEntry.value.playCount,
+      totalDuration: mostActiveDayEntry.value.totalDuration,
+    );
   }
 
   /// Самый длинный трек
-  TrackStats? _getLongestTrack(
+  VkAudioTrack? _getLongestTrack(
     IList<VkAudioTrack> tracks,
     IList<TrackSession> sessions,
   ) {
     if (sessions.isEmpty) return null;
 
-    TrackStats? longestTrack;
+    VkAudioTrack? longestTrack;
     int maxDuration = 0;
 
     for (final session in sessions) {
       final track = tracks.firstWhere((t) => t.fullId == session.fullId);
       if (track.duration > maxDuration) {
         maxDuration = track.duration;
-        longestTrack = TrackStats(
-          title: track.title,
-          artist: track.artist,
-          duration: track.duration,
-          playCount: 1,
-          totalDuration: track.duration,
-        );
+        longestTrack = track;
       }
     }
 
@@ -274,26 +282,20 @@ class StatisticsService {
   }
 
   /// Самый короткий трек
-  TrackStats? _getShortestTrack(
+  VkAudioTrack? _getShortestTrack(
     IList<VkAudioTrack> tracks,
     IList<TrackSession> sessions,
   ) {
     if (sessions.isEmpty) return null;
 
-    TrackStats? shortestTrack;
+    VkAudioTrack? shortestTrack;
     int minDuration = 9223372036854775807; // int.maxFinite equivalent
 
     for (final session in sessions) {
       final track = tracks.firstWhere((t) => t.fullId == session.fullId);
       if (track.duration < minDuration) {
         minDuration = track.duration;
-        shortestTrack = TrackStats(
-          title: track.title,
-          artist: track.artist,
-          duration: track.duration,
-          playCount: 1,
-          totalDuration: track.duration,
-        );
+        shortestTrack = track;
       }
     }
 
@@ -307,6 +309,44 @@ class StatisticsService {
 }
 
 // 📊 МОДЕЛИ ДАННЫХ ДЛЯ СТАТИСТИКИ
+
+class MostActiveDayStats {
+  final DateTime date;
+  final int playCount;
+  final int totalDuration;
+
+  const MostActiveDayStats({
+    required this.date,
+    required this.playCount,
+    required this.totalDuration,
+  });
+
+  MostActiveDayStats copyWith({
+    DateTime? date,
+    int? playCount,
+    int? totalDuration,
+  }) {
+    return MostActiveDayStats(
+      date: date ?? this.date,
+      playCount: playCount ?? this.playCount,
+      totalDuration: totalDuration ?? this.totalDuration,
+    );
+  }
+}
+
+class TrackWithStats {
+  final VkAudioTrack track;
+  final int playCount;
+
+  const TrackWithStats({required this.track, required this.playCount});
+
+  TrackWithStats copyWith({VkAudioTrack? track, int? playCount}) {
+    return TrackWithStats(
+      track: track ?? this.track,
+      playCount: playCount ?? this.playCount,
+    );
+  }
+}
 
 class ArtistStats {
   final String name;

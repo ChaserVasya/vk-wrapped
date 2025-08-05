@@ -146,38 +146,9 @@ class TrackTechnicalInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          children: [
-            Icon(Icons.music_note, size: 16, color: Colors.grey[600]),
-            const Gap(4),
-            Text(
-              'ID: ${track.id}',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
-            const Spacer(),
-            Icon(Icons.person_outline, size: 16, color: Colors.grey[600]),
-            const Gap(4),
-            Text(
-              'Owner: ${track.ownerId}',
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-            ),
-          ],
-        ),
-        const Gap(4),
-        Row(
-          children: [
-            Icon(Icons.link, size: 16, color: Colors.grey[600]),
-            const Gap(4),
-            Expanded(
-              child: Text(
-                'Full ID: ${track.fullId}',
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            if (track.dateDateTime != null) ...[
-              const Gap(8),
+        if (track.dateDateTime != null) ...[
+          Row(
+            children: [
               Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
               const Gap(4),
               Text(
@@ -185,10 +156,10 @@ class TrackTechnicalInfo extends StatelessWidget {
                 style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
-          ],
-        ),
+          ),
+        ],
         if (track.genreId != null || track.lyricsId != null) ...[
-          const Gap(4),
+          if (track.dateDateTime != null) const Gap(4),
           Row(
             children: [
               if (track.genreId != null) ...[
@@ -200,7 +171,7 @@ class TrackTechnicalInfo extends StatelessWidget {
                 ),
               ],
               if (track.lyricsId != null) ...[
-                const Spacer(),
+                if (track.genreId != null) const Spacer(),
                 Icon(Icons.text_snippet, size: 16, color: Colors.grey[600]),
                 const Gap(4),
                 Text(
