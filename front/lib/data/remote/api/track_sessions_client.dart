@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:front/domain/entities/track_session.dart';
 import 'package:injectable/injectable.dart';
 import 'package:retrofit/error_logger.dart';

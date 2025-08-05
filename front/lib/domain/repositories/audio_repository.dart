@@ -1,8 +1,8 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:front/data/local/audio_storage/audio_storage.dart';
 import 'package:front/data/remote/api/track_sessions_client.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:front/data/remote/services/vk_service.dart';
-import 'package:front/data/local/audio_storage/audio_storage.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
