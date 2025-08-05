@@ -49,7 +49,8 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
       await action(currentState.ensureData, emit);
     } catch (e, s) {
       emitErrorEffect(e, st: s);
-      emit(currentState); // Восстанавливаем предыдущее состояние при ошибке
+      // В случае ошибки эмитим error состояние
+      emit(CommonStates.error(AppException.from(e, st: s)));
     }
   }
 
@@ -131,10 +132,8 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
           ),
         ),
       );
-    } catch (e, s) {
-      emitErrorEffect(e, st: s);
-      // В случае ошибки эмитим error состояние
-      emit(CommonStates.error(AppException(e.toString(), st: s)));
+    } catch (e, st) {
+      emit(CommonStates.error(AppException.from(e, st: st)));
     }
   }
 }

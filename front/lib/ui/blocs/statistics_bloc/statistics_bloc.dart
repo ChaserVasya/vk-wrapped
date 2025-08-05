@@ -32,7 +32,7 @@ class StatisticsBloc extends EffectBloc<StatisticsEvent, StatisticsState> {
 
       emit(CommonStates.data(statistic));
     } catch (e, st) {
-      emit(CommonStates.error(AppException(e.toString(), st: st)));
+      emit(CommonStates.error(AppException.from(e, st: st)));
     }
   }
 }

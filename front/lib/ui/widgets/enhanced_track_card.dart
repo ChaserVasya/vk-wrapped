@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
+import 'package:front/ui/widgets/thumb_image.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
 
-class TrackCard extends StatelessWidget {
+class EnhancedTrackCard extends StatelessWidget {
   final VkAudioTrack track;
   final int index;
 
-  const TrackCard({super.key, required this.track, required this.index});
+  const EnhancedTrackCard({
+    super.key,
+    required this.track,
+    required this.index,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +47,30 @@ class TrackCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
+                      if (track.album != null) ...[
+                        const Gap(4),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.album,
+                              size: 12,
+                              color: Colors.grey[500],
+                            ),
+                            const Gap(4),
+                            Expanded(
+                              child: Text(
+                                track.album!.title,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[500],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -77,55 +106,29 @@ class TrackCard extends StatelessWidget {
   }
 
   Widget _buildAlbumCover() {
-    // Пытаемся получить обложку из thumb альбома
-    final thumbUrl = _getBestThumbUrl();
-
-    if (thumbUrl != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.network(
-          thumbUrl,
-          width: 56,
-          height: 56,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, st) {
-            return _buildFallbackCover();
-          },
-        ),
-      );
-    }
-
-    return _buildFallbackCover();
-  }
-
-  Widget _buildFallbackCover() {
-    return Container(
+    return ThumbImage(
+      thumb: track.album?.thumb,
       width: 56,
       height: 56,
-      decoration: BoxDecoration(
-        color: Colors.blue[100],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Center(
-        child: Text(
-          '$index',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.blue[700],
+      fallback: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.blue[100],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Center(
+          child: Text(
+            '$index',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue[700],
+            ),
           ),
         ),
       ),
     );
-  }
-
-  String? _getBestThumbUrl() {
-    if (track.album?.thumb == null) return null;
-
-    final thumb = track.album!.thumb!;
-
-    // Приоритет размеров: photo300 > photo135 > photo600 > photo34
-    return thumb.photo300 ?? thumb.photo135 ?? thumb.photo600 ?? thumb.photo34;
   }
 
   String _formatDuration(int seconds) {

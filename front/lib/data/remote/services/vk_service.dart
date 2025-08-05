@@ -27,7 +27,7 @@ class VkService {
   String get _token {
     final token = _prefsStorage.getToken();
     if (token == null) {
-      throw const AppException('VK Token отсутствует');
+      throw const NoTokenException();
     }
     return token;
   }

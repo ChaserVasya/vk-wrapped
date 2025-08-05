@@ -1,0 +1,126 @@
+---
+alwaysApply: true
+---
+
+# Правило обязательного применения @injectable к Bloc и Cubit
+
+## Основное требование
+
+**ОБЯЗАТЕЛЬНО применять @injectable аннотацию ко ВСЕМ Bloc и Cubit классам**
+
+## Критически важные принципы
+
+### Что ОБЯЗАТЕЛЬНО делать
+
+- ✅ **Добавлять @injectable ко всем Bloc классам** - `@injectable class MyBloc extends Bloc<Event, State>`
+- ✅ **Добавлять @injectable ко всем Cubit классам** - `@injectable class MyCubit extends Cubit<State>`
+- ✅ **Импортировать injectable** - `import 'package:injectable/injectable.dart';`
+- ✅ **Перегенерировать DI после добавления** - `fvm dart run build_runner build`
+- ✅ **Проверять регистрацию в di.config.dart** - убедиться что класс зарегистрирован
+
+### Что НЕ делать
+
+- ❌ **Создавать Bloc/Cubit без @injectable** - недопустимо
+- ❌ **Забывать импорт injectable** - недопустимо
+- ❌ **Не перегенерировать DI** - после добавления аннотации
+- ❌ **Игнорировать ошибки DI** - если класс не зарегистрирован
+
+## Алгоритм создания Bloc/Cubit
+
+### 1. Создание класса
+
+```dart
+import 'package:injectable/injectable.dart';
+
+@injectable
+class MyBloc extends Bloc<MyEvent, MyState> {
+  MyBloc() : super(MyState.initial());
+}
+```
+
+### 2. Обязательные импорты
+
+```dart
+import 'package:injectable/injectable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+```
+
+### 3. Перегенерация DI
+
+```bash
+fvm dart run build_runner build --delete-conflicting-outputs
+```
+
+### 4. Проверка регистрации
+
+Проверить что класс появился в `lib/internal/di/di.config.dart`:
+
+```dart
+gh.factory<_i999.MyBloc>(() => _i999.MyBloc());
+```
+
+## Примеры правильного использования
+
+### ✅ Правильно - Bloc с @injectable
+
+```dart
+import 'package:injectable/injectable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+@injectable
+class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
+  StatisticsBloc() : super(StatisticsState.initial());
+}
+```
+
+### ✅ Правильно - Cubit с @injectable
+
+```dart
+import 'package:injectable/injectable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+@injectable
+class TracksCubit extends Cubit<CommonStates<IList<VkAudioTrack>>> {
+  TracksCubit() : super(const CommonStates.loading());
+}
+```
+
+### ❌ Неправильно - без @injectable
+
+```dart
+// НЕПРАВИЛЬНО - отсутствует @injectable
+class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
+  StatisticsBloc() : super(StatisticsState.initial());
+}
+```
+
+## Проверка после создания
+
+### Обязательные шаги
+
+1. **Добавить @injectable аннотацию**
+2. **Добавить импорт injectable**
+3. **Запустить build_runner**
+4. **Проверить регистрацию в di.config.dart**
+5. **Проверить что нет ошибок компиляции**
+
+### Типичные ошибки
+
+❌ **"No provider found for MyBloc"** - не добавлена аннотация @injectable
+❌ **"The name 'injectable' isn't a type"** - не импортирован injectable
+❌ **"MyBloc not found in di.config.dart"** - не перегенерирован DI
+
+## Приоритет
+
+**КРИТИЧЕСКИ ВЫСОКИЙ ПРИОРИТЕТ** - всегда добавлять @injectable к Bloc и Cubit классам.
+
+## Исключения
+
+Нет исключений - все Bloc и Cubit классы ДОЛЖНЫ иметь @injectable аннотацию.
+
+## Последствия нарушения
+
+- ❌ **Ошибки DI** - "No provider found"
+- ❌ **Краш приложения** - при попытке получить Bloc/Cubit
+- ❌ **Нарушение архитектуры** - несоответствие принципам DI
+- ❌ **Сложность отладки** - трудно найти причину ошибки

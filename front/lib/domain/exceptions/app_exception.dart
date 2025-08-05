@@ -14,6 +14,18 @@ class AppException implements Exception {
     return 'AppException: $message${code != null ? ' (Code: $code)' : ''}';
   }
 
+  /// Создает AppException из любого объекта с автоматическим определением типа
+  factory AppException.from(Object error, {StackTrace? st}) {
+    if (error is AppException) return error;
+
+    final message = error.toString();
+    return AppException(
+      message,
+      originalError: error,
+      st: st ?? StackTrace.current,
+    );
+  }
+
   /// Создает AppException с текущим стектрейсом
   factory AppException.withStackTrace(
     String message, {
@@ -25,18 +37,6 @@ class AppException implements Exception {
       message,
       code: code,
       originalError: originalError,
-      st: st ?? StackTrace.current,
-    );
-  }
-
-  /// Создает AppException из динамического объекта
-  factory AppException.fromDynamic(dynamic error, {StackTrace? st}) {
-    if (error is AppException) return error;
-
-    final message = error?.toString() ?? 'Unknown error';
-    return AppException.withStackTrace(
-      message,
-      originalError: error,
       st: st ?? StackTrace.current,
     );
   }
@@ -69,126 +69,7 @@ class AppException implements Exception {
   }
 }
 
-/// Исключение для сетевых ошибок
-class NetworkException extends AppException {
-  final String? dioMessage;
-  final NetworkDebugInfo? networkDebugInfo;
-
-  const NetworkException(
-    super.message, {
-    super.code,
-    super.originalError,
-    super.st,
-    this.dioMessage,
-    this.networkDebugInfo,
-  });
-
-  factory NetworkException.withStackTrace(
-    String message, {
-    String? code,
-    dynamic originalError,
-    StackTrace? st,
-    String? dioMessage,
-    NetworkDebugInfo? networkDebugInfo,
-  }) {
-    return NetworkException(
-      message,
-      code: code,
-      originalError: originalError,
-      st: st ?? StackTrace.current,
-      dioMessage: dioMessage,
-      networkDebugInfo: networkDebugInfo,
-    );
-  }
-
-  @override
-  String get debugJson {
-    return '''
-{
-  "message": "$message",
-  "code": "${code ?? 'null'}",
-  "originalError": "${originalError?.toString() ?? 'null'}",
-  "st": "${st?.toString() ?? 'null'}",
-  "dioMessage": "${dioMessage ?? 'null'}",
-  "networkDebugInfo": ${networkDebugInfo?.toJson() ?? 'null'}
-}
-''';
-  }
-}
-
-/// Исключение для ошибок API
-class ApiException extends AppException {
-  const ApiException(
-    super.message, {
-    super.code,
-    super.originalError,
-    super.st,
-  });
-
-  factory ApiException.withStackTrace(
-    String message, {
-    String? code,
-    dynamic originalError,
-    StackTrace? st,
-  }) {
-    return ApiException(
-      message,
-      code: code,
-      originalError: originalError,
-      st: st ?? StackTrace.current,
-    );
-  }
-}
-
-/// Исключение для ошибок кэша
-class CacheException extends AppException {
-  const CacheException(
-    super.message, {
-    super.code,
-    super.originalError,
-    super.st,
-  });
-
-  factory CacheException.withStackTrace(
-    String message, {
-    String? code,
-    dynamic originalError,
-    StackTrace? st,
-  }) {
-    return CacheException(
-      message,
-      code: code,
-      originalError: originalError,
-      st: st ?? StackTrace.current,
-    );
-  }
-}
-
-/// Информация для дебага сетевых запросов
-class NetworkDebugInfo {
-  final int? statusCode;
-  final String? method;
-  final String? source;
-  final String? query;
-  final String? data;
-
-  const NetworkDebugInfo({
-    this.statusCode,
-    this.method,
-    this.source,
-    this.query,
-    this.data,
-  });
-
-  String? toJson() {
-    return '''
-{
-  "statusCode": $statusCode,
-  "method": "$method",
-  "source": "$source",
-  "query": "$query",
-  "data": "$data"
-}
-''';
-  }
+/// Исключение для отсутствия токена
+class NoTokenException extends AppException {
+  const NoTokenException() : super('VK Token отсутствует');
 }

@@ -55,6 +55,6 @@ final _cacheInterceptor = DioCacheInterceptor(
 
 final _errorMappingInterceptor = InterceptorsWrapper(
   onError: (error, handler) {
-    throw NetworkException(error.toString(), originalError: error);
+    throw AppException(error.toString(), originalError: error);
   },
 );
