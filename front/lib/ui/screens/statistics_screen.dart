@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/features/utils/bloc/safe_listeners.dart';
@@ -7,6 +8,7 @@ import 'package:front/ui/blocs/statistics_bloc/statistics_event.dart';
 import 'package:front/ui/blocs/statistics_bloc/statistics_state.dart';
 import 'package:front/ui/widgets/loading_state.dart';
 
+@RoutePage()
 class StatisticsScreen extends StatelessWidget {
   const StatisticsScreen({super.key});
 

@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +11,7 @@ import 'package:front/ui/widgets/error_state.dart';
 import 'package:front/ui/widgets/loading_state.dart';
 import 'package:front/ui/widgets/track_card.dart';
 
+@RoutePage()
 class TracksListScreen extends StatelessWidget {
   const TracksListScreen({super.key});
 

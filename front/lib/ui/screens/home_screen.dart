@@ -1,6 +1,9 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:front/ui/routes/app_router.dart';
 import 'package:gap/gap.dart';
 
+@RoutePage()
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -44,7 +47,7 @@ class _View extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              Navigator.of(context).pushNamed('/settings');
+              context.router.push(const SettingsRoute());
             },
           ),
         ],
@@ -70,7 +73,7 @@ class _View extends StatelessWidget {
             const Gap(32),
             ElevatedButton.icon(
               onPressed: () {
-                Navigator.of(context).pushNamed('/statistics');
+                context.router.push(const StatisticsRoute());
               },
               icon: const Icon(Icons.analytics),
               label: const Text('Посмотреть статистику'),
@@ -78,7 +81,7 @@ class _View extends StatelessWidget {
             const Gap(16),
             ElevatedButton.icon(
               onPressed: () {
-                Navigator.of(context).pushNamed('/tracks');
+                context.router.push(const TracksListRoute());
               },
               icon: const Icon(Icons.list),
               label: const Text('Список треков'),
@@ -86,7 +89,7 @@ class _View extends StatelessWidget {
             const Gap(16),
             ElevatedButton.icon(
               onPressed: () {
-                Navigator.of(context).pushNamed('/detailed-statistics');
+                context.router.push(const StatisticsRoute());
               },
               icon: const Icon(Icons.bar_chart),
               label: const Text('Детальная статистика'),
@@ -94,7 +97,7 @@ class _View extends StatelessWidget {
             const Gap(16),
             ElevatedButton.icon(
               onPressed: () {
-                Navigator.of(context).pushNamed('/settings');
+                context.router.push(const SettingsRoute());
               },
               icon: const Icon(Icons.vpn_key),
               label: const Text('Настроить VK токен'),

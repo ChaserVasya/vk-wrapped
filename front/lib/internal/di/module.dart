@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:drift/drift.dart';
+import 'package:drift_flutter/drift_flutter.dart';
 import 'package:front/data/local/prefs_storage.dart';
 import 'package:front/domain/exceptions/app_exception.dart';
 import 'package:front/domain/services/statistics_service.dart';
@@ -30,6 +32,9 @@ abstract class RegisterModule {
   @injectable
   StatisticsBloc statisticsBloc(StatisticsService statisticsService) =>
       StatisticsBloc(statisticsService);
+
+  @lazySingleton
+  QueryExecutor get drift => driftDatabase(name: 'app_database');
 }
 
 final _errorMappingInterceptor = InterceptorsWrapper(

@@ -10,6 +10,7 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:dio/dio.dart' as _i361;
+import 'package:drift/drift.dart' as _i500;
 import 'package:front/data/local/audio_storage/audio_storage.dart' as _i309;
 import 'package:front/data/local/audio_storage/drift/database.dart' as _i657;
 import 'package:front/data/local/audio_storage/drift/drift_audio_storage.dart'
@@ -40,16 +41,16 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
-    gh.factory<_i657.AppDatabase>(() => _i657.AppDatabase());
     await gh.singletonAsync<_i460.SharedPreferencesWithCache>(
       () => registerModule.prefs,
       preResolve: true,
     );
     gh.lazySingleton<_i361.Dio>(() => registerModule.dio);
+    gh.lazySingleton<_i500.QueryExecutor>(() => registerModule.drift);
     gh.lazySingleton<_i1056.ExportService>(() => _i1056.ExportService());
     gh.lazySingleton<_i458.TokenGenerator>(() => _i458.TokenGenerator());
-    gh.lazySingleton<_i309.AudioStorage>(
-      () => _i254.DriftAudioStorage(gh<_i657.AppDatabase>()),
+    gh.lazySingleton<_i657.AppDatabase>(
+      () => _i657.AppDatabase(gh<_i500.QueryExecutor>()),
     );
     gh.lazySingleton<_i34.PrefsStorage>(
       () => registerModule.prefsStorage(gh<_i460.SharedPreferencesWithCache>()),
@@ -63,6 +64,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i988.VkService>(
       () => _i988.VkService(gh<_i34.PrefsStorage>(), gh<_i543.VkApiClient>()),
     );
+    gh.lazySingleton<_i297.AuthStorage>(
+      () => _i34.PrefsStorage(gh<_i460.SharedPreferencesWithCache>()),
+    );
+    gh.lazySingleton<_i309.AudioStorage>(
+      () => _i254.DriftAudioStorage(gh<_i657.AppDatabase>()),
+    );
+    gh.factory<_i35.TokenSetupBloc>(
+      () => _i35.TokenSetupBloc(
+        gh<_i297.AuthStorage>(),
+        gh<_i458.TokenGenerator>(),
+      ),
+    );
     gh.factory<_i693.AudioRepository>(
       () => _i693.AudioRepository(
         gh<_i988.VkService>(),
@@ -70,21 +83,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i537.TrackSessionsClient>(),
       ),
     );
-    gh.lazySingleton<_i297.AuthStorage>(
-      () => _i34.PrefsStorage(gh<_i460.SharedPreferencesWithCache>()),
-    );
     gh.factory<_i69.SettingsBloc>(
       () => _i69.SettingsBloc(
         gh<_i34.PrefsStorage>(),
         gh<_i693.AudioRepository>(),
         gh<_i1056.ExportService>(),
         gh<_i297.AuthStorage>(),
-      ),
-    );
-    gh.factory<_i35.TokenSetupBloc>(
-      () => _i35.TokenSetupBloc(
-        gh<_i297.AuthStorage>(),
-        gh<_i458.TokenGenerator>(),
       ),
     );
     gh.factory<_i308.TracksCubit>(
