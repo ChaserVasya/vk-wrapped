@@ -162,9 +162,9 @@ class _OverviewPage extends StatelessWidget {
     final hours = duration.inHours;
     final minutes = duration.inMinutes % 60;
     if (hours > 0) {
-      return '${hours}ч ${minutes}м';
+      return '$hoursч $minutesм';
     }
-    return '${minutes}м';
+    return '$minutesм';
   }
 }
 
@@ -233,9 +233,9 @@ class _TopArtistsPage extends StatelessWidget {
     final hours = duration.inHours;
     final minutes = duration.inMinutes % 60;
     if (hours > 0) {
-      return '${hours}ч ${minutes}м';
+      return '$hoursч $minutesм';
     }
-    return '${minutes}м';
+    return '$minutesм';
   }
 }
 
@@ -303,7 +303,7 @@ class _TopTracksPage extends StatelessWidget {
   String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes;
     final seconds = duration.inSeconds % 60;
-    return '${minutes}:${seconds.toString().padLeft(2, '0')}';
+    return '$minutes:${seconds.toString().padLeft(2, '0')}';
   }
 }
 

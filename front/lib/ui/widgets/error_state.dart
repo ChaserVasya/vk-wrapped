@@ -1,5 +1,7 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:front/domain/exceptions/app_exception.dart';
+import 'package:front/ui/routes/app_router.dart';
 import 'package:gap/gap.dart';
 
 class ErrorStateWidget extends StatelessWidget {
@@ -40,12 +42,13 @@ class ErrorStateWidget extends StatelessWidget {
               style: const TextStyle(fontSize: 14, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
+
             const Gap(24),
             if (isNoTokenError) ...[
               ElevatedButton.icon(
                 onPressed: () async {
                   // Переходим в настройки
-                  await Navigator.of(context).pushNamed('/settings');
+                  await context.router.push(const SettingsRoute());
                   // После возвращения делаем ещё одну попытку
                   if (context.mounted && onRefresh != null) {
                     onRefresh!();

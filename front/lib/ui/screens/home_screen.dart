@@ -89,14 +89,6 @@ class _View extends StatelessWidget {
             const Gap(16),
             ElevatedButton.icon(
               onPressed: () {
-                context.router.push(const StatisticsRoute());
-              },
-              icon: const Icon(Icons.bar_chart),
-              label: const Text('Детальная статистика'),
-            ),
-            const Gap(16),
-            ElevatedButton.icon(
-              onPressed: () {
                 context.router.push(const SettingsRoute());
               },
               icon: const Icon(Icons.vpn_key),

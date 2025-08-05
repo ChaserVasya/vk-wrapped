@@ -48,7 +48,7 @@ class _Listeners extends StatelessWidget {
             switch (effect) {
               case TokenSetupEffect$Finish():
                 context.showSnackBar('Токен сохранен');
-                Navigator.of(context).pop();
+                context.router.pop();
             }
           },
         ),
