@@ -1,9 +1,40 @@
 import 'package:dartx/dartx.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:gap/gap.dart';
 
 extension BuildContextSnackBar on BuildContext {
-  void showSnackBar(String message) {
-    ScaffoldMessenger.of(this).showSnackBar(SnackBar(content: Text(message)));
+  void showSnackBar(String message, {String? errorInfo}) {
+    ScaffoldMessenger.of(this)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          action: SnackBarAction(
+            label: 'Скрыть',
+            onPressed: ScaffoldMessenger.of(this).hideCurrentSnackBar,
+          ),
+          content: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  message,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+              if (errorInfo != null) ...[
+                const Gap(8),
+                IconButton(
+                  onPressed: () async {
+                    await Clipboard.setData(ClipboardData(text: errorInfo));
+                  },
+                  icon: const Icon(Icons.copy, color: Colors.white),
+                ),
+              ],
+            ],
+          ),
+          duration: const Duration(seconds: 5),
+        ),
+      );
   }
 }
 

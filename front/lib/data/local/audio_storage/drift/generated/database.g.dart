@@ -1878,7 +1878,12 @@ class $TrackAlbumsTable extends TrackAlbums
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => const {};
+  Set<GeneratedColumn> get $primaryKey => {
+    trackId,
+    trackOwnerId,
+    albumId,
+    albumOwnerId,
+  };
   @override
   TrackAlbum map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -2181,7 +2186,7 @@ class $AlbumThumbsTable extends AlbumThumbs
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => const {};
+  Set<GeneratedColumn> get $primaryKey => {albumId, albumOwnerId, thumbId};
   @override
   AlbumThumb map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';

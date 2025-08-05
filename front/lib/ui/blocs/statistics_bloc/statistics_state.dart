@@ -5,10 +5,8 @@ import 'package:front/domain/services/statistics_service.dart';
 part 'statistics_state.freezed.dart';
 
 @freezed
-abstract class StatisticsState with _$StatisticsState {
-  const factory StatisticsState.loadingState() = StatisticsState$LoadingState;
-
-  const factory StatisticsState.dataState({
+abstract class StatisticStateData with _$StatisticStateData {
+  const factory StatisticStateData({
     required IList<ArtistStats> topArtists,
     required IList<TrackStats> topTracks,
     required Duration totalListeningTime,
@@ -22,5 +20,5 @@ abstract class StatisticsState with _$StatisticsState {
     required TrackStats? longestTrack,
     required TrackStats? shortestTrack,
     required int totalPlayCount,
-  }) = StatisticsState$DataState;
+  }) = _StatisticStateData;
 }

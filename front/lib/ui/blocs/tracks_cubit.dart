@@ -17,8 +17,12 @@ class TracksCubit extends Cubit<CommonStates<IList<VkAudioTrack>>> {
       emit(const CommonStates.loading());
       final tracks = await _audioRepository.getListenedAudio();
       emit(CommonStates.data(tracks));
-    } catch (e) {
-      emit(CommonStates.error(AppException(e.toString())));
+    } catch (e, st) {
+      emit(
+        CommonStates.error(
+          AppException.withStackTrace(e.toString(), originalError: e, st: st),
+        ),
+      );
     }
   }
 }

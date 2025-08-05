@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:front/domain/exceptions/app_exception.dart';
 import 'package:front/ui/routes/app_router.dart';
+import 'package:front/ui/widgets/network_debug_info_tile.dart';
 import 'package:gap/gap.dart';
 
 class ErrorStateWidget extends StatelessWidget {
@@ -38,7 +39,7 @@ class ErrorStateWidget extends StatelessWidget {
             Text(
               isNoTokenError
                   ? 'Для просмотра треков необходимо настроить VK токен'
-                  : error.toString(),
+                  : error.constructMessageInUI(context, error),
               style: const TextStyle(fontSize: 14, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
@@ -63,6 +64,11 @@ class ErrorStateWidget extends StatelessWidget {
                 icon: const Icon(Icons.refresh),
                 label: const Text('Повторить'),
               ),
+            ],
+            // Добавляем дебаг информацию для всех ошибок
+            if (!isNoTokenError) ...[
+              const Gap(16),
+              NetworkDebugInfoTile(error: error),
             ],
           ],
         ),

@@ -2,10 +2,10 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
-import 'package:front/features/utils/bloc/safe_listeners.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/token_setup_bloc/token_setup_bloc.dart';
 import 'package:front/ui/widgets/extensions.dart';
+import 'package:front/ui/widgets/safe_listeners.dart';
 import 'package:gap/gap.dart';
 import 'package:url_launcher/url_launcher.dart';
 

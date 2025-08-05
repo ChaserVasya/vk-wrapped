@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
-import 'package:front/features/utils/bloc/safe_listeners.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/settings_bloc/settings_bloc.dart';
 import 'package:front/ui/routes/app_router.dart';
 import 'package:front/ui/widgets/extensions.dart';
 import 'package:front/ui/widgets/loading_widget.dart';
+import 'package:front/ui/widgets/safe_listeners.dart';
 import 'package:gap/gap.dart';
 
 @RoutePage()

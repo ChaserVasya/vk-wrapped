@@ -13,91 +13,28 @@ part of 'statistics_state.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$StatisticsState {
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is StatisticsState);
-  }
+mixin _$StatisticStateData {
+  IList<ArtistStats> get topArtists;
+  IList<TrackStats> get topTracks;
+  Duration get totalListeningTime;
+  int get uniqueTracksCount;
+  int get uniqueArtistsCount;
+  Duration get averageTrackDuration;
+  IList<TimeOfDayStats> get timeOfDayStats;
+  IList<DayOfWeekStats> get dayOfWeekStats;
+  IList<MonthStats> get monthStats;
+  DateTime? get mostActiveDay;
+  TrackStats? get longestTrack;
+  TrackStats? get shortestTrack;
+  int get totalPlayCount;
 
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'StatisticsState()';
-  }
-}
-
-/// @nodoc
-class $StatisticsStateCopyWith<$Res> {
-  $StatisticsStateCopyWith(
-    StatisticsState _,
-    $Res Function(StatisticsState) __,
-  );
-}
-
-/// @nodoc
-
-class StatisticsState$LoadingState implements StatisticsState {
-  const StatisticsState$LoadingState();
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is StatisticsState$LoadingState);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'StatisticsState.loadingState()';
-  }
-}
-
-/// @nodoc
-
-class StatisticsState$DataState implements StatisticsState {
-  const StatisticsState$DataState({
-    required this.topArtists,
-    required this.topTracks,
-    required this.totalListeningTime,
-    required this.uniqueTracksCount,
-    required this.uniqueArtistsCount,
-    required this.averageTrackDuration,
-    required this.timeOfDayStats,
-    required this.dayOfWeekStats,
-    required this.monthStats,
-    required this.mostActiveDay,
-    required this.longestTrack,
-    required this.shortestTrack,
-    required this.totalPlayCount,
-  });
-
-  final IList<ArtistStats> topArtists;
-  final IList<TrackStats> topTracks;
-  final Duration totalListeningTime;
-  final int uniqueTracksCount;
-  final int uniqueArtistsCount;
-  final Duration averageTrackDuration;
-  final IList<TimeOfDayStats> timeOfDayStats;
-  final IList<DayOfWeekStats> dayOfWeekStats;
-  final IList<MonthStats> monthStats;
-  final DateTime? mostActiveDay;
-  final TrackStats? longestTrack;
-  final TrackStats? shortestTrack;
-  final int totalPlayCount;
-
-  /// Create a copy of StatisticsState
+  /// Create a copy of StatisticStateData
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $StatisticsState$DataStateCopyWith<StatisticsState$DataState> get copyWith =>
-      _$StatisticsState$DataStateCopyWithImpl<StatisticsState$DataState>(
-        this,
+  $StatisticStateDataCopyWith<StatisticStateData> get copyWith =>
+      _$StatisticStateDataCopyWithImpl<StatisticStateData>(
+        this as StatisticStateData,
         _$identity,
       );
 
@@ -105,7 +42,7 @@ class StatisticsState$DataState implements StatisticsState {
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is StatisticsState$DataState &&
+            other is StatisticStateData &&
             const DeepCollectionEquality().equals(
               other.topArtists,
               topArtists,
@@ -161,17 +98,16 @@ class StatisticsState$DataState implements StatisticsState {
 
   @override
   String toString() {
-    return 'StatisticsState.dataState(topArtists: $topArtists, topTracks: $topTracks, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount)';
+    return 'StatisticStateData(topArtists: $topArtists, topTracks: $topTracks, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount)';
   }
 }
 
 /// @nodoc
-abstract mixin class $StatisticsState$DataStateCopyWith<$Res>
-    implements $StatisticsStateCopyWith<$Res> {
-  factory $StatisticsState$DataStateCopyWith(
-    StatisticsState$DataState value,
-    $Res Function(StatisticsState$DataState) _then,
-  ) = _$StatisticsState$DataStateCopyWithImpl;
+abstract mixin class $StatisticStateDataCopyWith<$Res> {
+  factory $StatisticStateDataCopyWith(
+    StatisticStateData value,
+    $Res Function(StatisticStateData) _then,
+  ) = _$StatisticStateDataCopyWithImpl;
   @useResult
   $Res call({
     IList<ArtistStats> topArtists,
@@ -191,15 +127,246 @@ abstract mixin class $StatisticsState$DataStateCopyWith<$Res>
 }
 
 /// @nodoc
-class _$StatisticsState$DataStateCopyWithImpl<$Res>
-    implements $StatisticsState$DataStateCopyWith<$Res> {
-  _$StatisticsState$DataStateCopyWithImpl(this._self, this._then);
+class _$StatisticStateDataCopyWithImpl<$Res>
+    implements $StatisticStateDataCopyWith<$Res> {
+  _$StatisticStateDataCopyWithImpl(this._self, this._then);
 
-  final StatisticsState$DataState _self;
-  final $Res Function(StatisticsState$DataState) _then;
+  final StatisticStateData _self;
+  final $Res Function(StatisticStateData) _then;
 
-  /// Create a copy of StatisticsState
+  /// Create a copy of StatisticStateData
   /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? topArtists = null,
+    Object? topTracks = null,
+    Object? totalListeningTime = null,
+    Object? uniqueTracksCount = null,
+    Object? uniqueArtistsCount = null,
+    Object? averageTrackDuration = null,
+    Object? timeOfDayStats = null,
+    Object? dayOfWeekStats = null,
+    Object? monthStats = null,
+    Object? mostActiveDay = freezed,
+    Object? longestTrack = freezed,
+    Object? shortestTrack = freezed,
+    Object? totalPlayCount = null,
+  }) {
+    return _then(
+      _self.copyWith(
+        topArtists: null == topArtists
+            ? _self.topArtists
+            : topArtists // ignore: cast_nullable_to_non_nullable
+                  as IList<ArtistStats>,
+        topTracks: null == topTracks
+            ? _self.topTracks
+            : topTracks // ignore: cast_nullable_to_non_nullable
+                  as IList<TrackStats>,
+        totalListeningTime: null == totalListeningTime
+            ? _self.totalListeningTime
+            : totalListeningTime // ignore: cast_nullable_to_non_nullable
+                  as Duration,
+        uniqueTracksCount: null == uniqueTracksCount
+            ? _self.uniqueTracksCount
+            : uniqueTracksCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        uniqueArtistsCount: null == uniqueArtistsCount
+            ? _self.uniqueArtistsCount
+            : uniqueArtistsCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        averageTrackDuration: null == averageTrackDuration
+            ? _self.averageTrackDuration
+            : averageTrackDuration // ignore: cast_nullable_to_non_nullable
+                  as Duration,
+        timeOfDayStats: null == timeOfDayStats
+            ? _self.timeOfDayStats
+            : timeOfDayStats // ignore: cast_nullable_to_non_nullable
+                  as IList<TimeOfDayStats>,
+        dayOfWeekStats: null == dayOfWeekStats
+            ? _self.dayOfWeekStats
+            : dayOfWeekStats // ignore: cast_nullable_to_non_nullable
+                  as IList<DayOfWeekStats>,
+        monthStats: null == monthStats
+            ? _self.monthStats
+            : monthStats // ignore: cast_nullable_to_non_nullable
+                  as IList<MonthStats>,
+        mostActiveDay: freezed == mostActiveDay
+            ? _self.mostActiveDay
+            : mostActiveDay // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        longestTrack: freezed == longestTrack
+            ? _self.longestTrack
+            : longestTrack // ignore: cast_nullable_to_non_nullable
+                  as TrackStats?,
+        shortestTrack: freezed == shortestTrack
+            ? _self.shortestTrack
+            : shortestTrack // ignore: cast_nullable_to_non_nullable
+                  as TrackStats?,
+        totalPlayCount: null == totalPlayCount
+            ? _self.totalPlayCount
+            : totalPlayCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+      ),
+    );
+  }
+}
+
+/// @nodoc
+
+class _StatisticStateData implements StatisticStateData {
+  const _StatisticStateData({
+    required this.topArtists,
+    required this.topTracks,
+    required this.totalListeningTime,
+    required this.uniqueTracksCount,
+    required this.uniqueArtistsCount,
+    required this.averageTrackDuration,
+    required this.timeOfDayStats,
+    required this.dayOfWeekStats,
+    required this.monthStats,
+    required this.mostActiveDay,
+    required this.longestTrack,
+    required this.shortestTrack,
+    required this.totalPlayCount,
+  });
+
+  @override
+  final IList<ArtistStats> topArtists;
+  @override
+  final IList<TrackStats> topTracks;
+  @override
+  final Duration totalListeningTime;
+  @override
+  final int uniqueTracksCount;
+  @override
+  final int uniqueArtistsCount;
+  @override
+  final Duration averageTrackDuration;
+  @override
+  final IList<TimeOfDayStats> timeOfDayStats;
+  @override
+  final IList<DayOfWeekStats> dayOfWeekStats;
+  @override
+  final IList<MonthStats> monthStats;
+  @override
+  final DateTime? mostActiveDay;
+  @override
+  final TrackStats? longestTrack;
+  @override
+  final TrackStats? shortestTrack;
+  @override
+  final int totalPlayCount;
+
+  /// Create a copy of StatisticStateData
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @pragma('vm:prefer-inline')
+  _$StatisticStateDataCopyWith<_StatisticStateData> get copyWith =>
+      __$StatisticStateDataCopyWithImpl<_StatisticStateData>(this, _$identity);
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _StatisticStateData &&
+            const DeepCollectionEquality().equals(
+              other.topArtists,
+              topArtists,
+            ) &&
+            const DeepCollectionEquality().equals(other.topTracks, topTracks) &&
+            (identical(other.totalListeningTime, totalListeningTime) ||
+                other.totalListeningTime == totalListeningTime) &&
+            (identical(other.uniqueTracksCount, uniqueTracksCount) ||
+                other.uniqueTracksCount == uniqueTracksCount) &&
+            (identical(other.uniqueArtistsCount, uniqueArtistsCount) ||
+                other.uniqueArtistsCount == uniqueArtistsCount) &&
+            (identical(other.averageTrackDuration, averageTrackDuration) ||
+                other.averageTrackDuration == averageTrackDuration) &&
+            const DeepCollectionEquality().equals(
+              other.timeOfDayStats,
+              timeOfDayStats,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other.dayOfWeekStats,
+              dayOfWeekStats,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other.monthStats,
+              monthStats,
+            ) &&
+            (identical(other.mostActiveDay, mostActiveDay) ||
+                other.mostActiveDay == mostActiveDay) &&
+            (identical(other.longestTrack, longestTrack) ||
+                other.longestTrack == longestTrack) &&
+            (identical(other.shortestTrack, shortestTrack) ||
+                other.shortestTrack == shortestTrack) &&
+            (identical(other.totalPlayCount, totalPlayCount) ||
+                other.totalPlayCount == totalPlayCount));
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    runtimeType,
+    const DeepCollectionEquality().hash(topArtists),
+    const DeepCollectionEquality().hash(topTracks),
+    totalListeningTime,
+    uniqueTracksCount,
+    uniqueArtistsCount,
+    averageTrackDuration,
+    const DeepCollectionEquality().hash(timeOfDayStats),
+    const DeepCollectionEquality().hash(dayOfWeekStats),
+    const DeepCollectionEquality().hash(monthStats),
+    mostActiveDay,
+    longestTrack,
+    shortestTrack,
+    totalPlayCount,
+  );
+
+  @override
+  String toString() {
+    return 'StatisticStateData(topArtists: $topArtists, topTracks: $topTracks, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount)';
+  }
+}
+
+/// @nodoc
+abstract mixin class _$StatisticStateDataCopyWith<$Res>
+    implements $StatisticStateDataCopyWith<$Res> {
+  factory _$StatisticStateDataCopyWith(
+    _StatisticStateData value,
+    $Res Function(_StatisticStateData) _then,
+  ) = __$StatisticStateDataCopyWithImpl;
+  @override
+  @useResult
+  $Res call({
+    IList<ArtistStats> topArtists,
+    IList<TrackStats> topTracks,
+    Duration totalListeningTime,
+    int uniqueTracksCount,
+    int uniqueArtistsCount,
+    Duration averageTrackDuration,
+    IList<TimeOfDayStats> timeOfDayStats,
+    IList<DayOfWeekStats> dayOfWeekStats,
+    IList<MonthStats> monthStats,
+    DateTime? mostActiveDay,
+    TrackStats? longestTrack,
+    TrackStats? shortestTrack,
+    int totalPlayCount,
+  });
+}
+
+/// @nodoc
+class __$StatisticStateDataCopyWithImpl<$Res>
+    implements _$StatisticStateDataCopyWith<$Res> {
+  __$StatisticStateDataCopyWithImpl(this._self, this._then);
+
+  final _StatisticStateData _self;
+  final $Res Function(_StatisticStateData) _then;
+
+  /// Create a copy of StatisticStateData
+  /// with the given fields replaced by the non-null parameter values.
+  @override
   @pragma('vm:prefer-inline')
   $Res call({
     Object? topArtists = null,
@@ -217,7 +384,7 @@ class _$StatisticsState$DataStateCopyWithImpl<$Res>
     Object? totalPlayCount = null,
   }) {
     return _then(
-      StatisticsState$DataState(
+      _StatisticStateData(
         topArtists: null == topArtists
             ? _self.topArtists
             : topArtists // ignore: cast_nullable_to_non_nullable

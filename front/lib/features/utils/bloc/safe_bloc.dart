@@ -40,9 +40,9 @@ mixin EffectEmitterMixin<S>
 
 mixin ErrorEmitterMixin<S> on BlocBase<S>, EffectEmitterMixin<S> {
   @override
-  void onError(Object error, StackTrace stackTrace) {
-    emitErrorEffect(error, st: stackTrace);
-    super.onError(error, stackTrace);
+  void onError(Object error, StackTrace st) {
+    emitErrorEffect(error, st: st);
+    super.onError(error, st);
   }
 
   @protected
