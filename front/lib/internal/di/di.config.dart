@@ -24,9 +24,8 @@ import 'package:front/domain/services/statistics_service.dart' as _i347;
 import 'package:front/domain/services/token_generator.dart' as _i458;
 import 'package:front/domain/storages/auth_storage.dart' as _i297;
 import 'package:front/internal/di/module.dart' as _i90;
-import 'package:front/ui/blocs/detailed_statistics_bloc/detailed_statistics_bloc.dart'
-    as _i921;
 import 'package:front/ui/blocs/settings_bloc/settings_bloc.dart' as _i69;
+import 'package:front/ui/blocs/statistics_bloc/statistics_bloc.dart' as _i58;
 import 'package:front/ui/blocs/token_setup_bloc/token_setup_bloc.dart' as _i35;
 import 'package:front/ui/blocs/tracks_cubit.dart' as _i308;
 import 'package:get_it/get_it.dart' as _i174;
@@ -91,11 +90,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i308.TracksCubit>(
       () => _i308.TracksCubit(gh<_i693.AudioRepository>()),
     );
-    gh.lazySingleton<_i347.StatisticsService>(
+    gh.factory<_i347.StatisticsService>(
       () => _i347.StatisticsService(gh<_i693.AudioRepository>()),
     );
-    gh.factory<_i921.DetailedStatisticsBloc>(
-      () => _i921.DetailedStatisticsBloc(gh<_i347.StatisticsService>()),
+    gh.factory<_i58.StatisticsBloc>(
+      () => registerModule.statisticsBloc(gh<_i347.StatisticsService>()),
     );
     return this;
   }

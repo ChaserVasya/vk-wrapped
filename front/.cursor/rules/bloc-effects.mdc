@@ -1,0 +1,196 @@
+---
+alwaysApply: true
+---
+
+# Правило управления эффектами в Bloc
+
+## Основные принципы
+
+### Запрет создания эффектов для показа ошибок
+
+**ЗАПРЕЩЕНО создавать эффекты типа `StatisticsEffect.error` для показа ошибок**
+
+- ❌ **Создание эффектов для ошибок** - `StatisticsEffect$ShowError`
+- ❌ **Ручная обработка ошибок в UI** - через ErrorStateWidget для ошибок bloc'а
+- ❌ **Дублирование логики ошибок** - в разных местах
+- ✅ **Использование EffectBloc** - для автоматической обработки ошибок bloc'а
+- ✅ **ShowErrorSafeListener** - для показа ошибок bloc'а через snackbar
+- ✅ **ErrorStateWidget** - для показа ошибок состояния данных
+
+### Обязательное использование EffectBloc
+
+**ВСЕ bloc'и с обработкой ошибок ДОЛЖНЫ наследоваться от EffectBloc**
+
+- ✅ **`extends EffectBloc<Event, State>`** - правильное наследование
+- ✅ **`emitErrorEffect(error)`** - для эмиссии ошибок
+- ✅ **ShowErrorSafeListener** - для автоматического показа ошибок
+- ❌ **`extends Bloc<Event, State>`** - запрещено для bloc'ов с ошибками
+- ❌ **Ручная эмиссия ErrorState** - запрещено
+
+### Структура обработки ошибок
+
+**Правильная архитектура обработки ошибок:**
+
+#### Для ошибок bloc'а (как в StatisticsBloc):
+1. **Bloc наследуется от EffectBloc**
+2. **Использует emitErrorEffect() для ошибок**
+3. **UI использует ShowErrorSafeListener**
+4. **НЕ создает ErrorState в State**
+5. **НЕ создает эффекты для ошибок**
+
+#### Для ошибок состояния данных (как в TracksCubit):
+1. **Использует CommonStates с ErrorState**
+2. **ErrorState содержит AppException**
+3. **UI использует ErrorStateWidget для отображения**
+4. **Это нормально для состояний с данными**
+
+### Примеры правильного использования
+
+✅ **Правильно - EffectBloc с ShowErrorSafeListener (ошибки bloc'а):**
+
+```dart
+// statistics_bloc.dart
+class StatisticsBloc extends EffectBloc<StatisticsEvent, StatisticsState> {
+  Future<void> _onLoadStatistics(
+    StatisticsEvent$LoadStatistics event,
+    Emitter<StatisticsState> emit,
+  ) async {
+    try {
+      // ... логика загрузки
+      emit(StatisticsState$DataState(...));
+    } catch (error) {
+      emitErrorEffect(error); // ХОРОШО - ошибка bloc'а
+    }
+  }
+}
+
+// statistics_screen.dart
+class StatisticsView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocListener(
+      listeners: [
+        ShowErrorSafeListener<StatisticsBloc>(), // ХОРОШО
+      ],
+      child: Scaffold(
+        body: BlocBuilder<StatisticsBloc, StatisticsState>(
+          builder: (context, state) {
+            return switch (state) {
+              StatisticsState$LoadingState() => LoadingWidget(),
+              StatisticsState$DataState() => DataWidget(data: state),
+              _ => LoadingWidget(),
+            };
+          },
+        ),
+      ),
+    );
+  }
+}
+```
+
+✅ **Правильно - CommonStates с ErrorStateWidget (ошибки состояния данных):**
+
+```dart
+// tracks_cubit.dart
+class TracksCubit extends Cubit<CommonStates<IList<VkAudioTrack>>> {
+  Future<void> init() async {
+    try {
+      emit(const CommonStates.loading());
+      final tracks = await _audioRepository.getListenedAudio();
+      emit(CommonStates.data(tracks));
+    } catch (e) {
+      emit(CommonStates.error(AppException(e.toString()))); // ХОРОШО - ошибка состояния
+    }
+  }
+}
+
+// tracks_list_screen.dart
+BlocBuilder<TracksCubit, CommonStates<IList<VkAudioTrack>>>(
+  builder: (context, state) {
+    switch (state) {
+      case CommonStateError(e: final error):
+        return ErrorStateWidget( // ХОРОШО - для ошибок состояния
+          error,
+          onRefresh: () => context.read<TracksCubit>().init(),
+        );
+      // ...
+    }
+  },
+)
+```
+
+❌ **Неправильно - создание эффектов для ошибок:**
+
+```dart
+// statistics_effect.dart - НЕ СОЗДАВАТЬ
+@freezed
+abstract class StatisticsEffect with _$StatisticsEffect {
+  const factory StatisticsEffect.showError(String message) = 
+      StatisticsEffect$ShowError; // ПЛОХО
+}
+
+// statistics_bloc.dart - НЕПРАВИЛЬНО
+class StatisticsBloc extends Bloc<StatisticsEvent, StatisticsState> {
+  Future<void> _onLoadStatistics(...) async {
+    try {
+      // ...
+    } catch (error) {
+      emit(StatisticsState$ErrorState(error.toString())); // ПЛОХО
+    }
+  }
+}
+
+// statistics_screen.dart - НЕПРАВИЛЬНО
+BlocBuilder<StatisticsBloc, StatisticsState>(
+  builder: (context, state) {
+    return switch (state) {
+      StatisticsState$ErrorState() => ErrorStateWidget(...), // ПЛОХО
+      // ...
+    };
+  },
+)
+```
+
+### Алгоритм создания bloc с обработкой ошибок
+
+#### Для ошибок bloc'а (как StatisticsBloc):
+1. **Наследоваться от EffectBloc** - `extends EffectBloc<Event, State>`
+2. **Использовать emitErrorEffect()** - для обработки ошибок
+3. **НЕ создавать ErrorState** - в State классе
+4. **НЕ создавать эффекты для ошибок** - в Effect классе
+5. **Добавить ShowErrorSafeListener** - в UI
+6. **Удалить ErrorState из switch** - в BlocBuilder
+
+#### Для ошибок состояния данных (как TracksCubit):
+1. **Использовать CommonStates** - с ErrorState
+2. **ErrorState содержит AppException** - для ошибок состояния
+3. **Использовать ErrorStateWidget** - для отображения ошибок состояния
+4. **Это нормально** - для состояний с данными
+
+### Исключения
+
+**Единственное исключение - эффекты для успешных операций:**
+
+✅ **Разрешено - эффекты для успешных действий:**
+
+```dart
+// token_setup_effect.dart
+@freezed
+abstract class TokenSetupEffect with _$TokenSetupEffect {
+  const factory TokenSetupEffect.finish() = TokenSetupEffect$Finish; // ХОРОШО
+}
+
+// token_setup_bloc.dart
+Future<void> _onVkTokenResponseProvided(...) async {
+  // ... логика сохранения токена
+  emitEffect(const TokenSetupEffect.finish()); // ХОРОШО
+}
+```
+
+### Приоритет
+
+**КРИТИЧЕСКИ ВЫСОКИЙ ПРИОРИТЕТ** - всегда использовать EffectBloc для обработки ошибок вместо создания специальных эффектов.
+
+### Исключения
+
+Нет исключений - все bloc'и с обработкой ошибок должны следовать этому правилу.
