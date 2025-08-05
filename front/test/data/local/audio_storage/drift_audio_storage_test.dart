@@ -2,7 +2,6 @@ import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:front/data/local/audio_storage/audio_storage.dart';
 import 'package:front/data/local/audio_storage/drift/database.dart';
 import 'package:front/data/local/audio_storage/drift/drift_audio_storage.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
@@ -11,12 +10,16 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('DriftAudioStorage', () {
-    late TestAppDatabase database;
+    late AppDatabase database;
     late DriftAudioStorage storage;
 
     setUp(() {
       // Используем in-memory базу данных для тестов
-      database = TestAppDatabase();
+      final connection = DatabaseConnection(
+        NativeDatabase.memory(),
+        closeStreamsSynchronously: true,
+      );
+      database = AppDatabase(connection);
       storage = DriftAudioStorage(database);
     });
 
@@ -28,7 +31,7 @@ void main() {
       'Should save and retrieve complete VkAudioTrack with all nested entities',
       () async {
         // Создаем тестовые данные с полной структурой
-        final thumb = VkThumb(
+        const thumb = VkThumb(
           width: 300,
           height: 300,
           id: 'thumb_123',
@@ -38,7 +41,7 @@ void main() {
           photo600: 'photo600_url',
         );
 
-        final album = VkAlbum(
+        const album = VkAlbum(
           id: 456,
           title: 'Test Album',
           ownerId: 789,
@@ -46,13 +49,13 @@ void main() {
           thumb: thumb,
         );
 
-        final mainArtist = VkMainArtist(
+        const mainArtist = VkMainArtist(
           name: 'Test Artist',
           domain: 'test_artist',
           id: 'artist_123',
         );
 
-        final track = VkAudioTrack(
+        const track = VkAudioTrack(
           id: 123,
           ownerId: 456,
           title: 'Test Track',
@@ -115,7 +118,7 @@ void main() {
     );
 
     test('Should handle tracks without optional fields', () async {
-      final track = VkAudioTrack(
+      const track = VkAudioTrack(
         id: 123,
         ownerId: 456,
         title: 'Simple Track',
@@ -140,7 +143,7 @@ void main() {
 
     test('Should update existing tracks when calling updateTracks', () async {
       // Первый набор треков
-      final track1 = VkAudioTrack(
+      const track1 = VkAudioTrack(
         id: 123,
         ownerId: 456,
         title: 'Original Track',
@@ -152,7 +155,7 @@ void main() {
       await storage.updateTracks(IList([track1]));
 
       // Обновленный набор треков
-      final track2 = VkAudioTrack(
+      const track2 = VkAudioTrack(
         id: 123,
         ownerId: 456,
         title: 'Updated Track',
@@ -176,7 +179,7 @@ void main() {
       () async {
         // Исходные треки: 1, 2, 3
         final initialTracks = [
-          VkAudioTrack(
+          const VkAudioTrack(
             id: 1,
             ownerId: 100,
             title: 'Track 1',
@@ -184,7 +187,7 @@ void main() {
             duration: 120,
             url: 'https://example.com/track1.mp3',
           ),
-          VkAudioTrack(
+          const VkAudioTrack(
             id: 2,
             ownerId: 100,
             title: 'Track 2',
@@ -192,7 +195,7 @@ void main() {
             duration: 180,
             url: 'https://example.com/track2.mp3',
           ),
-          VkAudioTrack(
+          const VkAudioTrack(
             id: 3,
             ownerId: 100,
             title: 'Track 3',
@@ -210,7 +213,7 @@ void main() {
 
         // Обновляем с треками: 3 (обновленный), 4 (новый), 5 (новый)
         final updatedTracks = [
-          VkAudioTrack(
+          const VkAudioTrack(
             id: 3,
             ownerId: 100,
             title: 'Track 3 Updated',
@@ -218,7 +221,7 @@ void main() {
             duration: 250,
             url: 'https://example.com/track3_updated.mp3',
           ),
-          VkAudioTrack(
+          const VkAudioTrack(
             id: 4,
             ownerId: 100,
             title: 'Track 4',
@@ -226,7 +229,7 @@ void main() {
             duration: 150,
             url: 'https://example.com/track4.mp3',
           ),
-          VkAudioTrack(
+          const VkAudioTrack(
             id: 5,
             ownerId: 100,
             title: 'Track 5',
@@ -270,7 +273,7 @@ void main() {
     );
 
     test('Should delete all tracks', () async {
-      final track = VkAudioTrack(
+      const track = VkAudioTrack(
         id: 123,
         ownerId: 456,
         title: 'Test Track',

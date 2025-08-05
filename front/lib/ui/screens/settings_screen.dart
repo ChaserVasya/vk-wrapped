@@ -196,7 +196,7 @@ class _ViewState extends State<_View> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.router.pop(),
             child: const Text('Отмена'),
           ),
           ElevatedButton(
@@ -204,7 +204,7 @@ class _ViewState extends State<_View> {
               context.read<SettingsBloc>().add(
                 const SettingsEvent.clearCache(),
               );
-              Navigator.of(context).pop();
+              context.router.pop();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
