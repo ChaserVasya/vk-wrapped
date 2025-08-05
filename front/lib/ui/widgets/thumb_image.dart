@@ -8,6 +8,7 @@ class ThumbImage extends StatelessWidget {
   final BoxFit fit;
   final BorderRadius? borderRadius;
   final Widget? fallback;
+  final VkAudioTrack? track; // Добавляю трек для определения типа контента
 
   const ThumbImage({
     super.key,
@@ -17,6 +18,7 @@ class ThumbImage extends StatelessWidget {
     this.fit = BoxFit.cover,
     this.borderRadius,
     this.fallback,
+    this.track, // Новый параметр
   });
 
   @override
@@ -53,8 +55,29 @@ class ThumbImage extends StatelessWidget {
         color: Colors.grey[300],
         borderRadius: borderRadius ?? BorderRadius.circular(8),
       ),
-      child: const Icon(Icons.image),
+      child: _buildContentIcon(),
     );
+  }
+
+  Widget _buildContentIcon() {
+    // Если есть трек, определяем тип контента
+    if (track != null) {
+      return _getContentIcon();
+    }
+
+    // По умолчанию показываем иконку музыки
+    return Icon(Icons.music_note, size: width * 0.4, color: Colors.grey[600]);
+  }
+
+  Widget _getContentIcon() {
+    // Определяем тип контента на основе наличия альбома
+    if (track!.album != null) {
+      // Если есть альбом - показываем иконку диска
+      return Icon(Icons.album, size: width * 0.4, color: Colors.grey[600]);
+    } else {
+      // Если нет альбома - показываем иконку ноты (отдельная песня)
+      return Icon(Icons.music_note, size: width * 0.4, color: Colors.grey[600]);
+    }
   }
 
   String? _getBestThumbUrl() {

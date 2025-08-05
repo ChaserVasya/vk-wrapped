@@ -11,22 +11,6 @@
 part of 'app_router.dart';
 
 /// generated route for
-/// [AlbumsListScreen]
-class AlbumsListRoute extends PageRouteInfo<void> {
-  const AlbumsListRoute({List<PageRouteInfo>? children})
-    : super(AlbumsListRoute.name, initialChildren: children);
-
-  static const String name = 'AlbumsListRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const AlbumsListScreen();
-    },
-  );
-}
-
-/// generated route for
 /// [HomeScreen]
 class HomeRoute extends PageRouteInfo<void> {
   const HomeRoute({List<PageRouteInfo>? children})
@@ -38,6 +22,38 @@ class HomeRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const HomeScreen();
+    },
+  );
+}
+
+/// generated route for
+/// [IntroScreen]
+class IntroRoute extends PageRouteInfo<void> {
+  const IntroRoute({List<PageRouteInfo>? children})
+    : super(IntroRoute.name, initialChildren: children);
+
+  static const String name = 'IntroRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const IntroScreen();
+    },
+  );
+}
+
+/// generated route for
+/// [ListenedScreen]
+class ListenedRoute extends PageRouteInfo<void> {
+  const ListenedRoute({List<PageRouteInfo>? children})
+    : super(ListenedRoute.name, initialChildren: children);
+
+  static const String name = 'ListenedRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const ListenedScreen();
     },
   );
 }
@@ -86,22 +102,6 @@ class TokenSetupRoute extends PageRouteInfo<void> {
     name,
     builder: (data) {
       return const TokenSetupScreen();
-    },
-  );
-}
-
-/// generated route for
-/// [TracksListScreen]
-class TracksListRoute extends PageRouteInfo<void> {
-  const TracksListRoute({List<PageRouteInfo>? children})
-    : super(TracksListRoute.name, initialChildren: children);
-
-  static const String name = 'TracksListRoute';
-
-  static PageInfo page = PageInfo(
-    name,
-    builder: (data) {
-      return const TracksListScreen();
     },
   );
 }

@@ -21,11 +21,13 @@ import 'package:front/data/remote/api/track_sessions_client.dart' as _i537;
 import 'package:front/data/remote/api/vk_api_client.dart' as _i543;
 import 'package:front/data/remote/services/vk_service.dart' as _i988;
 import 'package:front/domain/repositories/audio_repository.dart' as _i693;
+import 'package:front/domain/services/first_launch_service.dart' as _i562;
 import 'package:front/domain/services/statistics_service.dart' as _i347;
 import 'package:front/domain/services/token_generator.dart' as _i458;
 import 'package:front/domain/storages/auth_storage.dart' as _i297;
 import 'package:front/internal/di/module.dart' as _i90;
 import 'package:front/ui/blocs/albums_cubit.dart' as _i77;
+import 'package:front/ui/blocs/artists_cubit.dart' as _i567;
 import 'package:front/ui/blocs/settings_bloc/settings_bloc.dart' as _i69;
 import 'package:front/ui/blocs/statistics_bloc/statistics_bloc.dart' as _i58;
 import 'package:front/ui/blocs/token_setup_bloc/token_setup_bloc.dart' as _i35;
@@ -43,8 +45,8 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
-    gh.factory<_i77.AlbumsCubit>(() => _i77.AlbumsCubit());
     gh.factory<_i347.StatisticsService>(() => _i347.StatisticsService());
+    gh.factory<_i562.FirstLaunchService>(() => _i562.FirstLaunchService());
     await gh.singletonAsync<_i460.SharedPreferencesWithCache>(
       () => registerModule.prefs,
       preResolve: true,
@@ -100,6 +102,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i308.TracksCubit>(
       () => _i308.TracksCubit(gh<_i693.AudioRepository>()),
+    );
+    gh.factory<_i77.AlbumsCubit>(
+      () => _i77.AlbumsCubit(gh<_i693.AudioRepository>()),
+    );
+    gh.factory<_i567.ArtistsCubit>(
+      () => _i567.ArtistsCubit(gh<_i693.AudioRepository>()),
     );
     gh.factory<_i58.StatisticsBloc>(
       () => _i58.StatisticsBloc(
