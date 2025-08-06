@@ -357,9 +357,9 @@ class _TracksWithSameTitlePage extends StatelessWidget {
     final hours = duration.inHours;
     final minutes = duration.inMinutes % 60;
     if (hours > 0) {
-      return '${hours}ч ${minutes}м';
+      return '$hoursч $minutesм';
     }
-    return '${minutes}м';
+    return '$minutesм';
   }
 }
 
@@ -448,11 +448,11 @@ class _ExtremesPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    const Row(
                       children: [
                         Icon(Icons.timer, color: Colors.blue, size: 32),
-                        const SizedBox(width: 16),
-                        const Text(
+                        SizedBox(width: 16),
+                        Text(
                           'Самый длинный трек',
                           style: TextStyle(
                             fontSize: 16,
@@ -475,11 +475,11 @@ class _ExtremesPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    const Row(
                       children: [
                         Icon(Icons.timer_off, color: Colors.blue, size: 32),
-                        const SizedBox(width: 16),
-                        const Text(
+                        SizedBox(width: 16),
+                        Text(
                           'Самый короткий трек',
                           style: TextStyle(
                             fontSize: 16,

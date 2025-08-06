@@ -91,7 +91,9 @@ class _View extends StatelessWidget {
                         ),
                         subtitle: Text('${genreStat.songCount} песен'),
                         trailing: Text(
-                          _formatDuration(Duration(seconds: genreStat.totalDuration)),
+                          _formatDuration(
+                            Duration(seconds: genreStat.totalDuration),
+                          ),
                           style: const TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.bold,
@@ -114,8 +116,8 @@ class _View extends StatelessWidget {
     final hours = duration.inHours;
     final minutes = duration.inMinutes % 60;
     if (hours > 0) {
-      return '${hours}ч ${minutes}м';
+      return '$hoursч $minutesм';
     }
-    return '${minutes}м';
+    return '$minutesм';
   }
-} 
+}
