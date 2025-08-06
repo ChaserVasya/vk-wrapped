@@ -250,9 +250,9 @@ class _IntroScreenState extends State<IntroScreen> {
                 textAlign: TextAlign.center,
               ),
               const Gap(8),
-              Row(
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   Icon(Icons.celebration, color: Colors.orange, size: 20),
                   Gap(2),
                   Icon(Icons.celebration, color: Colors.orange, size: 20),
@@ -295,8 +295,8 @@ class _IntroScreenState extends State<IntroScreen> {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.blue[200]!),
       ),
-      child: Column(
-        children: const [
+      child: const Column(
+        children: [
           Text(
             'Ставьте лайки, звёздочки. Пишите пожелания.',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
@@ -305,7 +305,7 @@ class _IntroScreenState extends State<IntroScreen> {
           Gap(8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(Icons.thumb_up, color: Colors.blue, size: 20),
               Gap(4),
               Icon(Icons.star, color: Colors.amber, size: 20),
@@ -340,7 +340,7 @@ class _IntroScreenState extends State<IntroScreen> {
   }
 
   Widget _buildTodayEmodgi() {
-    return Column(
+    return const Column(
       children: [
         Text(
           'Эмоджи дня',
