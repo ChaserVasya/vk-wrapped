@@ -25,8 +25,6 @@ function convertToCamelCase(session: TrackSession): Record<string, unknown> {
 }
 
 export async function handler(): Promise<SuccessResponse | ErrorResponse> {
-    LoggerService.logPollingStart();
-
     try {
         // Используем фабрику для создания правильного authService
         const authService = AuthFactory.createAuthService();
@@ -38,7 +36,7 @@ export async function handler(): Promise<SuccessResponse | ErrorResponse> {
         }
 
         // Читаем завершенные сессии
-        const completedSessions = await databaseService.getCompletedSessions(50);
+        const completedSessions = await databaseService.getCompletedSessions();
 
         // Конвертируем в camelCase
         const convertedSessions = completedSessions.map(convertToCamelCase);
@@ -46,7 +44,6 @@ export async function handler(): Promise<SuccessResponse | ErrorResponse> {
         // Закрываем соединение
         await databaseService.close();
 
-        LoggerService.logPollingComplete();
         return createSuccessResponse(convertedSessions);
     } catch (error) {
         LoggerService.logErrorDetails(error, 'Read Handler');
