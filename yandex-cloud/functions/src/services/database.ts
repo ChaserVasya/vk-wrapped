@@ -79,7 +79,6 @@ export class DatabaseService {
       if (!(await this.driver.ready(timeout))) {
         throw new Error(`Driver has not become ready in ${timeout}ms!`);
       }
-      console.log(`[DEBUG] Driver ready for ${operation}`);
 
       const query: string = `
         SELECT ${FIELDS.FULL_ID}, ${FIELDS.FIRST_OBSERVED}, ${FIELDS.LAST_SEEN}
@@ -129,7 +128,6 @@ export class DatabaseService {
       if (!(await this.driver.ready(timeout))) {
         throw new Error(`Driver has not become ready in ${timeout}ms!`);
       }
-      console.log(`[DEBUG] Driver ready for create_active_session`);
 
       const now = Math.floor(Date.now() / 1000);
       const query: string = `
@@ -158,7 +156,6 @@ export class DatabaseService {
       if (!(await this.driver.ready(timeout))) {
         throw new Error(`Driver has not become ready in ${timeout}ms!`);
       }
-      console.log(`[DEBUG] Driver ready for update_active_session`);
 
       const now = Math.floor(Date.now() / 1000);
       const query: string = `
@@ -187,7 +184,6 @@ export class DatabaseService {
       if (!(await this.driver.ready(timeout))) {
         throw new Error(`Driver has not become ready in ${timeout}ms!`);
       }
-      console.log(`[DEBUG] Driver ready for finish_all_active_sessions`);
 
       // Сначала получаем все активные сессии
       console.log(`[DEBUG] About to call getAllCurrentSessions()`);
@@ -238,7 +234,6 @@ export class DatabaseService {
       if (!(await this.driver.ready(timeout))) {
         throw new Error(`Driver has not become ready in ${timeout}ms!`);
       }
-      console.log(`[DEBUG] Driver ready for ${operation}`);
 
       const limitClause = limit ? `LIMIT ${limit}` : '';
       const query: string = `
@@ -288,7 +283,6 @@ export class DatabaseService {
       if (!(await this.driver.ready(timeout))) {
         throw new Error(`Driver has not become ready in ${timeout}ms!`);
       }
-      console.log(`[DEBUG] Driver ready for ${operation}`);
 
       const limitClause = limit ? `LIMIT ${limit}` : '';
       const query: string = `
