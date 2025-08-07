@@ -162,8 +162,9 @@ export class DatabaseService {
 
       const now = Math.floor(Date.now() / 1000);
       const query: string = `
-        UPSERT INTO ${TABLES.CURRENT_SESSIONS} (${FIELDS.FULL_ID}, ${FIELDS.FIRST_OBSERVED}, ${FIELDS.LAST_SEEN})
-        VALUES ("${fullId}", ${now}, ${now})
+        UPDATE ${TABLES.CURRENT_SESSIONS} 
+        SET ${FIELDS.LAST_SEEN} = ${now}
+        WHERE ${FIELDS.FULL_ID} = "${fullId}"
       `;
 
       await this.driver.tableClient.withSession(async (session) => {
