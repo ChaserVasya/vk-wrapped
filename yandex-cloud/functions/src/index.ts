@@ -17,8 +17,6 @@ interface ErrorResponse {
 }
 
 export async function handler(): Promise<SuccessResponse | ErrorResponse> {
-  LoggerService.logPollingStart();
-
   try {
     // Используем фабрику для создания правильного authService
     const authService = AuthFactory.createAuthService();
@@ -32,7 +30,6 @@ export async function handler(): Promise<SuccessResponse | ErrorResponse> {
     // Закрываем соединение с базой данных
     await databaseService.close();
 
-    LoggerService.logPollingComplete();
     return createSuccessResponse({ status: 'success' });
   } catch (error) {
     LoggerService.logErrorDetails(error, 'Main Handler');

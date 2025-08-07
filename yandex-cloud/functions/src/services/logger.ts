@@ -40,14 +40,6 @@ export class LoggerService {
     console.log(`[ERROR] Polling error: ${error}`);
   }
 
-  static logPollingStart(): void {
-    console.log(`[INFO] Starting VK status polling...`);
-  }
-
-  static logPollingComplete(): void {
-    console.log(`[INFO] VK status polling completed`);
-  }
-
   static logAudioValidation(audioStatus: unknown, isValid: boolean): void {
     const hasId = audioStatus && typeof audioStatus === 'object' && 'id' in audioStatus;
     const hasOwnerId = audioStatus && typeof audioStatus === 'object' && 'owner_id' in audioStatus;
