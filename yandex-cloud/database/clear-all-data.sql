@@ -6,3 +6,10 @@ DELETE FROM current_sessions;
 
 -- Очищаем таблицу завершенных сессий прослушивания  
 DELETE FROM completed_sessions;
+
+-- TEST
+
+DELETE FROM current_sessions_test;
+
+-- Очищаем таблицу завершенных сессий прослушивания  
+DELETE FROM completed_sessions_test;
