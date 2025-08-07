@@ -28,15 +28,9 @@ describe('State Transitions Tests', () => {
         }
       };
 
-      const existingActiveSession = {
-        full_id: '456240381_456240381',
-        first_observed: new Date('2024-01-15T10:15:00Z'),
-        last_seen: new Date('2024-01-15T10:15:00Z')
-      };
-
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
-      mocks.databaseService.getActiveSession.mockResolvedValue(existingActiveSession);
-      mocks.databaseService.updateActiveSession.mockResolvedValue();
+      mocks.databaseService.createActiveSession.mockResolvedValue();
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([]); // Нет активных сессий
 
       // Act
       const result = await handler();
@@ -45,9 +39,7 @@ describe('State Transitions Tests', () => {
       expect(result.statusCode).toBe(200);
       const responseBody = JSON.parse(result.body);
       expect(responseBody.status).toBe('success');
-      expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
-      expect(mocks.databaseService.updateActiveSession).toHaveBeenCalledWith('456240381_456240381');
-      expect(mocks.databaseService.createActiveSession).not.toHaveBeenCalled();
+      expect(mocks.databaseService.createActiveSession).toHaveBeenCalledWith('456240381_456240381');
     });
 
     test('Сценарий: Есть музыка → Есть другая музыка (переключился)', async () => {
@@ -62,8 +54,12 @@ describe('State Transitions Tests', () => {
       };
 
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
-      mocks.databaseService.getActiveSession.mockResolvedValue(null);
-      mocks.databaseService.createActiveSession.mockResolvedValue();
+      mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии для нового трека
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([
+        { full_id: '456240381_456240381', first_observed: new Date(), last_seen: new Date() }
+      ]); // Есть другие активные сессии
+      mocks.databaseService.finishAllActiveSessions.mockResolvedValue(); // Завершение предыдущих сессий
+      mocks.databaseService.createActiveSession.mockResolvedValue(); // Создание новой сессии
 
       // Act
       const result = await handler();
@@ -72,9 +68,17 @@ describe('State Transitions Tests', () => {
       expect(result.statusCode).toBe(200);
       const responseBody = JSON.parse(result.body);
       expect(responseBody.status).toBe('success');
-      expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('789123456_789123456');
+
+      // Проверяем что сначала завершились все активные сессии
+      expect(mocks.databaseService.finishAllActiveSessions).toHaveBeenCalled();
+
+      // Затем создалась новая сессия для нового трека
       expect(mocks.databaseService.createActiveSession).toHaveBeenCalledWith('789123456_789123456');
-      expect(mocks.databaseService.updateActiveSession).not.toHaveBeenCalled();
+
+      // Проверяем порядок вызовов
+      const finishCallIndex = mocks.databaseService.finishAllActiveSessions.mock.invocationCallOrder[0];
+      const createCallIndex = mocks.databaseService.createActiveSession.mock.invocationCallOrder[0];
+      expect(finishCallIndex).toBeLessThan(createCallIndex);
     });
 
     test('Сценарий: Есть музыка → Нет музыки (перестал слушать)', async () => {

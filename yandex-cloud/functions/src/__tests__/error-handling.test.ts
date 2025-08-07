@@ -49,6 +49,7 @@ describe('Error Handling Tests', () => {
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
       mocks.databaseService.getActiveSession.mockResolvedValue(null);
       mocks.databaseService.createActiveSession.mockRejectedValue(new Error('DB Connection Error'));
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([]); // Нет активных сессий
 
       // Act
       const result = await handler();

@@ -31,6 +31,7 @@ describe('Session Logic Tests', () => {
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
       mocks.databaseService.getActiveSession.mockResolvedValue(null);
       mocks.databaseService.createActiveSession.mockResolvedValue();
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([]); // Нет активных сессий
 
       // Act
       const result = await handler();
@@ -64,6 +65,7 @@ describe('Session Logic Tests', () => {
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
       mocks.databaseService.getActiveSession.mockResolvedValue(activeSession);
       mocks.databaseService.updateActiveSession.mockResolvedValue();
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([]); // Нет активных сессий
 
       // Act
       const result = await handler();
@@ -98,6 +100,7 @@ describe('Session Logic Tests', () => {
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
       mocks.databaseService.getActiveSession.mockResolvedValue(invalidActiveSession);
       mocks.databaseService.createActiveSession.mockResolvedValue();
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([]); // Нет активных сессий
 
       // Act
       const result = await handler();
@@ -129,6 +132,10 @@ describe('Session Logic Tests', () => {
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
       mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии для нового трека
       mocks.databaseService.createActiveSession.mockResolvedValue();
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([
+        { full_id: '456240381_456240381', first_observed: new Date(), last_seen: new Date() }
+      ]); // Есть другие активные сессии
+      mocks.databaseService.finishAllActiveSessions.mockResolvedValue(); // Завершение предыдущих сессий
 
       // Act
       const result = await handler();
@@ -155,6 +162,10 @@ describe('Session Logic Tests', () => {
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
       mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии
       mocks.databaseService.createActiveSession.mockResolvedValue();
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([
+        { full_id: '789123456_789123456', first_observed: new Date(), last_seen: new Date() }
+      ]); // Есть другие активные сессии
+      mocks.databaseService.finishAllActiveSessions.mockResolvedValue(); // Завершение предыдущих сессий
 
       // Act
       const result = await handler();
@@ -233,6 +244,7 @@ describe('Session Logic Tests', () => {
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatusWithMusic);
       mocks.databaseService.getActiveSession.mockResolvedValue(null);
       mocks.databaseService.createActiveSession.mockResolvedValue();
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([]); // Нет активных сессий
 
       await handler();
 
@@ -247,6 +259,7 @@ describe('Session Logic Tests', () => {
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatusWithMusic);
       mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии (завершилась)
       mocks.databaseService.createActiveSession.mockResolvedValue();
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([]); // Нет активных сессий
 
       const result = await handler();
 
@@ -284,6 +297,7 @@ describe('Session Logic Tests', () => {
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatusFirstMusic);
       mocks.databaseService.getActiveSession.mockResolvedValue(null);
       mocks.databaseService.createActiveSession.mockResolvedValue();
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([]); // Нет активных сессий
 
       await handler();
 
@@ -298,6 +312,7 @@ describe('Session Logic Tests', () => {
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatusSecondMusic);
       mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии
       mocks.databaseService.createActiveSession.mockResolvedValue();
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([]); // Нет активных сессий
 
       const result = await handler();
 
@@ -325,12 +340,14 @@ describe('Session Logic Tests', () => {
       // Первый поллинг - нет музыки
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatusNoMusic);
       mocks.databaseService.finishAllActiveSessions.mockResolvedValue();
+
       await handler();
 
       // Второй поллинг - есть музыка
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatusWithMusic);
-      mocks.databaseService.getActiveSession.mockResolvedValue(null);
+      mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии
       mocks.databaseService.createActiveSession.mockResolvedValue();
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([]); // Нет активных сессий
 
       const result = await handler();
 
@@ -355,6 +372,7 @@ describe('Session Logic Tests', () => {
 
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
       mocks.databaseService.getActiveSession.mockRejectedValue(new Error('DB Error'));
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([]); // Нет активных сессий
 
       // Act
       const result = await handler();
@@ -380,6 +398,7 @@ describe('Session Logic Tests', () => {
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
       mocks.databaseService.getActiveSession.mockResolvedValue(null);
       mocks.databaseService.createActiveSession.mockRejectedValue(new Error('DB Error'));
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([]); // Нет активных сессий
 
       // Act
       const result = await handler();

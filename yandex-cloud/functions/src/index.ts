@@ -1,4 +1,4 @@
-import { MetadataAuthService } from 'ydb-sdk';
+import { AuthFactory } from './services/auth-factory';
 import { DatabaseService } from './services/database';
 import { LoggerService } from './services/logger';
 import { StatusProcessorService } from './services/status-processor';
@@ -20,13 +20,17 @@ export async function handler(): Promise<SuccessResponse | ErrorResponse> {
   LoggerService.logPollingStart();
 
   try {
-    const authService = new MetadataAuthService();
+    // Используем фабрику для создания правильного authService
+    const authService = AuthFactory.createAuthService();
     const databaseService = new DatabaseService(authService);
     const vkApiService = new VKApiService();
     const statusProcessor = new StatusProcessorService(databaseService);
 
     const status = await vkApiService.getStatus();
     await statusProcessor.processStatus(status);
+
+    // Закрываем соединение с базой данных
+    await databaseService.close();
 
     LoggerService.logPollingComplete();
     return createSuccessResponse({ status: 'success' });
