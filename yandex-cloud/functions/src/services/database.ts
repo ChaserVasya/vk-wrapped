@@ -4,8 +4,8 @@ import { LoggerService } from './logger';
 
 // Константы для названий таблиц и полей
 const TABLES = {
-  CURRENT_SESSIONS: 'current_sessions',
-  COMPLETED_SESSIONS: 'completed_sessions'
+  CURRENT_SESSIONS: process.env.CURRENT_SESSIONS_TABLE || 'current_sessions',
+  COMPLETED_SESSIONS: process.env.COMPLETED_SESSIONS_TABLE || 'completed_sessions'
 } as const;
 
 const FIELDS = {

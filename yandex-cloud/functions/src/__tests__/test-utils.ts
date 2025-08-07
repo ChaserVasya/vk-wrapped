@@ -17,7 +17,9 @@ export function createMockServices(): MockServices {
     getActiveSession: jest.fn(),
     createActiveSession: jest.fn(),
     updateActiveSession: jest.fn(),
-    finishAllActiveSessions: jest.fn()
+    finishAllActiveSessions: jest.fn(),
+    getAllCurrentSessions: jest.fn(),
+    close: jest.fn()
   } as any;
 
   return {

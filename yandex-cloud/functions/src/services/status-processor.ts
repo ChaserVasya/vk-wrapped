@@ -29,6 +29,7 @@ export class StatusProcessorService {
 
     LoggerService.logActiveMusic(audioStatus);
 
+    // Проверяем есть ли активная сессия для этого трека
     const activeSession = await this.dbService.getActiveSession(fullId);
     LoggerService.logSessionCheck(fullId, !!activeSession);
 
@@ -36,9 +37,20 @@ export class StatusProcessorService {
     const isValidSession = activeSession && DataValidator.validateTrackSession(activeSession);
 
     if (isValidSession) {
+      // Если есть валидная активная сессия - обновляем её (продолжение прослушивания)
       await this.dbService.updateActiveSession(fullId);
       LoggerService.logSessionUpdated(fullId);
     } else {
+      // Если нет активной сессии или она невалидна - создаем новую (новое прослушивание)
+      // Проверяем есть ли другие активные сессии (смена трека)
+      const allActiveSessions = await this.dbService.getAllCurrentSessions();
+
+      if (allActiveSessions.length > 0) {
+        // Есть другие активные сессии - завершаем их (смена трека)
+        await this.dbService.finishAllActiveSessions();
+      }
+
+      // Создаем новую сессию для текущего трека
       await this.dbService.createActiveSession(fullId);
       LoggerService.logSessionCreated(fullId);
     }

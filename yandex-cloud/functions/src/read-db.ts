@@ -1,4 +1,4 @@
-import { MetadataAuthService } from 'ydb-sdk';
+import { AuthFactory } from './services/auth-factory';
 import { DatabaseService } from './services/database';
 import { LoggerService } from './services/logger';
 import { TrackSession } from './types';
@@ -28,7 +28,8 @@ export async function handler(): Promise<SuccessResponse | ErrorResponse> {
     LoggerService.logPollingStart();
 
     try {
-        const authService = new MetadataAuthService();
+        // Используем фабрику для создания правильного authService
+        const authService = AuthFactory.createAuthService();
         const databaseService = new DatabaseService(authService);
 
         const timeout = 10000;

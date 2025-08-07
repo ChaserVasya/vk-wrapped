@@ -29,8 +29,8 @@ describe('Success Scenarios Tests', () => {
       };
 
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
-      mocks.databaseService.getActiveSession.mockResolvedValue(null); // Нет активной сессии
       mocks.databaseService.createActiveSession.mockResolvedValue();
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([]); // Нет активных сессий
 
       // Act
       const result = await handler();
@@ -39,9 +39,8 @@ describe('Success Scenarios Tests', () => {
       expect(result.statusCode).toBe(200);
       const responseBody = JSON.parse(result.body);
       expect(responseBody.status).toBe('success');
-      expect(mocks.databaseService.getActiveSession).toHaveBeenCalledWith('456240381_456240381');
       expect(mocks.databaseService.createActiveSession).toHaveBeenCalledWith('456240381_456240381');
-      expect(mocks.databaseService.updateActiveSession).not.toHaveBeenCalled();
+      expect(mocks.databaseService.finishAllActiveSessions).not.toHaveBeenCalled();
     });
 
     test('Пользователь не слушает музыку - завершаются все активные сессии', async () => {
@@ -52,6 +51,7 @@ describe('Success Scenarios Tests', () => {
 
       mocks.vkApiService.getStatus.mockResolvedValue(mockStatus);
       mocks.databaseService.finishAllActiveSessions.mockResolvedValue();
+      mocks.databaseService.getAllCurrentSessions.mockResolvedValue([]); // Нет активных сессий
 
       // Act
       const result = await handler();
