@@ -47,8 +47,8 @@ cd ..
 # Деплой в Yandex Cloud Functions
 echo "[INFO] Deploying read function to Yandex Cloud Functions..."
 
-# Читаем переменные из .cloud.env файла
-ENV_VARS=$(./parse-env.sh .cloud.env)
+# Читаем переменные из .prod.env файла
+ENV_VARS=$(./parse-env.sh .prod.env)
 
 yc serverless function version create \
   --function-name=vk-wrapped-read \
