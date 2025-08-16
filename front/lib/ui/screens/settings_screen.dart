@@ -173,6 +173,61 @@ class _ViewState extends State<_View> {
                   ),
                 ],
               ),
+              const Gap(8),
+              Builder(
+                builder: (context) {
+                  final expiresAt = data.tokenExpiresAt;
+                  final now = DateTime.now();
+                  if (expiresAt == null) {
+                    return const Text(
+                      'Срок действия: бессрочный (expires_in=0)',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    );
+                  }
+                  final isExpired = expiresAt.isBefore(now);
+                  final left = expiresAt.difference(now);
+                  final leftText = left.isNegative
+                      ? 'Истёк'
+                      : 'Осталось примерно: ${left.inHours} ч ${left.inMinutes.remainder(60)} мин';
+                  return Row(
+                    children: [
+                      Icon(
+                        isExpired ? Icons.warning_amber : Icons.schedule,
+                        size: 16,
+                        color: isExpired ? Colors.red : Colors.grey,
+                      ),
+                      const Gap(6),
+                      Expanded(
+                        child: Text(
+                          isExpired
+                              ? 'Токен истёк.'
+                              : 'Истекает: ${expiresAt.toLocal()} ($leftText)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: isExpired ? Colors.red : Colors.grey,
+                          ),
+                        ),
+                      ),
+                      if (isExpired) ...[
+                        const Gap(8),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                          ),
+                          onPressed: () async {
+                            await context.router.push(const TokenSetupRoute());
+                            if (!context.mounted) return;
+                            context.read<SettingsBloc>().add(
+                              const SettingsEvent.loadCurrentData(),
+                            );
+                          },
+                          child: const Text('Обновить токен'),
+                        ),
+                      ],
+                    ],
+                  );
+                },
+              ),
             ],
           ],
         );
@@ -209,10 +264,7 @@ class _ViewState extends State<_View> {
               );
               context.router.pop();
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Очистить'),
           ),
         ],
@@ -222,181 +274,186 @@ class _ViewState extends State<_View> {
 
   @override
   Widget build(BuildContext context) {
+    final defaults = ElevatedButtonTheme.of(context);
+    final primary = ColorScheme.of(context).onPrimary;
     return Scaffold(
       appBar: AppBar(title: const Text('Настройки')),
       body: BlocBuilder<SettingsBloc, SettingsState>(
         builder: (context, state) {
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Секция токена
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'VK API Токен',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+            child: ElevatedButtonTheme(
+              data: ElevatedButtonThemeData(
+                style: defaults.style?.merge(
+                  ElevatedButton.styleFrom(foregroundColor: primary),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Секция токена
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'VK API Токен',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        const Gap(8),
-                        _buildTokenStatus(state),
-                        const Gap(8),
-                        _buildCurrentData(state),
-                        const Gap(16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: state is CommonStateLoading
-                                    ? null
-                                    : () {
-                                        context.read<SettingsBloc>().add(
-                                          const SettingsEvent.clearToken(),
-                                        );
-                                      },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
+                          const Gap(8),
+                          _buildTokenStatus(state),
+                          const Gap(8),
+                          _buildCurrentData(state),
+                          const Gap(16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: state is CommonStateLoading
+                                      ? null
+                                      : () {
+                                          context.read<SettingsBloc>().add(
+                                            const SettingsEvent.clearToken(),
+                                          );
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                  child: const Text('Очистить'),
                                 ),
-                                child: const Text('Очистить'),
                               ),
-                            ),
-                          ],
-                        ),
-                        const Gap(8),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: state is CommonStateLoading
-                                ? null
-                                : () async {
-                                    await context.router.push(
-                                      const TokenSetupRoute(),
-                                    );
-                                    context.read<SettingsBloc>().add(
-                                      const SettingsEvent.loadCurrentData(),
-                                    );
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
-                            ),
-                            child: const Text('Настроить токен'),
+                            ],
                           ),
-                        ),
-                      ],
+                          const Gap(8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: state is CommonStateLoading
+                                  ? null
+                                  : () async {
+                                      await context.router.push(
+                                        const TokenSetupRoute(),
+                                      );
+                                      context.read<SettingsBloc>().add(
+                                        const SettingsEvent.loadCurrentData(),
+                                      );
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                              ),
+                              child: const Text('Настроить токен'),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const Gap(16),
+                  const Gap(16),
 
-                // Секция кэша
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Кэш данных',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Gap(8),
-                        const Text(
-                          'Кэшированные данные включают:',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        const Gap(4),
-                        Text(
-                          '• Список треков',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        Text(
-                          '• Статистика прослушивания',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        Text(
-                          '• Информация об артистах',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        const Gap(8),
-                        _buildCacheStatus(state),
-                        const Gap(16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: state is CommonStateLoading
-                                ? null
-                                : () {
-                                    _showCacheClearDialog(context);
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.orange,
-                              foregroundColor: Colors.white,
+                  // Секция кэша
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Кэш данных',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
-                            child: const Text('Очистить кэш'),
                           ),
-                        ),
-                      ],
+                          const Gap(8),
+                          const Text(
+                            'Кэшированные данные включают:',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          const Gap(4),
+                          Text(
+                            '• Список треков',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            '• Статистика прослушивания',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          Text(
+                            '• Информация об артистах',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                          const Gap(8),
+                          _buildCacheStatus(state),
+                          const Gap(16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: state is CommonStateLoading
+                                  ? null
+                                  : () {
+                                      _showCacheClearDialog(context);
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange,
+                              ),
+                              child: const Text('Очистить кэш'),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const Gap(16),
+                  const Gap(16),
 
-                // Секция экспорта
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Экспорт данных',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const Gap(8),
-                        const Text(
-                          'Экспортируйте ваши данные в JSON файл для анализа или резервного копирования.',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        const Gap(8),
-
-                        const Gap(16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: state is CommonStateLoading
-                                ? null
-                                : () {
-                                    context.read<SettingsBloc>().add(
-                                      const SettingsEvent.exportData(),
-                                    );
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                              foregroundColor: Colors.white,
+                  // Секция экспорта
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Экспорт данных',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
-                            child: const Text('Экспортировать данные'),
                           ),
-                        ),
-                      ],
+                          const Gap(8),
+                          const Text(
+                            'Экспортируйте ваши данные в JSON файл для анализа или резервного копирования.',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          const Gap(8),
+
+                          const Gap(16),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: state is CommonStateLoading
+                                  ? null
+                                  : () {
+                                      context.read<SettingsBloc>().add(
+                                        const SettingsEvent.exportData(),
+                                      );
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                              ),
+                              child: const Text('Экспортировать данные'),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },

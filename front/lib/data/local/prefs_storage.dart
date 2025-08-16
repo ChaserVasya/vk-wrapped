@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class PrefsStorage implements AuthStorage {
   static const String _tokenKey = 'vk_token';
   static const String _vkAppId = 'vk_app_id';
+  static const String _tokenExpiryKey = 'vk_token_expiry';
 
   const PrefsStorage(this._prefs);
 
@@ -22,6 +23,22 @@ class PrefsStorage implements AuthStorage {
 
   @override
   Future<void> clearToken() async => await _prefs.remove(_tokenKey);
+
+  @override
+  Future<void> saveTokenExpiry(DateTime? expiresAt) async {
+    if (expiresAt == null) {
+      await _prefs.remove(_tokenExpiryKey);
+      return;
+    }
+    await _prefs.setInt(_tokenExpiryKey, expiresAt.millisecondsSinceEpoch);
+  }
+
+  @override
+  DateTime? getTokenExpiry() {
+    final ts = _prefs.getInt(_tokenExpiryKey);
+    if (ts == null) return null;
+    return DateTime.fromMillisecondsSinceEpoch(ts);
+  }
 
   /// client id
 

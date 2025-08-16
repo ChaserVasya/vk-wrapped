@@ -18,10 +18,12 @@ void main() {
 
       expect(find.text('Требуется авторизация'), findsOneWidget);
       expect(
-        find.text('Для получения данных необходимо войти в VK'),
+        find.text(
+          'Токен истёк/не одобрен. Перейдите в настройки и введите новый.',
+        ),
         findsOneWidget,
       );
-      expect(find.text('Настроить токен'), findsOneWidget);
+      expect(find.text('Перейти в настройки'), findsOneWidget);
     });
 
     testWidgets('Should show error message for other exceptions', (
@@ -41,6 +43,22 @@ void main() {
       expect(find.text('Произошла ошибка'), findsOneWidget);
       expect(find.text('AppException: Test error'), findsOneWidget);
       expect(find.text('Повторить'), findsOneWidget);
+    });
+
+    testWidgets('Should show debug info for AppException', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ErrorStateWidget(
+              const AppException('Test error'),
+              onRefresh: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Информация для отладки'), findsOneWidget);
+      expect(find.byIcon(Icons.copy), findsOneWidget);
     });
 
     testWidgets('Should show different icons for different exceptions', (
@@ -70,6 +88,21 @@ void main() {
       );
 
       expect(find.byIcon(Icons.error_outline), findsOneWidget);
+    });
+
+    testWidgets('Should not show debug info for non-AppException errors', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ErrorStateWidget(Exception('Test error'), onRefresh: () {}),
+          ),
+        ),
+      );
+
+      expect(find.text('Информация для отладки'), findsNothing);
+      expect(find.byIcon(Icons.copy), findsNothing);
     });
   });
 }

@@ -160,6 +160,16 @@ class _ViewState extends State<_View> {
                           },
                           onEditingComplete: () => _saveToken(context),
                         ),
+                        if (_tokenRequestUrlController.text.isNotEmpty) ...[
+                          const Gap(8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () => _saveToken(context),
+                              child: const Text('Сохранить токен'),
+                            ),
+                          ),
+                        ],
                         const Gap(16),
                       ],
                     ),

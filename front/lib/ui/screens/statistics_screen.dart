@@ -33,11 +33,7 @@ class StatisticsView extends StatelessWidget {
     return MultiBlocListener(
       listeners: [ShowErrorSafeListener<StatisticsBloc>()],
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('VK Wrapped'),
-          backgroundColor: Colors.blue,
-          foregroundColor: Colors.white,
-        ),
+        appBar: AppBar(title: const Text('VK Wrapped')),
         body: CommonStateHandler<StatisticsState, StatisticStateData>(
           selector: (context) => context.watch<StatisticsBloc>().state,
           dataBuilder: (context, data) => StatisticsCarousel(data: data),
@@ -115,12 +111,10 @@ class _OverviewPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
+          Text(
             'Обзор года',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           const SizedBox(height: 32),
@@ -192,12 +186,10 @@ class _TopArtistsPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
+          Text(
             'Топ исполнителей',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           const SizedBox(height: 32),
@@ -226,8 +218,8 @@ class _TopArtistsPage extends StatelessWidget {
                     subtitle: Text('${artist.playCount} прослушиваний'),
                     trailing: Text(
                       _formatDuration(Duration(seconds: artist.totalDuration)),
-                      style: const TextStyle(
-                        color: Colors.blue,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -263,12 +255,10 @@ class _TopTracksPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
+          Text(
             'Топ треков',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           const SizedBox(height: 32),
@@ -302,12 +292,10 @@ class _TracksWithSameTitlePage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
+          Text(
             'Топ треков с одинаковым названием',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           const SizedBox(height: 32),
@@ -338,8 +326,8 @@ class _TracksWithSameTitlePage extends StatelessWidget {
                       _formatDuration(
                         Duration(seconds: trackStat.totalDuration),
                       ),
-                      style: const TextStyle(
-                        color: Colors.blue,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -375,12 +363,10 @@ class _MonthStatsPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
+          Text(
             'По месяцам',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           const SizedBox(height: 32),
@@ -403,8 +389,8 @@ class _MonthStatsPage extends StatelessWidget {
                     subtitle: Text('${monthStat.playCount} прослушиваний'),
                     trailing: Text(
                       '${((monthStat.playCount / data.totalPlayCount) * 100).toStringAsFixed(1)}%',
-                      style: const TextStyle(
-                        color: Colors.blue,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -431,12 +417,10 @@ class _ExtremesPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
+          Text(
             'Рекорды',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           const SizedBox(height: 32),
@@ -448,11 +432,15 @@ class _ExtremesPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.timer, color: Colors.blue, size: 32),
-                        SizedBox(width: 16),
-                        Text(
+                        Icon(
+                          Icons.timer,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 32,
+                        ),
+                        const SizedBox(width: 16),
+                        const Text(
                           'Самый длинный трек',
                           style: TextStyle(
                             fontSize: 16,
@@ -475,11 +463,15 @@ class _ExtremesPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Row(
+                    Row(
                       children: [
-                        Icon(Icons.timer_off, color: Colors.blue, size: 32),
-                        SizedBox(width: 16),
-                        Text(
+                        Icon(
+                          Icons.timer_off,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 32,
+                        ),
+                        const SizedBox(width: 16),
+                        const Text(
                           'Самый короткий трек',
                           style: TextStyle(
                             fontSize: 16,
@@ -592,7 +584,9 @@ class _PageIndicator extends StatelessWidget {
             height: 8,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: currentPage == index ? Colors.blue : Colors.grey,
+              color: currentPage == index
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey,
             ),
           ),
         ),

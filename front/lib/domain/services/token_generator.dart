@@ -38,4 +38,33 @@ class TokenGenerator {
 
     return null;
   }
+
+  DateTime? extractExpiryFromUrl(String url) {
+    final uri = Uri.parse(url);
+
+    final queryParams = uri.queryParameters;
+    final expiresQuery = queryParams['expires_in'];
+    if (expiresQuery != null) {
+      final seconds = int.tryParse(expiresQuery);
+      if (seconds != null && seconds > 0) {
+        return DateTime.now().add(Duration(seconds: seconds));
+      }
+      if (seconds == 0) return null; // 0 = offline token (no expiry)
+    }
+
+    final fragment = uri.fragment;
+    if (fragment.isNotEmpty) {
+      final fragmentParams = Uri.splitQueryString(fragment);
+      final expires = fragmentParams['expires_in'];
+      if (expires != null) {
+        final seconds = int.tryParse(expires);
+        if (seconds != null && seconds > 0) {
+          return DateTime.now().add(Duration(seconds: seconds));
+        }
+        if (seconds == 0) return null;
+      }
+    }
+
+    return null;
+  }
 }

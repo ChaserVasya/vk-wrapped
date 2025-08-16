@@ -60,8 +60,15 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
   ) async {
     await _doIfData((data, emit) async {
       await _cacheService.clearToken();
+      await _cacheService.saveTokenExpiry(null);
       emit(
-        CommonStates.data(data.copyWith(hasToken: false, currentToken: null)),
+        CommonStates.data(
+          data.copyWith(
+            hasToken: false,
+            currentToken: null,
+            tokenExpiresAt: null,
+          ),
+        ),
       );
       emitEffect(const SettingsEffect.tokenCleared());
     }, emit);
@@ -120,6 +127,7 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
 
       final hasToken = _authStorage.getToken() != null;
       final currentToken = _authStorage.getToken();
+      final tokenExpiresAt = _authStorage.getTokenExpiry();
       final clientId = _authStorage.getVkAppId();
 
       emit(
@@ -127,6 +135,7 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
           SettingsData(
             hasToken: hasToken,
             currentToken: currentToken,
+            tokenExpiresAt: tokenExpiresAt,
             clientId: clientId ?? 'Рандомный (От Vk Admin, лол)',
             isCacheCleared: false,
           ),

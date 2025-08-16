@@ -21,6 +21,7 @@ import 'package:front/data/remote/api/track_sessions_client.dart' as _i537;
 import 'package:front/data/remote/api/vk_api_client.dart' as _i543;
 import 'package:front/data/remote/services/vk_service.dart' as _i988;
 import 'package:front/domain/repositories/audio_repository.dart' as _i693;
+import 'package:front/domain/services/app_info_service.dart' as _i684;
 import 'package:front/domain/services/first_launch_service.dart' as _i562;
 import 'package:front/domain/services/statistics_service.dart' as _i347;
 import 'package:front/domain/services/token_generator.dart' as _i458;
@@ -47,8 +48,8 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
-    gh.factory<_i347.StatisticsService>(() => _i347.StatisticsService());
     gh.factory<_i562.FirstLaunchService>(() => _i562.FirstLaunchService());
+    gh.factory<_i347.StatisticsService>(() => _i347.StatisticsService());
     await gh.singletonAsync<_i460.SharedPreferencesWithCache>(
       () => registerModule.prefs,
       preResolve: true,
@@ -56,6 +57,7 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i361.Dio>(() => registerModule.dio);
     gh.lazySingleton<_i500.QueryExecutor>(() => registerModule.drift);
     gh.lazySingleton<_i998.SharePlus>(() => registerModule.sharePlus);
+    gh.lazySingleton<_i684.AppInfoService>(() => registerModule.appInfoService);
     gh.lazySingleton<_i458.TokenGenerator>(() => _i458.TokenGenerator());
     gh.lazySingleton<_i657.AppDatabase>(
       () => _i657.AppDatabase(gh<_i500.QueryExecutor>()),
@@ -102,6 +104,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i297.AuthStorage>(),
       ),
     );
+    gh.factory<_i977.GenresCubit>(
+      () => _i977.GenresCubit(gh<_i693.AudioRepository>()),
+    );
     gh.factory<_i308.TracksCubit>(
       () => _i308.TracksCubit(gh<_i693.AudioRepository>()),
     );
@@ -110,9 +115,6 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i567.ArtistsCubit>(
       () => _i567.ArtistsCubit(gh<_i693.AudioRepository>()),
-    );
-    gh.factory<_i977.GenresCubit>(
-      () => _i977.GenresCubit(gh<_i693.AudioRepository>()),
     );
     gh.factory<_i868.AlbumsWithArtistsCubit>(
       () => _i868.AlbumsWithArtistsCubit(gh<_i693.AudioRepository>()),
