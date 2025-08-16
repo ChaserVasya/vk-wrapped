@@ -46,6 +46,7 @@ class TokenSetupBloc extends EffectBloc<TokenSetupEvent, TokenSetupState> {
     }
 
     final token = _tokenGenerator.extractTokenFromUrl(url);
+    final expiresAt = _tokenGenerator.extractExpiryFromUrl(url);
 
     if (token == null) {
       emitErrorEffect('Не удалось получить токен :(');
@@ -53,6 +54,7 @@ class TokenSetupBloc extends EffectBloc<TokenSetupEvent, TokenSetupState> {
     }
 
     await _authStorage.saveToken(token);
+    await _authStorage.saveTokenExpiry(expiresAt);
     emitEffect(const TokenSetupEffect.finish());
   }
 

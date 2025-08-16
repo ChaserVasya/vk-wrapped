@@ -42,8 +42,6 @@ class _IntroScreenState extends State<IntroScreen> {
             const Gap(24),
             _buildTodayEmodgi(),
             const Gap(32),
-            _buildDisclaimer(),
-            const Gap(32),
             _buildCallToAction(),
             const Gap(40),
             _buildNavigationButton(context),
@@ -78,15 +76,18 @@ class _IntroScreenState extends State<IntroScreen> {
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Center(
+              child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.image, size: 64, color: Colors.grey),
-                    Gap(8),
+                    const Icon(Icons.image, size: 64, color: Colors.grey),
+                    const Gap(8),
                     Text(
                       'intro image error',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[600],
+                        fontSize: 16,
+                      ),
                     ),
                   ],
                 ),
@@ -101,9 +102,9 @@ class _IntroScreenState extends State<IntroScreen> {
   Widget _buildMemeSection() {
     return Column(
       children: [
-        const Text(
+        Text(
           'Мем дня',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+          style: Theme.of(context).textTheme.titleMedium,
           textAlign: TextAlign.center,
         ),
         const Gap(16),
@@ -171,15 +172,18 @@ class _IntroScreenState extends State<IntroScreen> {
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Center(
+              child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.image, size: 64, color: Colors.grey),
-                    Gap(8),
+                    const Icon(Icons.image, size: 64, color: Colors.grey),
+                    const Gap(8),
                     Text(
                       'Мем дня',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[600],
+                        fontSize: 16,
+                      ),
                     ),
                   ],
                 ),
@@ -215,75 +219,12 @@ class _IntroScreenState extends State<IntroScreen> {
   }
 
   Widget _buildClearDisclaimer() {
-    return const Text(
+    return Text(
       '...Когда-нибудь...',
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-        color: Colors.orange,
-      ),
+      style: Theme.of(
+        context,
+      ).textTheme.titleMedium?.copyWith(color: Colors.orange),
       textAlign: TextAlign.center,
-    );
-  }
-
-  Widget _buildDisclaimer() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.orange[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange[200]!),
-      ),
-      child: Column(
-        children: [
-          const Text(
-            'Приложение разрабатывалось в темпе студента за ночь до сдачи курсача. Могут быть баги.',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            textAlign: TextAlign.center,
-          ),
-          const Gap(12),
-          Column(
-            children: [
-              const Text(
-                'Вам подарена пожизненная поддержка.',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                textAlign: TextAlign.center,
-              ),
-              const Gap(8),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.celebration, color: Colors.orange, size: 20),
-                  Gap(2),
-                  Icon(Icons.celebration, color: Colors.orange, size: 20),
-                  Gap(2),
-                  Icon(Icons.celebration, color: Colors.orange, size: 20),
-                ],
-              ),
-              const Gap(4),
-              const Text(
-                'Так что все баги пофиксим.',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                textAlign: TextAlign.center,
-              ),
-              const Gap(8),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _isDisclaimerFocused = !_isDisclaimerFocused;
-                  });
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  child: _isDisclaimerFocused
-                      ? _buildClearDisclaimer()
-                      : _buildShimmerDisclaimer(),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 
@@ -333,9 +274,6 @@ class _IntroScreenState extends State<IntroScreen> {
       },
       icon: const Icon(Icons.home),
       label: const Text('На главную'),
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-      ),
     );
   }
 
@@ -346,7 +284,13 @@ class _IntroScreenState extends State<IntroScreen> {
           'Эмоджи дня',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
-        Text('🤔', style: TextStyle(fontSize: 48, fontWeight: FontWeight.w500)),
+        Text(
+          '\u{1F62D}',
+          style: TextStyle(
+            fontSize: 48,
+            fontFamilyFallback: ['Noto Color Emoji', 'Apple Color Emoji'],
+          ),
+        ),
       ],
     );
   }

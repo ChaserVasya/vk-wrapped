@@ -49,9 +49,32 @@ class _VkWrappedAppState extends State<VkWrappedApp> {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4C75A3)),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF4C75A3),
+          foregroundColor: Colors.white,
+          centerTitle: false,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size.fromHeight(50),
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+            ),
+          ),
+        ),
         textTheme: const TextTheme(
           bodySmall: TextStyle(fontSize: 12, color: Colors.grey),
+          titleMedium: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          headlineSmall: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
         ),
+        // Улучшенная поддержка эмоджи через fontFamilyFallback
+        fontFamilyFallback: const [
+          'Noto Color Emoji',
+          'Apple Color Emoji',
+          'Segoe UI Emoji',
+          'Android Emoji',
+        ],
         inputDecorationTheme: InputDecorationTheme(
           hintStyle: TextStyle(color: Colors.grey[400]),
         ),

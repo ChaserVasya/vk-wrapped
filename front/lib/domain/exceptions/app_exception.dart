@@ -73,3 +73,8 @@ class AppException implements Exception {
 class NoTokenException extends AppException {
   const NoTokenException() : super('VK Token отсутствует');
 }
+
+class VkAuthFailedException extends AppException {
+  const VkAuthFailedException()
+    : super('Токен истёк или не одобрен', code: 'VK_AUTH_FAILED');
+}

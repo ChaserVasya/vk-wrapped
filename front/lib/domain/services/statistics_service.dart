@@ -60,7 +60,9 @@ class StatisticsService {
     final artistStats = <String, ArtistStats>{};
 
     for (final session in sessions) {
-      final track = tracks.firstWhere((t) => t.fullId == session.fullId);
+      final track = tracks.where((t) => t.fullId == session.fullId).firstOrNull;
+      if (track == null)
+        continue; // Пропускаем сессии без соответствующих треков
 
       // Считаем каждого артиста отдельно
       for (final artist in track.artists) {
@@ -92,7 +94,9 @@ class StatisticsService {
     final trackStats = <String, TrackWithStats>{};
 
     for (final session in sessions) {
-      final track = tracks.firstWhere((t) => t.fullId == session.fullId);
+      final track = tracks.where((t) => t.fullId == session.fullId).firstOrNull;
+      if (track == null)
+        continue; // Пропускаем сессии без соответствующих треков
 
       // Используем полный ID трека как ключ для уникальности
       final trackKey = track.fullId;
@@ -118,7 +122,9 @@ class StatisticsService {
   ) {
     int totalSeconds = 0;
     for (final session in sessions) {
-      final track = tracks.firstWhere((t) => t.fullId == session.fullId);
+      final track = tracks.where((t) => t.fullId == session.fullId).firstOrNull;
+      if (track == null)
+        continue; // Пропускаем сессии без соответствующих треков
       totalSeconds += track.duration;
     }
 
@@ -138,7 +144,9 @@ class StatisticsService {
   ) {
     final uniqueArtists = <String>{};
     for (final session in sessions) {
-      final track = tracks.firstWhere((t) => t.fullId == session.fullId);
+      final track = tracks.where((t) => t.fullId == session.fullId).firstOrNull;
+      if (track == null)
+        continue; // Пропускаем сессии без соответствующих треков
       uniqueArtists.addAll(track.artists);
     }
 
@@ -154,7 +162,9 @@ class StatisticsService {
 
     int totalDuration = 0;
     for (final session in sessions) {
-      final track = tracks.firstWhere((t) => t.fullId == session.fullId);
+      final track = tracks.where((t) => t.fullId == session.fullId).firstOrNull;
+      if (track == null)
+        continue; // Пропускаем сессии без соответствующих треков
       totalDuration += track.duration;
     }
 
@@ -239,7 +249,9 @@ class StatisticsService {
       if (day.year < 2020) continue;
 
       final dayStart = session.firstObservedDay;
-      final track = tracks.firstWhere((t) => t.fullId == session.fullId);
+      final track = tracks.where((t) => t.fullId == session.fullId).firstOrNull;
+      if (track == null)
+        continue; // Пропускаем сессии без соответствующих треков
 
       if (dayStats.containsKey(dayStart)) {
         final current = dayStats[dayStart]!;
@@ -277,7 +289,9 @@ class StatisticsService {
     int maxDuration = 0;
 
     for (final session in sessions) {
-      final track = tracks.firstWhere((t) => t.fullId == session.fullId);
+      final track = tracks.where((t) => t.fullId == session.fullId).firstOrNull;
+      if (track == null)
+        continue; // Пропускаем сессии без соответствующих треков
       if (track.duration > maxDuration) {
         maxDuration = track.duration;
         longestTrack = track;
@@ -298,7 +312,9 @@ class StatisticsService {
     int minDuration = 9223372036854775807; // int.maxFinite equivalent
 
     for (final session in sessions) {
-      final track = tracks.firstWhere((t) => t.fullId == session.fullId);
+      final track = tracks.where((t) => t.fullId == session.fullId).firstOrNull;
+      if (track == null)
+        continue; // Пропускаем сессии без соответствующих треков
       if (track.duration < minDuration) {
         minDuration = track.duration;
         shortestTrack = track;

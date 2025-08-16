@@ -12,11 +12,7 @@ class ListenedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Прослушанное'),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-      ),
+      appBar: AppBar(title: const Text('Прослушанное')),
       body: const ListenedCarousel(),
     );
   }
@@ -91,7 +87,9 @@ class _PageIndicator extends StatelessWidget {
             height: 8,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: currentPage == index ? Colors.blue : Colors.grey,
+              color: currentPage == index
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey,
             ),
           ),
         ),

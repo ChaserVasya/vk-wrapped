@@ -309,6 +309,7 @@ class _LoadCurrentData implements SettingsEvent {
 mixin _$SettingsData {
   bool get hasToken;
   String? get currentToken;
+  DateTime? get tokenExpiresAt;
   String get clientId;
   bool get isCacheCleared;
 
@@ -331,6 +332,8 @@ mixin _$SettingsData {
                 other.hasToken == hasToken) &&
             (identical(other.currentToken, currentToken) ||
                 other.currentToken == currentToken) &&
+            (identical(other.tokenExpiresAt, tokenExpiresAt) ||
+                other.tokenExpiresAt == tokenExpiresAt) &&
             (identical(other.clientId, clientId) ||
                 other.clientId == clientId) &&
             (identical(other.isCacheCleared, isCacheCleared) ||
@@ -342,13 +345,14 @@ mixin _$SettingsData {
     runtimeType,
     hasToken,
     currentToken,
+    tokenExpiresAt,
     clientId,
     isCacheCleared,
   );
 
   @override
   String toString() {
-    return 'SettingsData(hasToken: $hasToken, currentToken: $currentToken, clientId: $clientId, isCacheCleared: $isCacheCleared)';
+    return 'SettingsData(hasToken: $hasToken, currentToken: $currentToken, tokenExpiresAt: $tokenExpiresAt, clientId: $clientId, isCacheCleared: $isCacheCleared)';
   }
 }
 
@@ -362,6 +366,7 @@ abstract mixin class $SettingsDataCopyWith<$Res> {
   $Res call({
     bool hasToken,
     String? currentToken,
+    DateTime? tokenExpiresAt,
     String clientId,
     bool isCacheCleared,
   });
@@ -381,6 +386,7 @@ class _$SettingsDataCopyWithImpl<$Res> implements $SettingsDataCopyWith<$Res> {
   $Res call({
     Object? hasToken = null,
     Object? currentToken = freezed,
+    Object? tokenExpiresAt = freezed,
     Object? clientId = null,
     Object? isCacheCleared = null,
   }) {
@@ -394,6 +400,10 @@ class _$SettingsDataCopyWithImpl<$Res> implements $SettingsDataCopyWith<$Res> {
             ? _self.currentToken
             : currentToken // ignore: cast_nullable_to_non_nullable
                   as String?,
+        tokenExpiresAt: freezed == tokenExpiresAt
+            ? _self.tokenExpiresAt
+            : tokenExpiresAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
         clientId: null == clientId
             ? _self.clientId
             : clientId // ignore: cast_nullable_to_non_nullable
@@ -413,6 +423,7 @@ class _SettingsData implements SettingsData {
   const _SettingsData({
     required this.hasToken,
     required this.currentToken,
+    this.tokenExpiresAt,
     required this.clientId,
     required this.isCacheCleared,
   });
@@ -421,6 +432,8 @@ class _SettingsData implements SettingsData {
   final bool hasToken;
   @override
   final String? currentToken;
+  @override
+  final DateTime? tokenExpiresAt;
   @override
   final String clientId;
   @override
@@ -443,6 +456,8 @@ class _SettingsData implements SettingsData {
                 other.hasToken == hasToken) &&
             (identical(other.currentToken, currentToken) ||
                 other.currentToken == currentToken) &&
+            (identical(other.tokenExpiresAt, tokenExpiresAt) ||
+                other.tokenExpiresAt == tokenExpiresAt) &&
             (identical(other.clientId, clientId) ||
                 other.clientId == clientId) &&
             (identical(other.isCacheCleared, isCacheCleared) ||
@@ -454,13 +469,14 @@ class _SettingsData implements SettingsData {
     runtimeType,
     hasToken,
     currentToken,
+    tokenExpiresAt,
     clientId,
     isCacheCleared,
   );
 
   @override
   String toString() {
-    return 'SettingsData(hasToken: $hasToken, currentToken: $currentToken, clientId: $clientId, isCacheCleared: $isCacheCleared)';
+    return 'SettingsData(hasToken: $hasToken, currentToken: $currentToken, tokenExpiresAt: $tokenExpiresAt, clientId: $clientId, isCacheCleared: $isCacheCleared)';
   }
 }
 
@@ -476,6 +492,7 @@ abstract mixin class _$SettingsDataCopyWith<$Res>
   $Res call({
     bool hasToken,
     String? currentToken,
+    DateTime? tokenExpiresAt,
     String clientId,
     bool isCacheCleared,
   });
@@ -496,6 +513,7 @@ class __$SettingsDataCopyWithImpl<$Res>
   $Res call({
     Object? hasToken = null,
     Object? currentToken = freezed,
+    Object? tokenExpiresAt = freezed,
     Object? clientId = null,
     Object? isCacheCleared = null,
   }) {
@@ -509,6 +527,10 @@ class __$SettingsDataCopyWithImpl<$Res>
             ? _self.currentToken
             : currentToken // ignore: cast_nullable_to_non_nullable
                   as String?,
+        tokenExpiresAt: freezed == tokenExpiresAt
+            ? _self.tokenExpiresAt
+            : tokenExpiresAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
         clientId: null == clientId
             ? _self.clientId
             : clientId // ignore: cast_nullable_to_non_nullable

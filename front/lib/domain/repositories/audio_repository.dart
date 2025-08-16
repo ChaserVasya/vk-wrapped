@@ -31,6 +31,18 @@ class AudioRepository {
       final missingTracks = await _vkApiService.getAudioById(missingIds);
       await _trackStorage.updateTracks(missingTracks);
       tracks = localTracks.addAll(missingTracks);
+
+      // Проверяем целостность данных после загрузки
+      final allTrackIds = tracks.map((track) => track.fullId).toSet();
+      final sessionIds = sessions.map((s) => s.fullId).toSet();
+      final missingSessionTracks = sessionIds.difference(allTrackIds);
+
+      if (missingSessionTracks.isNotEmpty) {
+        // Логируем проблему для отладки
+        print(
+          '[WARNING] Found ${missingSessionTracks.length} sessions without corresponding tracks: ${missingSessionTracks.take(5).join(', ')}',
+        );
+      }
     } else {
       tracks = localTracks;
     }
@@ -49,7 +61,9 @@ class AudioRepository {
     final trackPlayCount = <String, int>{};
     // Подсчитываем количество прослушиваний для каждого трека
     for (final session in sessions) {
-      final track = tracks.firstWhere((t) => t.fullId == session.fullId);
+      final track = tracks.where((t) => t.fullId == session.fullId).firstOrNull;
+      if (track == null)
+        continue; // Пропускаем сессии без соответствующих треков
       final trackKey = track.fullId;
       trackPlayCount[trackKey] = (trackPlayCount[trackKey] ?? 0) + 1;
     }

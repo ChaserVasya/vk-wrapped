@@ -36,7 +36,7 @@ export class DatabaseService {
       // Приводим к типу с items
       const typedRow = row as { items?: unknown[] };
       if (!typedRow.items || typedRow.items.length < 3) {
-        console.log(`[DEBUG] Invalid row structure: missing items or insufficient length`);
+        LoggerService.debug('Invalid row structure: missing items or insufficient length');
         return null;
       }
 
@@ -51,7 +51,7 @@ export class DatabaseService {
       const lastSeenTimestamp = lastSeenItem?.uint32Value || 0;
 
       if (!fullId || firstObservedTimestamp === 0 || lastSeenTimestamp === 0) {
-        console.log(`[DEBUG] Invalid row data: fullId="${fullId}", firstObservedTimestamp=${firstObservedTimestamp}, lastSeenTimestamp=${lastSeenTimestamp}`);
+        LoggerService.debug('Invalid row data', { fullId, firstObservedTimestamp, lastSeenTimestamp });
         return null;
       }
 
@@ -64,7 +64,7 @@ export class DatabaseService {
         last_seen: lastSeen
       };
     } catch (error) {
-      console.log(`[ERROR] Failed to map row to TrackSession: ${error}`);
+      LoggerService.error('Failed to map row to TrackSession', error);
       return null;
     }
   }
@@ -72,7 +72,7 @@ export class DatabaseService {
   // Получение активной сессии по full_id
   async getActiveSession(fullId: string): Promise<TrackSession | null> {
     const operation = 'get_active_session';
-    console.log(`[DEBUG] Starting ${operation}: fullId="${fullId}"`);
+    LoggerService.debug(`Starting ${operation}`, { fullId });
 
     try {
       const timeout = 10000;
@@ -91,37 +91,41 @@ export class DatabaseService {
       });
 
       if (!result.resultSets || result.resultSets.length === 0) {
-        console.log(`[DEBUG] No result sets for ${operation}`);
+        LoggerService.debug(`No result sets for ${operation}`);
         return null;
       }
 
       const rows = result.resultSets[0].rows;
-      console.log(`[DEBUG] Rows count for ${operation}: ${rows?.length || 0}`);
+      LoggerService.debug(`Rows count for ${operation}`, { rowsCount: rows?.length || 0 });
 
       if (!rows || rows.length === 0) {
-        console.log(`[DEBUG] No rows found for ${operation}`);
+        LoggerService.debug(`No rows found for ${operation}`);
         return null;
       }
 
       const activeSession = this.mapRowToTrackSession(rows[0]);
 
       if (activeSession) {
-        console.log(`[DEBUG] Created active session for ${operation}: fullId="${activeSession.full_id}", firstObserved="${activeSession.first_observed}", lastSeen="${activeSession.last_seen}"`);
+        LoggerService.debug(`Created active session for ${operation}`, {
+          fullId: activeSession.full_id,
+          firstObserved: activeSession.first_observed,
+          lastSeen: activeSession.last_seen,
+        });
       } else {
-        console.log(`[DEBUG] Failed to create active session for ${operation}`);
+        LoggerService.debug(`Failed to create active session for ${operation}`);
       }
 
       return activeSession;
 
     } catch (error: unknown) {
-      console.log(`[ERROR] Database error in ${operation}: ${error}`);
+      LoggerService.error(`Database error in ${operation}`, error);
       throw error;
     }
   }
 
   // Создание новой активной сессии
   async createActiveSession(fullId: string): Promise<void> {
-    console.log(`[DEBUG] Starting create_active_session: fullId="${fullId}"`);
+    LoggerService.debug('Starting create_active_session', { fullId });
 
     try {
       const timeout = 10000;
@@ -139,9 +143,8 @@ export class DatabaseService {
         return await session.executeQuery(query);
       });
 
-      console.log(`[DEBUG] Active session created successfully for: ${fullId}`);
+      LoggerService.debug('Active session created successfully', { fullId });
     } catch (error: unknown) {
-      console.log(`[ERROR] Failed to create active session for ${fullId}: ${error instanceof Error ? error.message : String(error)}`);
       LoggerService.logErrorDetails(error, 'Database Query Execution');
       throw error;
     }
@@ -149,7 +152,7 @@ export class DatabaseService {
 
   // Обновление времени последнего обновления активной сессии
   async updateActiveSession(fullId: string): Promise<void> {
-    console.log(`[DEBUG] Starting update_active_session: fullId="${fullId}"`);
+    LoggerService.debug('Starting update_active_session', { fullId });
 
     try {
       const timeout = 10000;
@@ -168,7 +171,7 @@ export class DatabaseService {
         return await session.executeQuery(query);
       });
 
-      console.log(`[DEBUG] Active session updated successfully for: ${fullId}`);
+      LoggerService.debug('Active session updated successfully', { fullId });
     } catch (error: unknown) {
       LoggerService.logErrorDetails(error, 'Database Query Execution');
       throw error;
@@ -177,7 +180,7 @@ export class DatabaseService {
 
   // Завершение всех активных сессий (при отсутствии музыки)
   async finishAllActiveSessions(): Promise<void> {
-    console.log(`[DEBUG] Starting finish_all_active_sessions`);
+    LoggerService.debug('Starting finish_all_active_sessions');
 
     try {
       const timeout = 10000;
@@ -186,10 +189,10 @@ export class DatabaseService {
       }
 
       // Сначала получаем все активные сессии
-      console.log(`[DEBUG] About to call getAllCurrentSessions()`);
+      LoggerService.debug('About to call getAllCurrentSessions');
       const activeSessions = await this.getAllCurrentSessions();
-      console.log(`[DEBUG] Found ${activeSessions.length} active sessions to finish`);
-      console.log(`[DEBUG] Active sessions:`, JSON.stringify(activeSessions, null, 2));
+      LoggerService.debug('Found active sessions to finish', { count: activeSessions.length });
+      LoggerService.debug('Active sessions', activeSessions);
 
       if (activeSessions.length > 0) {
         // Перемещаем активные сессии в completed_sessions
@@ -205,7 +208,7 @@ export class DatabaseService {
           return await session.executeQuery(insertQuery);
         });
 
-        console.log(`[DEBUG] Moved ${activeSessions.length} sessions to completed_sessions`);
+        LoggerService.debug('Moved sessions to completed_sessions', { count: activeSessions.length });
       }
 
       // Теперь удаляем все из current_sessions
@@ -217,7 +220,7 @@ export class DatabaseService {
         return await session.executeQuery(deleteQuery);
       });
 
-      console.log(`[DEBUG] All active sessions finished successfully`);
+      LoggerService.debug('All active sessions finished successfully');
     } catch (error: unknown) {
       LoggerService.logErrorDetails(error, 'Database Query Execution');
       throw error;
@@ -227,7 +230,7 @@ export class DatabaseService {
   // Получение всех активных сессий
   async getAllCurrentSessions(limit?: number): Promise<TrackSession[]> {
     const operation = 'get_all_active_sessions';
-    console.log(`[DEBUG] Starting ${operation}`);
+    LoggerService.debug(`Starting ${operation}`);
 
     try {
       const timeout = 10000;
@@ -248,15 +251,15 @@ export class DatabaseService {
       });
 
       if (!result.resultSets || result.resultSets.length === 0) {
-        console.log(`[DEBUG] No result sets for ${operation}`);
+        LoggerService.debug(`No result sets for ${operation}`);
         return [];
       }
 
       const rows = result.resultSets[0].rows;
-      console.log(`[DEBUG] Rows count for ${operation}: ${rows?.length || 0}`);
+      LoggerService.debug(`Rows count for ${operation}`, { rowsCount: rows?.length || 0 });
 
       if (!rows || rows.length === 0) {
-        console.log(`[DEBUG] No rows found for ${operation}`);
+        LoggerService.debug(`No rows found for ${operation}`);
         return [];
       }
 
@@ -264,11 +267,11 @@ export class DatabaseService {
         .map((row: unknown) => this.mapRowToTrackSession(row))
         .filter((session): session is TrackSession => session !== null);
 
-      console.log(`[DEBUG] Created ${sessions.length} active sessions for ${operation}`);
+      LoggerService.debug(`Created active sessions for ${operation}`, { count: sessions.length });
       return sessions;
 
     } catch (error: unknown) {
-      console.log(`[ERROR] Database error in ${operation}: ${error}`);
+      LoggerService.error(`Database error in ${operation}`, error);
       throw error;
     }
   }
@@ -276,7 +279,7 @@ export class DatabaseService {
   // Получение завершенных сессий
   async getCompletedSessions(limit?: number): Promise<TrackSession[]> {
     const operation = 'get_completed_sessions';
-    console.log(`[DEBUG] Starting ${operation}`);
+    LoggerService.debug(`Starting ${operation}`);
 
     try {
       const timeout = 10000;
@@ -297,15 +300,15 @@ export class DatabaseService {
       });
 
       if (!result.resultSets || result.resultSets.length === 0) {
-        console.log(`[DEBUG] No result sets for ${operation}`);
+        LoggerService.debug(`No result sets for ${operation}`);
         return [];
       }
 
       const rows = result.resultSets[0].rows;
-      console.log(`[DEBUG] Rows count for ${operation}: ${rows?.length || 0}`);
+      LoggerService.debug(`Rows count for ${operation}`, { rowsCount: rows?.length || 0 });
 
       if (!rows || rows.length === 0) {
-        console.log(`[DEBUG] No rows found for ${operation}`);
+        LoggerService.debug(`No rows found for ${operation}`);
         return [];
       }
 
@@ -313,11 +316,11 @@ export class DatabaseService {
         .map((row: unknown) => this.mapRowToTrackSession(row))
         .filter((session): session is TrackSession => session !== null);
 
-      console.log(`[DEBUG] Created ${sessions.length} completed sessions for ${operation}`);
+      LoggerService.debug(`Created completed sessions for ${operation}`, { count: sessions.length });
       return sessions;
 
     } catch (error: unknown) {
-      console.log(`[ERROR] Database error in ${operation}: ${error}`);
+      LoggerService.error(`Database error in ${operation}`, error);
       throw error;
     }
   }
