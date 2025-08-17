@@ -49,7 +49,6 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
     gh.factory<_i562.FirstLaunchService>(() => _i562.FirstLaunchService());
-    gh.factory<_i347.StatisticsService>(() => _i347.StatisticsService());
     await gh.singletonAsync<_i460.SharedPreferencesWithCache>(
       () => registerModule.prefs,
       preResolve: true,
@@ -82,6 +81,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i309.AudioStorage>(
       () => _i254.DriftAudioStorage(gh<_i657.AppDatabase>()),
+    );
+    gh.factory<_i347.StatisticsService>(
+      () => _i347.StatisticsService(gh<_i309.AudioStorage>()),
     );
     gh.factory<_i35.TokenSetupBloc>(
       () => _i35.TokenSetupBloc(

@@ -19,18 +19,60 @@ abstract class VkApiClient {
     @Query('access_token') required String accessToken,
     @Query('v') String version = '5.131',
   });
+
+  @GET('/audio.getArtistById')
+  Future<VkArtistResponse> getArtistById({
+    @Query('artist_id') required String artistId,
+    @Query('access_token') required String accessToken,
+    @Query('v') String version = '5.131',
+  });
 }
 
 @JsonSerializable()
 class VkAudioResponse {
-  final IList<VkAudioTrack> response;
+  final IList<VkAudioTrack>? response;
+  final VkError? error;
 
-  VkAudioResponse({required this.response});
+  VkAudioResponse({this.response, this.error});
 
   factory VkAudioResponse.fromJson(Map<String, dynamic> json) =>
       _$VkAudioResponseFromJson(json);
 
   Map<String, dynamic> toJson() => _$VkAudioResponseToJson(this);
+}
+
+@JsonSerializable()
+class VkError {
+  @JsonKey(name: 'error_code')
+  final int errorCode;
+  @JsonKey(name: 'error_msg')
+  final String errorMsg;
+  @JsonKey(name: 'request_params')
+  final List<VkRequestParam>? requestParams;
+
+  VkError({
+    required this.errorCode,
+    required this.errorMsg,
+    this.requestParams,
+  });
+
+  factory VkError.fromJson(Map<String, dynamic> json) =>
+      _$VkErrorFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VkErrorToJson(this);
+}
+
+@JsonSerializable()
+class VkRequestParam {
+  final String key;
+  final String value;
+
+  VkRequestParam({required this.key, required this.value});
+
+  factory VkRequestParam.fromJson(Map<String, dynamic> json) =>
+      _$VkRequestParamFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VkRequestParamToJson(this);
 }
 
 @freezed
@@ -240,40 +282,6 @@ class VkArtist {
 }
 
 @JsonSerializable()
-class VkError {
-  @JsonKey(name: 'error_code')
-  final int errorCode;
-  @JsonKey(name: 'error_msg')
-  final String errorMsg;
-  @JsonKey(name: 'request_params')
-  final List<VkRequestParam>? requestParams;
-
-  VkError({
-    required this.errorCode,
-    required this.errorMsg,
-    this.requestParams,
-  });
-
-  factory VkError.fromJson(Map<String, dynamic> json) =>
-      _$VkErrorFromJson(json);
-
-  Map<String, dynamic> toJson() => _$VkErrorToJson(this);
-}
-
-@JsonSerializable()
-class VkRequestParam {
-  final String key;
-  final String value;
-
-  VkRequestParam({required this.key, required this.value});
-
-  factory VkRequestParam.fromJson(Map<String, dynamic> json) =>
-      _$VkRequestParamFromJson(json);
-
-  Map<String, dynamic> toJson() => _$VkRequestParamToJson(this);
-}
-
-@JsonSerializable()
 class VkErrorResponse {
   final VkError error;
 
@@ -283,4 +291,67 @@ class VkErrorResponse {
       _$VkErrorResponseFromJson(json);
 
   Map<String, dynamic> toJson() => _$VkErrorResponseToJson(this);
+}
+
+@JsonSerializable()
+class VkArtistResponse {
+  final VkArtistInfo response;
+
+  VkArtistResponse({required this.response});
+
+  factory VkArtistResponse.fromJson(Map<String, dynamic> json) =>
+      _$VkArtistResponseFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VkArtistResponseToJson(this);
+}
+
+@JsonSerializable()
+class VkArtistInfo {
+  final String name;
+  final String? domain;
+  final String id;
+  final List<VkArtistPhoto>? photos;
+
+  const VkArtistInfo({
+    required this.name,
+    this.domain,
+    required this.id,
+    this.photos,
+  });
+
+  factory VkArtistInfo.fromJson(Map<String, dynamic> json) =>
+      _$VkArtistInfoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VkArtistInfoToJson(this);
+}
+
+@JsonSerializable()
+class VkArtistPhoto {
+  final String type;
+  final List<VkArtistPhotoSize> photo;
+
+  const VkArtistPhoto({required this.type, required this.photo});
+
+  factory VkArtistPhoto.fromJson(Map<String, dynamic> json) =>
+      _$VkArtistPhotoFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VkArtistPhotoToJson(this);
+}
+
+@JsonSerializable()
+class VkArtistPhotoSize {
+  final String url;
+  final int width;
+  final int height;
+
+  const VkArtistPhotoSize({
+    required this.url,
+    required this.width,
+    required this.height,
+  });
+
+  factory VkArtistPhotoSize.fromJson(Map<String, dynamic> json) =>
+      _$VkArtistPhotoSizeFromJson(json);
+
+  Map<String, dynamic> toJson() => _$VkArtistPhotoSizeToJson(this);
 }

@@ -17,12 +17,6 @@ export interface TrackSession {
   last_seen: Date;
 }
 
-export interface CompletedSession {
-  full_id: string;
-  first_observed: Date;
-  last_seen: Date;
-}
-
 // Простые валидаторы для runtime проверки
 export class DataValidator {
   static validateAudioStatus(data: unknown): data is AudioStatus {

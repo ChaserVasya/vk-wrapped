@@ -28,7 +28,10 @@ class StatisticsBloc extends EffectBloc<StatisticsEvent, StatisticsState> {
 
     try {
       final (tracks, sessions) = await _audioRepository.getAudioData();
-      final statistic = _statisticsService.createStatistics(tracks, sessions);
+      final statistic = await _statisticsService.createStatistics(
+        tracks,
+        sessions,
+      );
 
       emit(CommonStates.data(statistic));
     } catch (e, st) {

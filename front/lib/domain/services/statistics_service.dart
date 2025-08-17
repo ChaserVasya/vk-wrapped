@@ -1,4 +1,5 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
+import 'package:front/data/local/audio_storage/audio_storage.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:front/domain/entities/track_session.dart';
 import 'package:front/ui/blocs/statistics_bloc/statistics_state.dart';
@@ -6,13 +7,15 @@ import 'package:injectable/injectable.dart';
 
 @injectable
 class StatisticsService {
-  StatisticsService();
+  StatisticsService(this._audioStorage);
+
+  final AudioStorage _audioStorage;
 
   /// Создает полную статистику на основе списка треков и сессий
-  StatisticStateData createStatistics(
+  Future<StatisticStateData> createStatistics(
     IList<VkAudioTrack> tracks,
     IList<TrackSession> sessions,
-  ) {
+  ) async {
     final topArtists = _getTopArtists(tracks, sessions);
     final topTracks = _getTopTracks(tracks, sessions);
     final totalListeningTime = _getTotalListeningTime(tracks, sessions);
@@ -29,6 +32,8 @@ class StatisticsService {
     final longestTrack = _getLongestTrack(tracks, sessions);
     final shortestTrack = _getShortestTrack(tracks, sessions);
     final totalPlayCount = _getTotalPlayCount(sessions);
+    final unavailableTracksCount = await _audioStorage
+        .getUnavailableTracksCount();
 
     return StatisticStateData(
       topArtists: topArtists,
@@ -47,6 +52,7 @@ class StatisticsService {
       longestTrack: longestTrack,
       shortestTrack: shortestTrack,
       totalPlayCount: totalPlayCount,
+      unavailableTracksCount: unavailableTracksCount,
     );
   }
 

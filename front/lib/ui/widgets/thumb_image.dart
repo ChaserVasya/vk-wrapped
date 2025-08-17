@@ -8,8 +8,8 @@ class ThumbImage extends StatelessWidget {
   final BoxFit fit;
   final BorderRadius? borderRadius;
   final Widget? fallback;
-  final VkAudioTrack? track; // Добавляю трек для определения типа контента
-  final VkArtist? artist; // Добавляю артиста для отображения фотографий
+  final VkAudioTrack? track;
+  final VkArtist? artist;
 
   const ThumbImage({
     super.key,
@@ -19,8 +19,8 @@ class ThumbImage extends StatelessWidget {
     this.fit = BoxFit.cover,
     this.borderRadius,
     this.fallback,
-    this.track, // Новый параметр
-    this.artist, // Новый параметр
+    this.track,
+    this.artist,
   });
 
   @override

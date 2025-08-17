@@ -244,7 +244,7 @@ class _ViewState extends State<_View> {
     }
   }
 
-  void _showCacheClearDialog(BuildContext context) {
+  void _showCacheClearDialog(BuildContext context, SettingsBloc bloc) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -259,9 +259,7 @@ class _ViewState extends State<_View> {
           ),
           ElevatedButton(
             onPressed: () {
-              context.read<SettingsBloc>().add(
-                const SettingsEvent.clearCache(),
-              );
+              bloc.add(const SettingsEvent.clearCache());
               context.router.pop();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -339,6 +337,7 @@ class _ViewState extends State<_View> {
                                       await context.router.push(
                                         const TokenSetupRoute(),
                                       );
+                                      if (!context.mounted) return;
                                       context.read<SettingsBloc>().add(
                                         const SettingsEvent.loadCurrentData(),
                                       );
@@ -396,7 +395,10 @@ class _ViewState extends State<_View> {
                               onPressed: state is CommonStateLoading
                                   ? null
                                   : () {
-                                      _showCacheClearDialog(context);
+                                      _showCacheClearDialog(
+                                        context,
+                                        context.read<SettingsBloc>(),
+                                      );
                                     },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.orange,

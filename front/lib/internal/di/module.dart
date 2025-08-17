@@ -63,41 +63,48 @@ final _errorMappingInterceptor = InterceptorsWrapper(
   onError: (error, handler) {
     final inner = error.error;
     if (inner is AppException) {
-      throw inner;
+      handler.reject(error);
+    } else {
+      // Создаем AppException и передаем его через error поле нового DioException
+      final appException = AppException.from(error);
+      final newError = DioException(
+        requestOptions: error.requestOptions,
+        error: appException,
+        response: error.response,
+        type: error.type,
+      );
+      handler.reject(newError);
     }
-    throw AppException.from(error);
   },
 );
 
 final _vkResponseErrorInterceptor = InterceptorsWrapper(
   onResponse: (response, handler) {
-    try {
-      final baseUrl = response.requestOptions.baseUrl;
-      final isVk = baseUrl.contains('api.vk.com');
-      final data = response.data;
-      if (isVk && data is Map) {
-        final map = Map<String, dynamic>.from(data);
-        if (map.containsKey('error')) {
-          final vkError = VkErrorResponse.fromJson(map).error;
-          if (vkError.errorCode == 5) {
-            throw const VkAuthFailedException();
-          } else {
-            throw AppException(
-              vkError.errorMsg,
-              code: 'VK_${vkError.errorCode}',
-              originalError: vkError,
-            );
-          }
+    final baseUrl = response.requestOptions.baseUrl;
+    final isVk = baseUrl.contains('api.vk.com');
+    final data = response.data;
+
+    if (isVk && data is Map) {
+      final map = Map<String, dynamic>.from(data);
+      if (map.containsKey('error')) {
+        final vkError = VkErrorResponse.fromJson(map).error;
+        AppException appException;
+
+        if (vkError.errorCode == 5) {
+          appException = const VkAuthFailedException();
+        } else {
+          appException = AppException(
+            vkError.errorMsg,
+            code: 'VK_${vkError.errorCode}',
+            originalError: vkError,
+          );
         }
+
+        // Просто передаем AppException через throw
+        throw appException;
       }
-      handler.next(response);
-    } catch (e, st) {
-      handler.reject(
-        DioException(
-          requestOptions: response.requestOptions,
-          error: AppException.from(e, st: st),
-        ),
-      );
     }
+
+    handler.next(response);
   },
 );

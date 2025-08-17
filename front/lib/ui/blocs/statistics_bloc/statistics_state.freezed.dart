@@ -31,6 +31,7 @@ mixin _$StatisticStateData {
   VkAudioTrack? get longestTrack;
   VkAudioTrack? get shortestTrack;
   int get totalPlayCount;
+  int get unavailableTracksCount;
 
   /// Create a copy of StatisticStateData
   /// with the given fields replaced by the non-null parameter values.
@@ -87,7 +88,9 @@ mixin _$StatisticStateData {
             (identical(other.shortestTrack, shortestTrack) ||
                 other.shortestTrack == shortestTrack) &&
             (identical(other.totalPlayCount, totalPlayCount) ||
-                other.totalPlayCount == totalPlayCount));
+                other.totalPlayCount == totalPlayCount) &&
+            (identical(other.unavailableTracksCount, unavailableTracksCount) ||
+                other.unavailableTracksCount == unavailableTracksCount));
   }
 
   @override
@@ -109,11 +112,12 @@ mixin _$StatisticStateData {
     longestTrack,
     shortestTrack,
     totalPlayCount,
+    unavailableTracksCount,
   );
 
   @override
   String toString() {
-    return 'StatisticStateData(topArtists: $topArtists, topTracks: $topTracks, tracksWithSameTitle: $tracksWithSameTitle, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, uniqueAlbumsCount: $uniqueAlbumsCount, uniqueGenresCount: $uniqueGenresCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount)';
+    return 'StatisticStateData(topArtists: $topArtists, topTracks: $topTracks, tracksWithSameTitle: $tracksWithSameTitle, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, uniqueAlbumsCount: $uniqueAlbumsCount, uniqueGenresCount: $uniqueGenresCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount, unavailableTracksCount: $unavailableTracksCount)';
   }
 }
 
@@ -144,6 +148,7 @@ abstract mixin class $StatisticStateDataCopyWith<$Res> {
     VkAudioTrack? longestTrack,
     VkAudioTrack? shortestTrack,
     int totalPlayCount,
+    int unavailableTracksCount,
   });
 
   $VkAudioTrackCopyWith<$Res>? get longestTrack;
@@ -179,6 +184,7 @@ class _$StatisticStateDataCopyWithImpl<$Res>
     Object? longestTrack = freezed,
     Object? shortestTrack = freezed,
     Object? totalPlayCount = null,
+    Object? unavailableTracksCount = null,
   }) {
     return _then(
       _self.copyWith(
@@ -253,6 +259,10 @@ class _$StatisticStateDataCopyWithImpl<$Res>
             ? _self.totalPlayCount
             : totalPlayCount // ignore: cast_nullable_to_non_nullable
                   as int,
+        unavailableTracksCount: null == unavailableTracksCount
+            ? _self.unavailableTracksCount
+            : unavailableTracksCount // ignore: cast_nullable_to_non_nullable
+                  as int,
       ),
     );
   }
@@ -306,6 +316,7 @@ class _StatisticStateData implements StatisticStateData {
     required this.longestTrack,
     required this.shortestTrack,
     required this.totalPlayCount,
+    required this.unavailableTracksCount,
   });
 
   @override
@@ -343,6 +354,8 @@ class _StatisticStateData implements StatisticStateData {
   final VkAudioTrack? shortestTrack;
   @override
   final int totalPlayCount;
+  @override
+  final int unavailableTracksCount;
 
   /// Create a copy of StatisticStateData
   /// with the given fields replaced by the non-null parameter values.
@@ -397,7 +410,9 @@ class _StatisticStateData implements StatisticStateData {
             (identical(other.shortestTrack, shortestTrack) ||
                 other.shortestTrack == shortestTrack) &&
             (identical(other.totalPlayCount, totalPlayCount) ||
-                other.totalPlayCount == totalPlayCount));
+                other.totalPlayCount == totalPlayCount) &&
+            (identical(other.unavailableTracksCount, unavailableTracksCount) ||
+                other.unavailableTracksCount == unavailableTracksCount));
   }
 
   @override
@@ -419,11 +434,12 @@ class _StatisticStateData implements StatisticStateData {
     longestTrack,
     shortestTrack,
     totalPlayCount,
+    unavailableTracksCount,
   );
 
   @override
   String toString() {
-    return 'StatisticStateData(topArtists: $topArtists, topTracks: $topTracks, tracksWithSameTitle: $tracksWithSameTitle, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, uniqueAlbumsCount: $uniqueAlbumsCount, uniqueGenresCount: $uniqueGenresCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount)';
+    return 'StatisticStateData(topArtists: $topArtists, topTracks: $topTracks, tracksWithSameTitle: $tracksWithSameTitle, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, uniqueAlbumsCount: $uniqueAlbumsCount, uniqueGenresCount: $uniqueGenresCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount, unavailableTracksCount: $unavailableTracksCount)';
   }
 }
 
@@ -456,6 +472,7 @@ abstract mixin class _$StatisticStateDataCopyWith<$Res>
     VkAudioTrack? longestTrack,
     VkAudioTrack? shortestTrack,
     int totalPlayCount,
+    int unavailableTracksCount,
   });
 
   @override
@@ -493,6 +510,7 @@ class __$StatisticStateDataCopyWithImpl<$Res>
     Object? longestTrack = freezed,
     Object? shortestTrack = freezed,
     Object? totalPlayCount = null,
+    Object? unavailableTracksCount = null,
   }) {
     return _then(
       _StatisticStateData(
@@ -566,6 +584,10 @@ class __$StatisticStateDataCopyWithImpl<$Res>
         totalPlayCount: null == totalPlayCount
             ? _self.totalPlayCount
             : totalPlayCount // ignore: cast_nullable_to_non_nullable
+                  as int,
+        unavailableTracksCount: null == unavailableTracksCount
+            ? _self.unavailableTracksCount
+            : unavailableTracksCount // ignore: cast_nullable_to_non_nullable
                   as int,
       ),
     );

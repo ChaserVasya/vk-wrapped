@@ -64,7 +64,7 @@ class ErrorStateWidget extends StatelessWidget {
             ] else ...[
               if (onRefresh != null)
                 ElevatedButton(
-                  onPressed: onRefresh,
+                  onPressed: () => onRefresh?.call(),
                   child: const Text('Повторить'),
                 ),
               const Gap(16),

@@ -27,5 +27,6 @@ abstract class StatisticStateData with _$StatisticStateData {
     required VkAudioTrack? longestTrack,
     required VkAudioTrack? shortestTrack,
     required int totalPlayCount,
+    required int unavailableTracksCount,
   }) = _StatisticStateData;
 }

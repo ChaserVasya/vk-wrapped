@@ -6,36 +6,53 @@ import 'package:gap/gap.dart';
 class ArtistCard extends StatelessWidget {
   final VkArtist artist;
   final int? playCount;
+  final VoidCallback? onTap;
 
-  const ArtistCard({super.key, required this.artist, this.playCount});
+  const ArtistCard({
+    super.key,
+    required this.artist,
+    this.playCount,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildArtistAvatar(),
-            const Gap(8),
-            Text(
-              artist.name,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            if (playCount != null) ...[
-              const Gap(4),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildArtistAvatar(),
+              const Gap(8),
               Text(
-                'Песен: $playCount',
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                _getArtistName(),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
+              if (playCount != null) ...[
+                const Gap(4),
+                Text(
+                  'Песен: $playCount',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
+  }
+
+  String _getArtistName() {
+    return artist.name;
   }
 
   Widget _buildArtistAvatar() {

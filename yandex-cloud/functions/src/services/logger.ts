@@ -76,7 +76,8 @@ export class LoggerService {
   }
 
   static logErrorDetails(error: unknown, context: string): void {
-    console.error(`[ERROR] ${context}: errorType=${(error as any)?.constructor?.name}, errorMessage=${error instanceof Error ? error.message : 'Unknown'}, fullError=${LoggerService.formatError(error)}`);
+    const errorType = error && typeof error === 'object' && 'constructor' in error && error.constructor?.name ? error.constructor.name : 'Unknown';
+    console.error(`[ERROR] ${context}: errorType=${errorType}, errorMessage=${error instanceof Error ? error.message : 'Unknown'}, fullError=${LoggerService.formatError(error)}`);
   }
 
   private static formatError(error: unknown): string {
