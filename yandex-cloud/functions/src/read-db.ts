@@ -38,13 +38,22 @@ export async function handler(): Promise<SuccessResponse | ErrorResponse> {
         // Читаем завершенные сессии
         const completedSessions = await databaseService.getCompletedSessions();
 
-        // Конвертируем в camelCase
-        const convertedSessions = completedSessions.map(convertToCamelCase);
+        // Читаем текущие активные сессии (обычно только одна)
+        const currentSessions = await databaseService.getAllCurrentSessions(1); // Берем только самую последнюю
+
+        // Конвертируем завершенные сессии в camelCase
+        const convertedCompletedSessions = completedSessions.map(convertToCamelCase);
+
+        // Конвертируем текущие активные сессии в camelCase и добавляем к завершенным
+        const convertedCurrentSessions = currentSessions.map(convertToCamelCase);
+
+        // Объединяем все сессии в один массив
+        const allSessions = [...convertedCompletedSessions, ...convertedCurrentSessions];
 
         // Закрываем соединение
         await databaseService.close();
 
-        return createSuccessResponse(convertedSessions);
+        return createSuccessResponse(allSessions);
     } catch (error) {
         LoggerService.logErrorDetails(error, 'Read Handler');
         return createErrorResponse(error);

@@ -4,6 +4,7 @@ import 'package:front/data/remote/api/track_sessions_client.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:front/data/remote/services/vk_service.dart';
 import 'package:front/domain/entities/track_session.dart';
+import 'package:front/domain/exceptions/app_exception.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
@@ -21,16 +22,78 @@ class AudioRepository {
 
     final localTrackFullIds = localTracks.map((track) => track.fullId).toSet();
 
-    final missingIds = sessions
-        .map((s) => s.fullId)
-        .where((fullId) => !localTrackFullIds.contains(fullId))
-        .toList();
+    // Фильтруем недоступные треки из missingIds
+    final missingIds = <String>[];
+    for (final session in sessions) {
+      final fullId = session.fullId;
+      if (!localTrackFullIds.contains(fullId)) {
+        // Проверяем, не помечен ли трек как недоступный
+        final parts = fullId.split('_');
+        if (parts.length == 2) {
+          final id = int.tryParse(parts[0]);
+          final ownerId = int.tryParse(parts[1]);
+
+          if (id != null && ownerId != null) {
+            final isUnavailable = await _trackStorage.isTrackUnavailable(
+              id,
+              ownerId,
+            );
+            if (isUnavailable) {
+              print('[INFO] Skipping unavailable track in repository: $fullId');
+              continue;
+            }
+          }
+        }
+        missingIds.add(fullId);
+      }
+    }
 
     IList<VkAudioTrack> tracks;
     if (missingIds.isNotEmpty) {
-      final missingTracks = await _vkApiService.getAudioById(missingIds);
-      await _trackStorage.updateTracks(missingTracks);
-      tracks = localTracks.addAll(missingTracks);
+      VkAudioResult? result;
+      try {
+        result = await _vkApiService.getAudioById(missingIds.toIList());
+
+        // Сохраняем частично загруженные треки
+        final missingTracks = result.tracks;
+        await _trackStorage.updateTracks(missingTracks);
+
+        // Если есть ошибки при загрузке, пробрасываем их после сохранения данных
+        if (result.hasErrors) {
+          throw AppException(
+            result.errorMessage ?? 'Ошибка при загрузке треков',
+            code: 'VK_LOAD_ERROR',
+          );
+        }
+
+        tracks = localTracks.addAll(missingTracks);
+      } catch (e) {
+        // Проверяем, является ли ошибка сигналом о том, что аудио недоступно
+        if (result != null) {
+          // Помечаем только те треки, которые действительно недоступны
+          for (final error in result.errors) {
+            if (error is VkAudioUnavailableException) {
+              final audioId = error.message
+                  .split(': ')
+                  .last; // Извлекаем ID из сообщения
+              final parts = audioId.split('_');
+              if (parts.length == 2) {
+                final id = int.tryParse(parts[0]);
+                final ownerId = int.tryParse(parts[1]);
+
+                if (id != null && ownerId != null) {
+                  await _trackStorage.markTrackAsUnavailable(
+                    id,
+                    ownerId,
+                    audioId,
+                  );
+                }
+              }
+            }
+          }
+        }
+        tracks = localTracks;
+      }
 
       // Проверяем целостность данных после загрузки
       final allTrackIds = tracks.map((track) => track.fullId).toSet();
@@ -103,6 +166,66 @@ class AudioRepository {
         .toIList();
 
     return artists;
+  }
+
+  /// Получает информацию об артисте по его ID из VK API
+  Future<VkArtistInfo> getArtistInfoById(String artistId) async {
+    return await _vkApiService.getArtistById(artistId);
+  }
+
+  /// Получает артистов с заполненными фотографиями из VK API
+  Future<IList<VkArtist>> getArtistsWithPhotos() async {
+    final tracks = await getListenedAudio();
+    final artistIds = <String>{};
+
+    // Собираем уникальные ID артистов из mainArtists
+    for (final track in tracks) {
+      if (track.mainArtists != null) {
+        for (final artist in track.mainArtists!) {
+          artistIds.add(artist.id);
+        }
+      }
+    }
+
+    // Получаем информацию об артистах из VK API и создаем VkArtist с фотографиями
+    final artistsWithPhotos = <VkArtist>[];
+    for (final artistId in artistIds) {
+      try {
+        final artistInfo = await getArtistInfoById(artistId);
+
+        // Извлекаем URL лучшего фото
+        String? photoUrl;
+        if (artistInfo.photos != null && artistInfo.photos!.isNotEmpty) {
+          final cropPhoto = artistInfo.photos!.firstWhere(
+            (photo) => photo.type == 'crop',
+            orElse: () => artistInfo.photos!.first,
+          );
+
+          if (cropPhoto.photo.isNotEmpty) {
+            // Выбираем лучшее качество фото
+            final bestPhoto = cropPhoto.photo.reduce(
+              (a, b) => a.width > b.width ? a : b,
+            );
+            photoUrl = bestPhoto.url;
+          }
+        }
+
+        // Создаем VkArtist с фотографией
+        final artist = VkArtist(
+          id: artistInfo.id.hashCode,
+          name: artistInfo.name,
+          domain: artistInfo.domain,
+          photo: photoUrl,
+        );
+
+        artistsWithPhotos.add(artist);
+      } catch (e, _) {
+        // Логируем ошибку, но продолжаем загрузку других артистов
+        print('[WARNING] Failed to load artist info for $artistId: $e');
+      }
+    }
+
+    return artistsWithPhotos.toIList();
   }
 
   /// Получает артистов с количеством их песен

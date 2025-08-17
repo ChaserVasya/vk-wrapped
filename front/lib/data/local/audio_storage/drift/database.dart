@@ -67,13 +67,43 @@ class AlbumThumbs extends Table {
   Set<Column> get primaryKey => {albumId, albumOwnerId, thumbId};
 }
 
+class UnavailableTracks extends Table {
+  IntColumn get id => integer()();
+  IntColumn get ownerId => integer()();
+  TextColumn get fullId => text()();
+
+  @override
+  Set<Column> get primaryKey => {id, ownerId};
+}
+
 @DriftDatabase(
-  tables: [AudioTracks, Albums, Thumbs, MainArtists, TrackAlbums, AlbumThumbs],
+  tables: [
+    AudioTracks,
+    Albums,
+    Thumbs,
+    MainArtists,
+    TrackAlbums,
+    AlbumThumbs,
+    UnavailableTracks,
+  ],
 )
 @lazySingleton
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (Migrator m) async {
+      await m.createAll();
+    },
+    onUpgrade: (Migrator m, int from, int to) async {
+      if (from < 2) {
+        // Создаем таблицу UnavailableTracks при обновлении с версии 1 до 2
+        await m.createTable(unavailableTracks);
+      }
+    },
+  );
 }

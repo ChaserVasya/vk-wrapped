@@ -159,6 +159,12 @@ class _OverviewPage extends StatelessWidget {
             value: _formatDuration(data.averageTrackDuration),
             icon: Icons.timer,
           ),
+          const SizedBox(height: 16),
+          _StatCard(
+            title: 'Удалённых треков',
+            value: '${data.unavailableTracksCount}',
+            icon: Icons.error_outline,
+          ),
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 
 /// Базовый класс для исключений приложения
 class AppException implements Exception {
@@ -17,6 +18,11 @@ class AppException implements Exception {
   /// Создает AppException из любого объекта с автоматическим определением типа
   factory AppException.from(Object error, {StackTrace? st}) {
     if (error is AppException) return error;
+
+    // Если это DioException, проверяем error поле
+    if (error is DioException && error.error is AppException) {
+      return error.error as AppException;
+    }
 
     final message = error.toString();
     return AppException(
@@ -77,4 +83,10 @@ class NoTokenException extends AppException {
 class VkAuthFailedException extends AppException {
   const VkAuthFailedException()
     : super('Токен истёк или не одобрен', code: 'VK_AUTH_FAILED');
+}
+
+/// Исключение для недоступных аудио
+class VkAudioUnavailableException extends AppException {
+  const VkAudioUnavailableException(String audioId)
+    : super('Аудио недоступно: $audioId', code: 'VK_AUDIO_UNAVAILABLE');
 }

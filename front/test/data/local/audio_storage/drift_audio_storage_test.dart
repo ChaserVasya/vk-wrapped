@@ -295,5 +295,112 @@ void main() {
       final tracksAfter = await storage.getTracks();
       expect(tracksAfter.length, equals(0));
     });
+
+    group('Unavailable tracks functionality', () {
+      test('Should mark track as unavailable', () async {
+        // Изначально трек не должен быть недоступным
+        final isUnavailable = await storage.isTrackUnavailable(123, 456);
+        expect(isUnavailable, isFalse);
+
+        // Помечаем трек как недоступный
+        await storage.markTrackAsUnavailable(123, 456, '123_456');
+
+        // Проверяем что трек стал недоступным
+        final isUnavailableAfter = await storage.isTrackUnavailable(123, 456);
+        expect(isUnavailableAfter, isTrue);
+      });
+
+      test('Should not duplicate unavailable track', () async {
+        // Помечаем трек как недоступный первый раз
+        await storage.markTrackAsUnavailable(123, 456, '123_456');
+
+        // Помечаем тот же трек как недоступный второй раз
+        await storage.markTrackAsUnavailable(123, 456, '123_456');
+
+        // Получаем список недоступных треков
+        final unavailableTracks = await storage.getUnavailableTracks();
+        expect(unavailableTracks.length, equals(1));
+
+        final track = unavailableTracks.first;
+        expect(track.id, equals(123));
+        expect(track.ownerId, equals(456));
+        expect(track.fullId, equals('123_456'));
+      });
+
+      test('Should get correct count of unavailable tracks', () async {
+        // Изначально должно быть 0 недоступных треков
+        final initialCount = await storage.getUnavailableTracksCount();
+        expect(initialCount, equals(0));
+
+        // Добавляем несколько недоступных треков
+        await storage.markTrackAsUnavailable(123, 456, '123_456');
+        await storage.markTrackAsUnavailable(789, 101, '789_101');
+        await storage.markTrackAsUnavailable(202, 303, '202_303');
+
+        // Проверяем количество
+        final finalCount = await storage.getUnavailableTracksCount();
+        expect(finalCount, equals(3));
+      });
+
+      test('Should get list of unavailable tracks', () async {
+        // Добавляем недоступные треки
+        await storage.markTrackAsUnavailable(123, 456, '123_456');
+        await storage.markTrackAsUnavailable(789, 101, '789_101');
+
+        // Получаем список
+        final unavailableTracks = await storage.getUnavailableTracks();
+        expect(unavailableTracks.length, equals(2));
+
+        // Проверяем первый трек
+        final firstTrack = unavailableTracks.firstWhere((t) => t.id == 123);
+        expect(firstTrack.ownerId, equals(456));
+        expect(firstTrack.fullId, equals('123_456'));
+
+        // Проверяем второй трек
+        final secondTrack = unavailableTracks.firstWhere((t) => t.id == 789);
+        expect(secondTrack.ownerId, equals(101));
+        expect(secondTrack.fullId, equals('789_101'));
+      });
+
+      test('Should clear unavailable tracks', () async {
+        // Добавляем недоступные треки
+        await storage.markTrackAsUnavailable(123, 456, '123_456');
+        await storage.markTrackAsUnavailable(789, 101, '789_101');
+
+        // Проверяем что они есть
+        final countBefore = await storage.getUnavailableTracksCount();
+        expect(countBefore, equals(2));
+
+        // Очищаем список
+        await storage.clearUnavailableTracks();
+
+        // Проверяем что список пуст
+        final countAfter = await storage.getUnavailableTracksCount();
+        expect(countAfter, equals(0));
+
+        // Проверяем что конкретный трек больше не недоступен
+        final isUnavailable = await storage.isTrackUnavailable(123, 456);
+        expect(isUnavailable, isFalse);
+      });
+
+      test(
+        'Should handle different tracks with same ID but different owner',
+        () async {
+          // Добавляем треки с одинаковым ID но разными владельцами
+          await storage.markTrackAsUnavailable(123, 456, '123_456');
+          await storage.markTrackAsUnavailable(123, 789, '123_789');
+
+          // Проверяем что оба трека недоступны
+          final isUnavailable1 = await storage.isTrackUnavailable(123, 456);
+          final isUnavailable2 = await storage.isTrackUnavailable(123, 789);
+          expect(isUnavailable1, isTrue);
+          expect(isUnavailable2, isTrue);
+
+          // Проверяем общее количество
+          final count = await storage.getUnavailableTracksCount();
+          expect(count, equals(2));
+        },
+      );
+    });
   });
 }

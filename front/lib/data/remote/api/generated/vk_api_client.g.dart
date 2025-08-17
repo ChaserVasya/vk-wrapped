@@ -8,14 +8,42 @@ part of '../vk_api_client.dart';
 
 VkAudioResponse _$VkAudioResponseFromJson(Map<String, dynamic> json) =>
     VkAudioResponse(
-      response: IList<VkAudioTrack>.fromJson(
-        json['response'],
-        (value) => VkAudioTrack.fromJson(value as Map<String, dynamic>),
-      ),
+      response: json['response'] == null
+          ? null
+          : IList<VkAudioTrack>.fromJson(
+              json['response'],
+              (value) => VkAudioTrack.fromJson(value as Map<String, dynamic>),
+            ),
+      error: json['error'] == null
+          ? null
+          : VkError.fromJson(json['error'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$VkAudioResponseToJson(VkAudioResponse instance) =>
-    <String, dynamic>{'response': instance.response.toJson((value) => value)};
+    <String, dynamic>{
+      'response': instance.response?.toJson((value) => value),
+      'error': instance.error,
+    };
+
+VkError _$VkErrorFromJson(Map<String, dynamic> json) => VkError(
+  errorCode: (json['error_code'] as num).toInt(),
+  errorMsg: json['error_msg'] as String,
+  requestParams: (json['request_params'] as List<dynamic>?)
+      ?.map((e) => VkRequestParam.fromJson(e as Map<String, dynamic>))
+      .toList(),
+);
+
+Map<String, dynamic> _$VkErrorToJson(VkError instance) => <String, dynamic>{
+  'error_code': instance.errorCode,
+  'error_msg': instance.errorMsg,
+  'request_params': instance.requestParams,
+};
+
+VkRequestParam _$VkRequestParamFromJson(Map<String, dynamic> json) =>
+    VkRequestParam(key: json['key'] as String, value: json['value'] as String);
+
+Map<String, dynamic> _$VkRequestParamToJson(VkRequestParam instance) =>
+    <String, dynamic>{'key': instance.key, 'value': instance.value};
 
 VkAudioTrack _$VkAudioTrackFromJson(Map<String, dynamic> json) => VkAudioTrack(
   id: (json['id'] as num).toInt(),
@@ -115,26 +143,6 @@ Map<String, dynamic> _$VkArtistToJson(VkArtist instance) => <String, dynamic>{
   'photo': instance.photo,
 };
 
-VkError _$VkErrorFromJson(Map<String, dynamic> json) => VkError(
-  errorCode: (json['error_code'] as num).toInt(),
-  errorMsg: json['error_msg'] as String,
-  requestParams: (json['request_params'] as List<dynamic>?)
-      ?.map((e) => VkRequestParam.fromJson(e as Map<String, dynamic>))
-      .toList(),
-);
-
-Map<String, dynamic> _$VkErrorToJson(VkError instance) => <String, dynamic>{
-  'error_code': instance.errorCode,
-  'error_msg': instance.errorMsg,
-  'request_params': instance.requestParams,
-};
-
-VkRequestParam _$VkRequestParamFromJson(Map<String, dynamic> json) =>
-    VkRequestParam(key: json['key'] as String, value: json['value'] as String);
-
-Map<String, dynamic> _$VkRequestParamToJson(VkRequestParam instance) =>
-    <String, dynamic>{'key': instance.key, 'value': instance.value};
-
 VkErrorResponse _$VkErrorResponseFromJson(Map<String, dynamic> json) =>
     VkErrorResponse(
       error: VkError.fromJson(json['error'] as Map<String, dynamic>),
@@ -142,6 +150,56 @@ VkErrorResponse _$VkErrorResponseFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$VkErrorResponseToJson(VkErrorResponse instance) =>
     <String, dynamic>{'error': instance.error};
+
+VkArtistResponse _$VkArtistResponseFromJson(Map<String, dynamic> json) =>
+    VkArtistResponse(
+      response: VkArtistInfo.fromJson(json['response'] as Map<String, dynamic>),
+    );
+
+Map<String, dynamic> _$VkArtistResponseToJson(VkArtistResponse instance) =>
+    <String, dynamic>{'response': instance.response};
+
+VkArtistInfo _$VkArtistInfoFromJson(Map<String, dynamic> json) => VkArtistInfo(
+  name: json['name'] as String,
+  domain: json['domain'] as String?,
+  id: json['id'] as String,
+  photos: (json['photos'] as List<dynamic>?)
+      ?.map((e) => VkArtistPhoto.fromJson(e as Map<String, dynamic>))
+      .toList(),
+);
+
+Map<String, dynamic> _$VkArtistInfoToJson(VkArtistInfo instance) =>
+    <String, dynamic>{
+      'name': instance.name,
+      'domain': instance.domain,
+      'id': instance.id,
+      'photos': instance.photos,
+    };
+
+VkArtistPhoto _$VkArtistPhotoFromJson(Map<String, dynamic> json) =>
+    VkArtistPhoto(
+      type: json['type'] as String,
+      photo: (json['photo'] as List<dynamic>)
+          .map((e) => VkArtistPhotoSize.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+
+Map<String, dynamic> _$VkArtistPhotoToJson(VkArtistPhoto instance) =>
+    <String, dynamic>{'type': instance.type, 'photo': instance.photo};
+
+VkArtistPhotoSize _$VkArtistPhotoSizeFromJson(Map<String, dynamic> json) =>
+    VkArtistPhotoSize(
+      url: json['url'] as String,
+      width: (json['width'] as num).toInt(),
+      height: (json['height'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$VkArtistPhotoSizeToJson(VkArtistPhotoSize instance) =>
+    <String, dynamic>{
+      'url': instance.url,
+      'width': instance.width,
+      'height': instance.height,
+    };
 
 // **************************************************************************
 // RetrofitGenerator
@@ -188,6 +246,41 @@ class _VkApiClient implements VkApiClient {
     late VkAudioResponse _value;
     try {
       _value = VkAudioResponse.fromJson(_result.data!);
+    } on Object catch (e, s) {
+      errorLogger?.logError(e, s, _options);
+      rethrow;
+    }
+    return _value;
+  }
+
+  @override
+  Future<VkArtistResponse> getArtistById({
+    required String artistId,
+    required String accessToken,
+    String version = '5.131',
+  }) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'artist_id': artistId,
+      r'access_token': accessToken,
+      r'v': version,
+    };
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<VkArtistResponse>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/audio.getArtistById',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late VkArtistResponse _value;
+    try {
+      _value = VkArtistResponse.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

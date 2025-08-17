@@ -17,7 +17,6 @@ class IntroScreen extends StatefulWidget {
 
 class _IntroScreenState extends State<IntroScreen> {
   bool _isImageFocused = false;
-  bool _isDisclaimerFocused = false;
 
   AssetGenImage get _todayMeme {
     final today = DateTime.now();
@@ -192,39 +191,6 @@ class _IntroScreenState extends State<IntroScreen> {
           },
         ),
       ),
-    );
-  }
-
-  Widget _buildShimmerDisclaimer() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          color: Colors.white,
-        ),
-        child: const Text(
-          'Когда-нибудь!',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildClearDisclaimer() {
-    return Text(
-      '...Когда-нибудь...',
-      style: Theme.of(
-        context,
-      ).textTheme.titleMedium?.copyWith(color: Colors.orange),
-      textAlign: TextAlign.center,
     );
   }
 

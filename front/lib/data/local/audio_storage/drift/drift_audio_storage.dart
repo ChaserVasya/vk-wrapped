@@ -229,4 +229,63 @@ class DriftAudioStorage implements AudioStorage {
       await _database.delete(_database.albumThumbs).go();
     });
   }
+
+  @override
+  /// Проверяет, является ли трек недоступным
+  Future<bool> isTrackUnavailable(int id, int ownerId) async {
+    final unavailable =
+        await (_database.select(_database.unavailableTracks)
+              ..where((t) => t.id.equals(id) & t.ownerId.equals(ownerId)))
+            .getSingleOrNull();
+    return unavailable != null;
+  }
+
+  @override
+  /// Добавляет трек в список недоступных
+  Future<void> markTrackAsUnavailable(
+    int id,
+    int ownerId,
+    String fullId,
+  ) async {
+    final existing =
+        await (_database.select(_database.unavailableTracks)
+              ..where((t) => t.id.equals(id) & t.ownerId.equals(ownerId)))
+            .getSingleOrNull();
+
+    if (existing == null) {
+      // Создаем новую запись только если её еще нет
+      await _database
+          .into(_database.unavailableTracks)
+          .insert(
+            UnavailableTracksCompanion.insert(
+              id: id,
+              ownerId: ownerId,
+              fullId: fullId,
+            ),
+          );
+    }
+  }
+
+  @override
+  /// Получает количество недоступных треков
+  Future<int> getUnavailableTracksCount() async {
+    final result = _database.selectOnly(_database.unavailableTracks)
+      ..addColumns([_database.unavailableTracks.id.count()]);
+
+    final count = await result.getSingle();
+    return count.read(_database.unavailableTracks.id.count()) ?? 0;
+  }
+
+  @override
+  /// Получает список недоступных треков
+  Future<IList<UnavailableTrack>> getUnavailableTracks() async {
+    final tracks = await _database.select(_database.unavailableTracks).get();
+    return tracks.toIList();
+  }
+
+  @override
+  /// Очищает список недоступных треков
+  Future<void> clearUnavailableTracks() async {
+    await _database.delete(_database.unavailableTracks).go();
+  }
 }
