@@ -2633,6 +2633,430 @@ class UnavailableTracksCompanion extends UpdateCompanion<UnavailableTrack> {
   }
 }
 
+class $CachedArtistsTable extends CachedArtists
+    with TableInfo<$CachedArtistsTable, CachedArtist> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedArtistsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _artistIdMeta = const VerificationMeta(
+    'artistId',
+  );
+  @override
+  late final GeneratedColumn<String> artistId = GeneratedColumn<String>(
+    'artist_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _domainMeta = const VerificationMeta('domain');
+  @override
+  late final GeneratedColumn<String> domain = GeneratedColumn<String>(
+    'domain',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _photoUrlMeta = const VerificationMeta(
+    'photoUrl',
+  );
+  @override
+  late final GeneratedColumn<String> photoUrl = GeneratedColumn<String>(
+    'photo_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastUpdatedMeta = const VerificationMeta(
+    'lastUpdated',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastUpdated = GeneratedColumn<DateTime>(
+    'last_updated',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _photoCheckedMeta = const VerificationMeta(
+    'photoChecked',
+  );
+  @override
+  late final GeneratedColumn<bool> photoChecked = GeneratedColumn<bool>(
+    'photo_checked',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("photo_checked" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    artistId,
+    name,
+    domain,
+    photoUrl,
+    lastUpdated,
+    photoChecked,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_artists';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CachedArtist> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('artist_id')) {
+      context.handle(
+        _artistIdMeta,
+        artistId.isAcceptableOrUnknown(data['artist_id']!, _artistIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_artistIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('domain')) {
+      context.handle(
+        _domainMeta,
+        domain.isAcceptableOrUnknown(data['domain']!, _domainMeta),
+      );
+    }
+    if (data.containsKey('photo_url')) {
+      context.handle(
+        _photoUrlMeta,
+        photoUrl.isAcceptableOrUnknown(data['photo_url']!, _photoUrlMeta),
+      );
+    }
+    if (data.containsKey('last_updated')) {
+      context.handle(
+        _lastUpdatedMeta,
+        lastUpdated.isAcceptableOrUnknown(
+          data['last_updated']!,
+          _lastUpdatedMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_lastUpdatedMeta);
+    }
+    if (data.containsKey('photo_checked')) {
+      context.handle(
+        _photoCheckedMeta,
+        photoChecked.isAcceptableOrUnknown(
+          data['photo_checked']!,
+          _photoCheckedMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {artistId};
+  @override
+  CachedArtist map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedArtist(
+      artistId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}artist_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      domain: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}domain'],
+      ),
+      photoUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}photo_url'],
+      ),
+      lastUpdated: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_updated'],
+      )!,
+      photoChecked: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}photo_checked'],
+      )!,
+    );
+  }
+
+  @override
+  $CachedArtistsTable createAlias(String alias) {
+    return $CachedArtistsTable(attachedDatabase, alias);
+  }
+}
+
+class CachedArtist extends DataClass implements Insertable<CachedArtist> {
+  final String artistId;
+  final String name;
+  final String? domain;
+  final String? photoUrl;
+  final DateTime lastUpdated;
+  final bool photoChecked;
+  const CachedArtist({
+    required this.artistId,
+    required this.name,
+    this.domain,
+    this.photoUrl,
+    required this.lastUpdated,
+    required this.photoChecked,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['artist_id'] = Variable<String>(artistId);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || domain != null) {
+      map['domain'] = Variable<String>(domain);
+    }
+    if (!nullToAbsent || photoUrl != null) {
+      map['photo_url'] = Variable<String>(photoUrl);
+    }
+    map['last_updated'] = Variable<DateTime>(lastUpdated);
+    map['photo_checked'] = Variable<bool>(photoChecked);
+    return map;
+  }
+
+  CachedArtistsCompanion toCompanion(bool nullToAbsent) {
+    return CachedArtistsCompanion(
+      artistId: Value(artistId),
+      name: Value(name),
+      domain: domain == null && nullToAbsent
+          ? const Value.absent()
+          : Value(domain),
+      photoUrl: photoUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(photoUrl),
+      lastUpdated: Value(lastUpdated),
+      photoChecked: Value(photoChecked),
+    );
+  }
+
+  factory CachedArtist.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedArtist(
+      artistId: serializer.fromJson<String>(json['artistId']),
+      name: serializer.fromJson<String>(json['name']),
+      domain: serializer.fromJson<String?>(json['domain']),
+      photoUrl: serializer.fromJson<String?>(json['photoUrl']),
+      lastUpdated: serializer.fromJson<DateTime>(json['lastUpdated']),
+      photoChecked: serializer.fromJson<bool>(json['photoChecked']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'artistId': serializer.toJson<String>(artistId),
+      'name': serializer.toJson<String>(name),
+      'domain': serializer.toJson<String?>(domain),
+      'photoUrl': serializer.toJson<String?>(photoUrl),
+      'lastUpdated': serializer.toJson<DateTime>(lastUpdated),
+      'photoChecked': serializer.toJson<bool>(photoChecked),
+    };
+  }
+
+  CachedArtist copyWith({
+    String? artistId,
+    String? name,
+    Value<String?> domain = const Value.absent(),
+    Value<String?> photoUrl = const Value.absent(),
+    DateTime? lastUpdated,
+    bool? photoChecked,
+  }) => CachedArtist(
+    artistId: artistId ?? this.artistId,
+    name: name ?? this.name,
+    domain: domain.present ? domain.value : this.domain,
+    photoUrl: photoUrl.present ? photoUrl.value : this.photoUrl,
+    lastUpdated: lastUpdated ?? this.lastUpdated,
+    photoChecked: photoChecked ?? this.photoChecked,
+  );
+  CachedArtist copyWithCompanion(CachedArtistsCompanion data) {
+    return CachedArtist(
+      artistId: data.artistId.present ? data.artistId.value : this.artistId,
+      name: data.name.present ? data.name.value : this.name,
+      domain: data.domain.present ? data.domain.value : this.domain,
+      photoUrl: data.photoUrl.present ? data.photoUrl.value : this.photoUrl,
+      lastUpdated: data.lastUpdated.present
+          ? data.lastUpdated.value
+          : this.lastUpdated,
+      photoChecked: data.photoChecked.present
+          ? data.photoChecked.value
+          : this.photoChecked,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedArtist(')
+          ..write('artistId: $artistId, ')
+          ..write('name: $name, ')
+          ..write('domain: $domain, ')
+          ..write('photoUrl: $photoUrl, ')
+          ..write('lastUpdated: $lastUpdated, ')
+          ..write('photoChecked: $photoChecked')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(artistId, name, domain, photoUrl, lastUpdated, photoChecked);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedArtist &&
+          other.artistId == this.artistId &&
+          other.name == this.name &&
+          other.domain == this.domain &&
+          other.photoUrl == this.photoUrl &&
+          other.lastUpdated == this.lastUpdated &&
+          other.photoChecked == this.photoChecked);
+}
+
+class CachedArtistsCompanion extends UpdateCompanion<CachedArtist> {
+  final Value<String> artistId;
+  final Value<String> name;
+  final Value<String?> domain;
+  final Value<String?> photoUrl;
+  final Value<DateTime> lastUpdated;
+  final Value<bool> photoChecked;
+  final Value<int> rowid;
+  const CachedArtistsCompanion({
+    this.artistId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.domain = const Value.absent(),
+    this.photoUrl = const Value.absent(),
+    this.lastUpdated = const Value.absent(),
+    this.photoChecked = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedArtistsCompanion.insert({
+    required String artistId,
+    required String name,
+    this.domain = const Value.absent(),
+    this.photoUrl = const Value.absent(),
+    required DateTime lastUpdated,
+    this.photoChecked = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : artistId = Value(artistId),
+       name = Value(name),
+       lastUpdated = Value(lastUpdated);
+  static Insertable<CachedArtist> custom({
+    Expression<String>? artistId,
+    Expression<String>? name,
+    Expression<String>? domain,
+    Expression<String>? photoUrl,
+    Expression<DateTime>? lastUpdated,
+    Expression<bool>? photoChecked,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (artistId != null) 'artist_id': artistId,
+      if (name != null) 'name': name,
+      if (domain != null) 'domain': domain,
+      if (photoUrl != null) 'photo_url': photoUrl,
+      if (lastUpdated != null) 'last_updated': lastUpdated,
+      if (photoChecked != null) 'photo_checked': photoChecked,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedArtistsCompanion copyWith({
+    Value<String>? artistId,
+    Value<String>? name,
+    Value<String?>? domain,
+    Value<String?>? photoUrl,
+    Value<DateTime>? lastUpdated,
+    Value<bool>? photoChecked,
+    Value<int>? rowid,
+  }) {
+    return CachedArtistsCompanion(
+      artistId: artistId ?? this.artistId,
+      name: name ?? this.name,
+      domain: domain ?? this.domain,
+      photoUrl: photoUrl ?? this.photoUrl,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+      photoChecked: photoChecked ?? this.photoChecked,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (artistId.present) {
+      map['artist_id'] = Variable<String>(artistId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (domain.present) {
+      map['domain'] = Variable<String>(domain.value);
+    }
+    if (photoUrl.present) {
+      map['photo_url'] = Variable<String>(photoUrl.value);
+    }
+    if (lastUpdated.present) {
+      map['last_updated'] = Variable<DateTime>(lastUpdated.value);
+    }
+    if (photoChecked.present) {
+      map['photo_checked'] = Variable<bool>(photoChecked.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedArtistsCompanion(')
+          ..write('artistId: $artistId, ')
+          ..write('name: $name, ')
+          ..write('domain: $domain, ')
+          ..write('photoUrl: $photoUrl, ')
+          ..write('lastUpdated: $lastUpdated, ')
+          ..write('photoChecked: $photoChecked, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2644,6 +3068,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AlbumThumbsTable albumThumbs = $AlbumThumbsTable(this);
   late final $UnavailableTracksTable unavailableTracks =
       $UnavailableTracksTable(this);
+  late final $CachedArtistsTable cachedArtists = $CachedArtistsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2656,6 +3081,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     trackAlbums,
     albumThumbs,
     unavailableTracks,
+    cachedArtists,
   ];
 }
 
@@ -4094,6 +4520,229 @@ typedef $$UnavailableTracksTableProcessedTableManager =
       UnavailableTrack,
       PrefetchHooks Function()
     >;
+typedef $$CachedArtistsTableCreateCompanionBuilder =
+    CachedArtistsCompanion Function({
+      required String artistId,
+      required String name,
+      Value<String?> domain,
+      Value<String?> photoUrl,
+      required DateTime lastUpdated,
+      Value<bool> photoChecked,
+      Value<int> rowid,
+    });
+typedef $$CachedArtistsTableUpdateCompanionBuilder =
+    CachedArtistsCompanion Function({
+      Value<String> artistId,
+      Value<String> name,
+      Value<String?> domain,
+      Value<String?> photoUrl,
+      Value<DateTime> lastUpdated,
+      Value<bool> photoChecked,
+      Value<int> rowid,
+    });
+
+class $$CachedArtistsTableFilterComposer
+    extends Composer<_$AppDatabase, $CachedArtistsTable> {
+  $$CachedArtistsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get artistId => $composableBuilder(
+    column: $table.artistId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get domain => $composableBuilder(
+    column: $table.domain,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get photoUrl => $composableBuilder(
+    column: $table.photoUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastUpdated => $composableBuilder(
+    column: $table.lastUpdated,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get photoChecked => $composableBuilder(
+    column: $table.photoChecked,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CachedArtistsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CachedArtistsTable> {
+  $$CachedArtistsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get artistId => $composableBuilder(
+    column: $table.artistId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get domain => $composableBuilder(
+    column: $table.domain,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get photoUrl => $composableBuilder(
+    column: $table.photoUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastUpdated => $composableBuilder(
+    column: $table.lastUpdated,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get photoChecked => $composableBuilder(
+    column: $table.photoChecked,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CachedArtistsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CachedArtistsTable> {
+  $$CachedArtistsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get artistId =>
+      $composableBuilder(column: $table.artistId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get domain =>
+      $composableBuilder(column: $table.domain, builder: (column) => column);
+
+  GeneratedColumn<String> get photoUrl =>
+      $composableBuilder(column: $table.photoUrl, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastUpdated => $composableBuilder(
+    column: $table.lastUpdated,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get photoChecked => $composableBuilder(
+    column: $table.photoChecked,
+    builder: (column) => column,
+  );
+}
+
+class $$CachedArtistsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CachedArtistsTable,
+          CachedArtist,
+          $$CachedArtistsTableFilterComposer,
+          $$CachedArtistsTableOrderingComposer,
+          $$CachedArtistsTableAnnotationComposer,
+          $$CachedArtistsTableCreateCompanionBuilder,
+          $$CachedArtistsTableUpdateCompanionBuilder,
+          (
+            CachedArtist,
+            BaseReferences<_$AppDatabase, $CachedArtistsTable, CachedArtist>,
+          ),
+          CachedArtist,
+          PrefetchHooks Function()
+        > {
+  $$CachedArtistsTableTableManager(_$AppDatabase db, $CachedArtistsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedArtistsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CachedArtistsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CachedArtistsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> artistId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> domain = const Value.absent(),
+                Value<String?> photoUrl = const Value.absent(),
+                Value<DateTime> lastUpdated = const Value.absent(),
+                Value<bool> photoChecked = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedArtistsCompanion(
+                artistId: artistId,
+                name: name,
+                domain: domain,
+                photoUrl: photoUrl,
+                lastUpdated: lastUpdated,
+                photoChecked: photoChecked,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String artistId,
+                required String name,
+                Value<String?> domain = const Value.absent(),
+                Value<String?> photoUrl = const Value.absent(),
+                required DateTime lastUpdated,
+                Value<bool> photoChecked = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedArtistsCompanion.insert(
+                artistId: artistId,
+                name: name,
+                domain: domain,
+                photoUrl: photoUrl,
+                lastUpdated: lastUpdated,
+                photoChecked: photoChecked,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CachedArtistsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CachedArtistsTable,
+      CachedArtist,
+      $$CachedArtistsTableFilterComposer,
+      $$CachedArtistsTableOrderingComposer,
+      $$CachedArtistsTableAnnotationComposer,
+      $$CachedArtistsTableCreateCompanionBuilder,
+      $$CachedArtistsTableUpdateCompanionBuilder,
+      (
+        CachedArtist,
+        BaseReferences<_$AppDatabase, $CachedArtistsTable, CachedArtist>,
+      ),
+      CachedArtist,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -4112,4 +4761,6 @@ class $AppDatabaseManager {
       $$AlbumThumbsTableTableManager(_db, _db.albumThumbs);
   $$UnavailableTracksTableTableManager get unavailableTracks =>
       $$UnavailableTracksTableTableManager(_db, _db.unavailableTracks);
+  $$CachedArtistsTableTableManager get cachedArtists =>
+      $$CachedArtistsTableTableManager(_db, _db.cachedArtists);
 }

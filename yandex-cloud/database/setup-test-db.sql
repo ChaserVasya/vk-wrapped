@@ -1,5 +1,5 @@
 -- Скрипт для создания тестовых таблиц в Yandex Database
--- Создает тестовые таблицы для VK Wrapped с суффиксом _test
+-- Создает тестовые таблицы для VK Wrapped
 
 -- Таблица завершенных сессий прослушивания (тестовая)
 CREATE TABLE completed_sessions_test (
@@ -16,4 +16,10 @@ CREATE TABLE current_sessions_test (
     first_observed Uint32,       -- когда впервые увидели трек
     last_seen Uint32,            -- когда последний раз видели трек
     PRIMARY KEY (full_id)
+); 
+
+-- Таблица лайков мемов (тестовая)
+CREATE TABLE meme_likes_test (
+    meme_id String,              -- ID мема (например: "1", "2", "25")
+    PRIMARY KEY (meme_id)
 );

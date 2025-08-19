@@ -15,6 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$StatisticStateData {
   IList<ArtistStats> get topArtists;
+  IList<ArtistWithPhotoStats> get topArtistsWithPhotos;
   IList<TrackWithStats> get topTracks;
   IList<({String title, int trackCount, int totalPlayCount, int totalDuration})>
   get tracksWithSameTitle;
@@ -51,6 +52,10 @@ mixin _$StatisticStateData {
             const DeepCollectionEquality().equals(
               other.topArtists,
               topArtists,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other.topArtistsWithPhotos,
+              topArtistsWithPhotos,
             ) &&
             const DeepCollectionEquality().equals(other.topTracks, topTracks) &&
             const DeepCollectionEquality().equals(
@@ -97,6 +102,7 @@ mixin _$StatisticStateData {
   int get hashCode => Object.hash(
     runtimeType,
     const DeepCollectionEquality().hash(topArtists),
+    const DeepCollectionEquality().hash(topArtistsWithPhotos),
     const DeepCollectionEquality().hash(topTracks),
     const DeepCollectionEquality().hash(tracksWithSameTitle),
     totalListeningTime,
@@ -117,7 +123,7 @@ mixin _$StatisticStateData {
 
   @override
   String toString() {
-    return 'StatisticStateData(topArtists: $topArtists, topTracks: $topTracks, tracksWithSameTitle: $tracksWithSameTitle, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, uniqueAlbumsCount: $uniqueAlbumsCount, uniqueGenresCount: $uniqueGenresCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount, unavailableTracksCount: $unavailableTracksCount)';
+    return 'StatisticStateData(topArtists: $topArtists, topArtistsWithPhotos: $topArtistsWithPhotos, topTracks: $topTracks, tracksWithSameTitle: $tracksWithSameTitle, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, uniqueAlbumsCount: $uniqueAlbumsCount, uniqueGenresCount: $uniqueGenresCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount, unavailableTracksCount: $unavailableTracksCount)';
   }
 }
 
@@ -130,6 +136,7 @@ abstract mixin class $StatisticStateDataCopyWith<$Res> {
   @useResult
   $Res call({
     IList<ArtistStats> topArtists,
+    IList<ArtistWithPhotoStats> topArtistsWithPhotos,
     IList<TrackWithStats> topTracks,
     IList<
       ({String title, int trackCount, int totalPlayCount, int totalDuration})
@@ -169,6 +176,7 @@ class _$StatisticStateDataCopyWithImpl<$Res>
   @override
   $Res call({
     Object? topArtists = null,
+    Object? topArtistsWithPhotos = null,
     Object? topTracks = null,
     Object? tracksWithSameTitle = null,
     Object? totalListeningTime = null,
@@ -192,6 +200,10 @@ class _$StatisticStateDataCopyWithImpl<$Res>
             ? _self.topArtists
             : topArtists // ignore: cast_nullable_to_non_nullable
                   as IList<ArtistStats>,
+        topArtistsWithPhotos: null == topArtistsWithPhotos
+            ? _self.topArtistsWithPhotos
+            : topArtistsWithPhotos // ignore: cast_nullable_to_non_nullable
+                  as IList<ArtistWithPhotoStats>,
         topTracks: null == topTracks
             ? _self.topTracks
             : topTracks // ignore: cast_nullable_to_non_nullable
@@ -301,6 +313,7 @@ class _$StatisticStateDataCopyWithImpl<$Res>
 class _StatisticStateData implements StatisticStateData {
   const _StatisticStateData({
     required this.topArtists,
+    required this.topArtistsWithPhotos,
     required this.topTracks,
     required this.tracksWithSameTitle,
     required this.totalListeningTime,
@@ -321,6 +334,8 @@ class _StatisticStateData implements StatisticStateData {
 
   @override
   final IList<ArtistStats> topArtists;
+  @override
+  final IList<ArtistWithPhotoStats> topArtistsWithPhotos;
   @override
   final IList<TrackWithStats> topTracks;
   @override
@@ -374,6 +389,10 @@ class _StatisticStateData implements StatisticStateData {
               other.topArtists,
               topArtists,
             ) &&
+            const DeepCollectionEquality().equals(
+              other.topArtistsWithPhotos,
+              topArtistsWithPhotos,
+            ) &&
             const DeepCollectionEquality().equals(other.topTracks, topTracks) &&
             const DeepCollectionEquality().equals(
               other.tracksWithSameTitle,
@@ -419,6 +438,7 @@ class _StatisticStateData implements StatisticStateData {
   int get hashCode => Object.hash(
     runtimeType,
     const DeepCollectionEquality().hash(topArtists),
+    const DeepCollectionEquality().hash(topArtistsWithPhotos),
     const DeepCollectionEquality().hash(topTracks),
     const DeepCollectionEquality().hash(tracksWithSameTitle),
     totalListeningTime,
@@ -439,7 +459,7 @@ class _StatisticStateData implements StatisticStateData {
 
   @override
   String toString() {
-    return 'StatisticStateData(topArtists: $topArtists, topTracks: $topTracks, tracksWithSameTitle: $tracksWithSameTitle, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, uniqueAlbumsCount: $uniqueAlbumsCount, uniqueGenresCount: $uniqueGenresCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount, unavailableTracksCount: $unavailableTracksCount)';
+    return 'StatisticStateData(topArtists: $topArtists, topArtistsWithPhotos: $topArtistsWithPhotos, topTracks: $topTracks, tracksWithSameTitle: $tracksWithSameTitle, totalListeningTime: $totalListeningTime, uniqueTracksCount: $uniqueTracksCount, uniqueArtistsCount: $uniqueArtistsCount, uniqueAlbumsCount: $uniqueAlbumsCount, uniqueGenresCount: $uniqueGenresCount, averageTrackDuration: $averageTrackDuration, timeOfDayStats: $timeOfDayStats, dayOfWeekStats: $dayOfWeekStats, monthStats: $monthStats, mostActiveDay: $mostActiveDay, longestTrack: $longestTrack, shortestTrack: $shortestTrack, totalPlayCount: $totalPlayCount, unavailableTracksCount: $unavailableTracksCount)';
   }
 }
 
@@ -454,6 +474,7 @@ abstract mixin class _$StatisticStateDataCopyWith<$Res>
   @useResult
   $Res call({
     IList<ArtistStats> topArtists,
+    IList<ArtistWithPhotoStats> topArtistsWithPhotos,
     IList<TrackWithStats> topTracks,
     IList<
       ({String title, int trackCount, int totalPlayCount, int totalDuration})
@@ -495,6 +516,7 @@ class __$StatisticStateDataCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   $Res call({
     Object? topArtists = null,
+    Object? topArtistsWithPhotos = null,
     Object? topTracks = null,
     Object? tracksWithSameTitle = null,
     Object? totalListeningTime = null,
@@ -518,6 +540,10 @@ class __$StatisticStateDataCopyWithImpl<$Res>
             ? _self.topArtists
             : topArtists // ignore: cast_nullable_to_non_nullable
                   as IList<ArtistStats>,
+        topArtistsWithPhotos: null == topArtistsWithPhotos
+            ? _self.topArtistsWithPhotos
+            : topArtistsWithPhotos // ignore: cast_nullable_to_non_nullable
+                  as IList<ArtistWithPhotoStats>,
         topTracks: null == topTracks
             ? _self.topTracks
             : topTracks // ignore: cast_nullable_to_non_nullable

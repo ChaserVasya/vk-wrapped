@@ -9,6 +9,7 @@ part 'statistics_state.freezed.dart';
 abstract class StatisticStateData with _$StatisticStateData {
   const factory StatisticStateData({
     required IList<ArtistStats> topArtists,
+    required IList<ArtistWithPhotoStats> topArtistsWithPhotos,
     required IList<TrackWithStats> topTracks,
     required IList<
       ({String title, int trackCount, int totalPlayCount, int totalDuration})

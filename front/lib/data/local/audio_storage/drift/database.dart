@@ -76,6 +76,18 @@ class UnavailableTracks extends Table {
   Set<Column> get primaryKey => {id, ownerId};
 }
 
+class CachedArtists extends Table {
+  TextColumn get artistId => text()();
+  TextColumn get name => text()();
+  TextColumn get domain => text().nullable()();
+  TextColumn get photoUrl => text().nullable()();
+  DateTimeColumn get lastUpdated => dateTime()();
+  BoolColumn get photoChecked => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {artistId};
+}
+
 @DriftDatabase(
   tables: [
     AudioTracks,
@@ -85,6 +97,7 @@ class UnavailableTracks extends Table {
     TrackAlbums,
     AlbumThumbs,
     UnavailableTracks,
+    CachedArtists,
   ],
 )
 @lazySingleton
@@ -92,7 +105,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -103,6 +116,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 2) {
         // Создаем таблицу UnavailableTracks при обновлении с версии 1 до 2
         await m.createTable(unavailableTracks);
+      }
+      if (from < 3) {
+        // Создаем таблицу CachedArtists при обновлении с версии 2 до 3
+        await m.createTable(cachedArtists);
       }
     },
   );

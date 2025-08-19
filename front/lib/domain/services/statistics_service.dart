@@ -2,21 +2,27 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:front/data/local/audio_storage/audio_storage.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:front/domain/entities/track_session.dart';
+import 'package:front/domain/repositories/audio_repository.dart';
 import 'package:front/ui/blocs/statistics_bloc/statistics_state.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
 class StatisticsService {
-  StatisticsService(this._audioStorage);
+  StatisticsService(this._audioStorage, this._audioRepository);
 
   final AudioStorage _audioStorage;
+  final AudioRepository _audioRepository;
 
   /// Создает полную статистику на основе списка треков и сессий
   Future<StatisticStateData> createStatistics(
     IList<VkAudioTrack> tracks,
     IList<TrackSession> sessions,
   ) async {
-    final topArtists = _getTopArtists(tracks, sessions);
+    final topArtists = await _getTopArtists(tracks, sessions);
+    final topArtistsWithPhotos = await _getTopArtistsWithPhotos(
+      tracks,
+      sessions,
+    );
     final topTracks = _getTopTracks(tracks, sessions);
     final totalListeningTime = _getTotalListeningTime(tracks, sessions);
     final uniqueTracksCount = _getUniqueTracksCount(sessions);
@@ -37,6 +43,7 @@ class StatisticsService {
 
     return StatisticStateData(
       topArtists: topArtists,
+      topArtistsWithPhotos: topArtistsWithPhotos,
       topTracks: topTracks,
       tracksWithSameTitle: tracksWithSameTitle,
       totalListeningTime: totalListeningTime,
@@ -59,10 +66,10 @@ class StatisticsService {
   // 🎵 МУЗЫКАЛЬНАЯ СТАТИСТИКА
 
   /// Топ исполнителей по количеству прослушиваний
-  IList<ArtistStats> _getTopArtists(
+  Future<IList<ArtistStats>> _getTopArtists(
     IList<VkAudioTrack> tracks,
     IList<TrackSession> sessions,
-  ) {
+  ) async {
     final artistStats = <String, ArtistStats>{};
 
     for (final session in sessions) {
@@ -90,6 +97,70 @@ class StatisticsService {
     final sortedArtists = artistStats.values.toList()
       ..sort((a, b) => b.playCount.compareTo(a.playCount));
     return sortedArtists.take(5).toIList();
+  }
+
+  /// Топ исполнителей с фотографиями по количеству прослушиваний
+  Future<IList<ArtistWithPhotoStats>> _getTopArtistsWithPhotos(
+    IList<VkAudioTrack> tracks,
+    IList<TrackSession> sessions,
+  ) async {
+    final artistStats = <String, ArtistStats>{};
+
+    for (final session in sessions) {
+      final track = tracks.where((t) => t.fullId == session.fullId).firstOrNull;
+      if (track == null)
+        continue; // Пропускаем сессии без соответствующих треков
+
+      // Считаем каждого артиста отдельно
+      for (final artist in track.artists) {
+        if (artistStats.containsKey(artist)) {
+          artistStats[artist] = artistStats[artist]!.copyWith(
+            playCount: artistStats[artist]!.playCount + 1,
+            totalDuration: artistStats[artist]!.totalDuration + track.duration,
+          );
+        } else {
+          artistStats[artist] = ArtistStats(
+            name: artist,
+            playCount: 1,
+            totalDuration: track.duration,
+          );
+        }
+      }
+    }
+
+    final sortedArtists = artistStats.values.toList()
+      ..sort((a, b) => b.playCount.compareTo(a.playCount));
+
+    // Получаем топ-5 артистов
+    final topArtists = sortedArtists.take(5);
+
+    // Получаем артистов с фотографиями
+    final artistsWithPhotos = await _audioRepository.getArtistsWithPhotos();
+
+    // Создаем ArtistWithPhotoStats для топ артистов
+    final result = <ArtistWithPhotoStats>[];
+    for (final artistStat in topArtists) {
+      // Ищем артиста с фотографией по имени
+      final artistWithPhoto = artistsWithPhotos.firstWhere(
+        (artist) => artist.name == artistStat.name,
+        orElse: () => VkArtist(
+          id: artistStat.name.hashCode,
+          name: artistStat.name,
+          domain: null,
+          photo: null,
+        ),
+      );
+
+      result.add(
+        ArtistWithPhotoStats(
+          artist: artistWithPhoto,
+          playCount: artistStat.playCount,
+          totalDuration: artistStat.totalDuration,
+        ),
+      );
+    }
+
+    return result.toIList();
   }
 
   /// Топ треков по количеству прослушиваний
@@ -456,6 +527,30 @@ class ArtistStats {
   ArtistStats copyWith({String? name, int? playCount, int? totalDuration}) {
     return ArtistStats(
       name: name ?? this.name,
+      playCount: playCount ?? this.playCount,
+      totalDuration: totalDuration ?? this.totalDuration,
+    );
+  }
+}
+
+class ArtistWithPhotoStats {
+  final VkArtist artist;
+  final int playCount;
+  final int totalDuration;
+
+  const ArtistWithPhotoStats({
+    required this.artist,
+    required this.playCount,
+    required this.totalDuration,
+  });
+
+  ArtistWithPhotoStats copyWith({
+    VkArtist? artist,
+    int? playCount,
+    int? totalDuration,
+  }) {
+    return ArtistWithPhotoStats(
+      artist: artist ?? this.artist,
       playCount: playCount ?? this.playCount,
       totalDuration: totalDuration ?? this.totalDuration,
     );

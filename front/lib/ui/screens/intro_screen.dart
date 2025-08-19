@@ -1,11 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:front/domain/services/first_launch_service.dart';
+import 'package:front/domain/services/remote_config_service.dart';
 import 'package:front/internal/di/di.dart';
-import 'package:front/ui/resources/gen/assets.gen.dart';
 import 'package:front/ui/routes/app_router.dart';
+import 'package:front/ui/widgets/meme_widget.dart';
 import 'package:gap/gap.dart';
-import 'package:shimmer/shimmer.dart';
 
 @RoutePage()
 class IntroScreen extends StatefulWidget {
@@ -16,13 +16,12 @@ class IntroScreen extends StatefulWidget {
 }
 
 class _IntroScreenState extends State<IntroScreen> {
-  bool _isImageFocused = false;
+  late final RemoteConfigService _remoteConfigService;
 
-  AssetGenImage get _todayMeme {
-    final today = DateTime.now();
-    final dayOfYear = today.difference(DateTime(today.year, 1, 1)).inDays;
-    final memeIndex = dayOfYear % Assets.memes.values.length;
-    return Assets.memes.values[memeIndex];
+  @override
+  void initState() {
+    super.initState();
+    _remoteConfigService = getIt<RemoteConfigService>();
   }
 
   @override
@@ -34,9 +33,6 @@ class _IntroScreenState extends State<IntroScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Gap(60),
-            _buildIntroImage(),
-            const Gap(24),
             _buildMemeSection(),
             const Gap(24),
             _buildTodayEmodgi(),
@@ -51,53 +47,6 @@ class _IntroScreenState extends State<IntroScreen> {
     );
   }
 
-  Widget _buildIntroImage() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Assets.intro.intro1.image(
-          fit: BoxFit.cover,
-          width: double.infinity,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.image, size: 64, color: Colors.grey),
-                    const Gap(8),
-                    Text(
-                      'intro image error',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
   Widget _buildMemeSection() {
     return Column(
       children: [
@@ -107,90 +56,8 @@ class _IntroScreenState extends State<IntroScreen> {
           textAlign: TextAlign.center,
         ),
         const Gap(16),
-        GestureDetector(
-          onTap: () {
-            setState(() {
-              _isImageFocused = !_isImageFocused;
-            });
-          },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            child: _isImageFocused ? _buildClearImage() : _buildShimmerImage(),
-          ),
-        ),
+        MemeWidget(),
       ],
-    );
-  }
-
-  Widget _buildShimmerImage() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Container(
-        height: 300,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.white,
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: _todayMeme.image(
-            fit: BoxFit.cover,
-            width: double.infinity,
-            height: 300,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildClearImage() {
-    return Container(
-      height: 300,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: _todayMeme.image(
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: 300,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              width: double.infinity,
-              height: 300,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.image, size: 64, color: Colors.grey),
-                    const Gap(8),
-                    Text(
-                      'Мем дня',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey[600],
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ),
     );
   }
 
@@ -244,18 +111,38 @@ class _IntroScreenState extends State<IntroScreen> {
   }
 
   Widget _buildTodayEmodgi() {
-    return const Column(
+    return Column(
       children: [
-        Text(
+        const Text(
           'Эмоджи дня',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
-        Text(
-          '\u{1F62D}',
-          style: TextStyle(
-            fontSize: 48,
-            fontFamilyFallback: ['Noto Color Emoji', 'Apple Color Emoji'],
-          ),
+        StreamBuilder<String>(
+          stream: _remoteConfigService.introEmojiStream,
+          builder: (context, snapshot) {
+            final emoji = snapshot.data ?? _remoteConfigService.introEmoji;
+
+            if (emoji.isEmpty) {
+              return const Column(
+                children: [
+                  SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: CircularProgressIndicator(),
+                  ),
+                  Gap(8),
+                  Text(
+                    'Загрузка эмоджи...',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              );
+            }
+
+            return Column(
+              children: [Text(emoji, style: const TextStyle(fontSize: 48))],
+            );
+          },
         ),
       ],
     );

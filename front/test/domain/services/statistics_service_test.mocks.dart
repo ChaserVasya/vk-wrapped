@@ -3,13 +3,15 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i5;
 
 import 'package:fast_immutable_collections/fast_immutable_collections.dart'
     as _i2;
-import 'package:front/data/local/audio_storage/audio_storage.dart' as _i3;
+import 'package:front/data/local/audio_storage/audio_storage.dart' as _i4;
 import 'package:front/data/local/audio_storage/drift/database.dart' as _i6;
-import 'package:front/data/remote/api/vk_api_client.dart' as _i5;
+import 'package:front/data/remote/api/vk_api_client.dart' as _i3;
+import 'package:front/domain/entities/track_session.dart' as _i8;
+import 'package:front/domain/repositories/audio_repository.dart' as _i7;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -34,93 +36,339 @@ class _FakeIList_0<T> extends _i1.SmartFake implements _i2.IList<T> {
   String toString([bool? prettyPrint]) => super.toString();
 }
 
+class _FakeVkArtistInfo_1 extends _i1.SmartFake implements _i3.VkArtistInfo {
+  _FakeVkArtistInfo_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [AudioStorage].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAudioStorage extends _i1.Mock implements _i3.AudioStorage {
+class MockAudioStorage extends _i1.Mock implements _i4.AudioStorage {
   MockAudioStorage() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<_i2.IList<_i5.VkAudioTrack>> getTracks() =>
+  _i5.Future<_i2.IList<_i3.VkAudioTrack>> getTracks() =>
       (super.noSuchMethod(
             Invocation.method(#getTracks, []),
-            returnValue: _i4.Future<_i2.IList<_i5.VkAudioTrack>>.value(
-              _FakeIList_0<_i5.VkAudioTrack>(
+            returnValue: _i5.Future<_i2.IList<_i3.VkAudioTrack>>.value(
+              _FakeIList_0<_i3.VkAudioTrack>(
                 this,
                 Invocation.method(#getTracks, []),
               ),
             ),
           )
-          as _i4.Future<_i2.IList<_i5.VkAudioTrack>>);
+          as _i5.Future<_i2.IList<_i3.VkAudioTrack>>);
 
   @override
-  _i4.Future<void> updateTracks(_i2.IList<_i5.VkAudioTrack>? tracks) =>
+  _i5.Future<void> updateTracks(_i2.IList<_i3.VkAudioTrack>? tracks) =>
       (super.noSuchMethod(
             Invocation.method(#updateTracks, [tracks]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i4.Future<void> deleteAllTracks() =>
+  _i5.Future<void> deleteAllTracks() =>
       (super.noSuchMethod(
             Invocation.method(#deleteAllTracks, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i4.Future<bool> isTrackUnavailable(int? id, int? ownerId) =>
+  _i5.Future<bool> isTrackUnavailable(int? id, int? ownerId) =>
       (super.noSuchMethod(
             Invocation.method(#isTrackUnavailable, [id, ownerId]),
-            returnValue: _i4.Future<bool>.value(false),
+            returnValue: _i5.Future<bool>.value(false),
           )
-          as _i4.Future<bool>);
+          as _i5.Future<bool>);
 
   @override
-  _i4.Future<void> markTrackAsUnavailable(
+  _i5.Future<void> markTrackAsUnavailable(
     int? id,
     int? ownerId,
     String? fullId,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#markTrackAsUnavailable, [id, ownerId, fullId]),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i4.Future<int> getUnavailableTracksCount() =>
+  _i5.Future<int> getUnavailableTracksCount() =>
       (super.noSuchMethod(
             Invocation.method(#getUnavailableTracksCount, []),
-            returnValue: _i4.Future<int>.value(0),
+            returnValue: _i5.Future<int>.value(0),
           )
-          as _i4.Future<int>);
+          as _i5.Future<int>);
 
   @override
-  _i4.Future<_i2.IList<_i6.UnavailableTrack>> getUnavailableTracks() =>
+  _i5.Future<_i2.IList<_i6.UnavailableTrack>> getUnavailableTracks() =>
       (super.noSuchMethod(
             Invocation.method(#getUnavailableTracks, []),
-            returnValue: _i4.Future<_i2.IList<_i6.UnavailableTrack>>.value(
+            returnValue: _i5.Future<_i2.IList<_i6.UnavailableTrack>>.value(
               _FakeIList_0<_i6.UnavailableTrack>(
                 this,
                 Invocation.method(#getUnavailableTracks, []),
               ),
             ),
           )
-          as _i4.Future<_i2.IList<_i6.UnavailableTrack>>);
+          as _i5.Future<_i2.IList<_i6.UnavailableTrack>>);
 
   @override
-  _i4.Future<void> clearUnavailableTracks() =>
+  _i5.Future<void> clearUnavailableTracks() =>
       (super.noSuchMethod(
             Invocation.method(#clearUnavailableTracks, []),
-            returnValue: _i4.Future<void>.value(),
-            returnValueForMissingStub: _i4.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i4.Future<void>);
+          as _i5.Future<void>);
+}
+
+/// A class which mocks [AudioRepository].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockAudioRepository extends _i1.Mock implements _i7.AudioRepository {
+  MockAudioRepository() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i5.Future<(_i2.IList<_i3.VkAudioTrack>, _i2.IList<_i8.TrackSession>)>
+  getAudioData() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAudioData, []),
+            returnValue:
+                _i5.Future<
+                  (_i2.IList<_i3.VkAudioTrack>, _i2.IList<_i8.TrackSession>)
+                >.value((
+                  _FakeIList_0<_i3.VkAudioTrack>(
+                    this,
+                    Invocation.method(#getAudioData, []),
+                  ),
+                  _FakeIList_0<_i8.TrackSession>(
+                    this,
+                    Invocation.method(#getAudioData, []),
+                  ),
+                )),
+          )
+          as _i5.Future<
+            (_i2.IList<_i3.VkAudioTrack>, _i2.IList<_i8.TrackSession>)
+          >);
+
+  @override
+  _i5.Future<_i2.IList<_i3.VkAudioTrack>> getListenedAudio() =>
+      (super.noSuchMethod(
+            Invocation.method(#getListenedAudio, []),
+            returnValue: _i5.Future<_i2.IList<_i3.VkAudioTrack>>.value(
+              _FakeIList_0<_i3.VkAudioTrack>(
+                this,
+                Invocation.method(#getListenedAudio, []),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.IList<_i3.VkAudioTrack>>);
+
+  @override
+  _i5.Future<_i2.IList<(_i3.VkAudioTrack, int)>> getTracksWithPlayCount() =>
+      (super.noSuchMethod(
+            Invocation.method(#getTracksWithPlayCount, []),
+            returnValue: _i5.Future<_i2.IList<(_i3.VkAudioTrack, int)>>.value(
+              _FakeIList_0<(_i3.VkAudioTrack, int)>(
+                this,
+                Invocation.method(#getTracksWithPlayCount, []),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.IList<(_i3.VkAudioTrack, int)>>);
+
+  @override
+  _i5.Future<_i2.IList<_i8.TrackSession>> getSessions() =>
+      (super.noSuchMethod(
+            Invocation.method(#getSessions, []),
+            returnValue: _i5.Future<_i2.IList<_i8.TrackSession>>.value(
+              _FakeIList_0<_i8.TrackSession>(
+                this,
+                Invocation.method(#getSessions, []),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.IList<_i8.TrackSession>>);
+
+  @override
+  _i5.Future<_i2.IList<_i3.VkArtist>> getArtists() =>
+      (super.noSuchMethod(
+            Invocation.method(#getArtists, []),
+            returnValue: _i5.Future<_i2.IList<_i3.VkArtist>>.value(
+              _FakeIList_0<_i3.VkArtist>(
+                this,
+                Invocation.method(#getArtists, []),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.IList<_i3.VkArtist>>);
+
+  @override
+  _i5.Future<_i3.VkArtistInfo> getArtistInfoById(String? artistId) =>
+      (super.noSuchMethod(
+            Invocation.method(#getArtistInfoById, [artistId]),
+            returnValue: _i5.Future<_i3.VkArtistInfo>.value(
+              _FakeVkArtistInfo_1(
+                this,
+                Invocation.method(#getArtistInfoById, [artistId]),
+              ),
+            ),
+          )
+          as _i5.Future<_i3.VkArtistInfo>);
+
+  @override
+  _i5.Future<_i2.IList<_i3.VkArtist>> getArtistsWithPhotos() =>
+      (super.noSuchMethod(
+            Invocation.method(#getArtistsWithPhotos, []),
+            returnValue: _i5.Future<_i2.IList<_i3.VkArtist>>.value(
+              _FakeIList_0<_i3.VkArtist>(
+                this,
+                Invocation.method(#getArtistsWithPhotos, []),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.IList<_i3.VkArtist>>);
+
+  @override
+  _i5.Future<_i2.IList<(_i3.VkArtist, int)>> getArtistsWithSongCount() =>
+      (super.noSuchMethod(
+            Invocation.method(#getArtistsWithSongCount, []),
+            returnValue: _i5.Future<_i2.IList<(_i3.VkArtist, int)>>.value(
+              _FakeIList_0<(_i3.VkArtist, int)>(
+                this,
+                Invocation.method(#getArtistsWithSongCount, []),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.IList<(_i3.VkArtist, int)>>);
+
+  @override
+  _i5.Future<_i2.IList<_i3.VkAlbum>> getAlbums() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAlbums, []),
+            returnValue: _i5.Future<_i2.IList<_i3.VkAlbum>>.value(
+              _FakeIList_0<_i3.VkAlbum>(
+                this,
+                Invocation.method(#getAlbums, []),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.IList<_i3.VkAlbum>>);
+
+  @override
+  _i5.Future<_i2.IList<(_i3.VkAlbum, int)>> getAlbumsWithTrackCount() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAlbumsWithTrackCount, []),
+            returnValue: _i5.Future<_i2.IList<(_i3.VkAlbum, int)>>.value(
+              _FakeIList_0<(_i3.VkAlbum, int)>(
+                this,
+                Invocation.method(#getAlbumsWithTrackCount, []),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.IList<(_i3.VkAlbum, int)>>);
+
+  @override
+  _i5.Future<_i2.IList<(_i3.VkAlbum, _i2.IList<String>, int)>>
+  getAlbumsWithArtistsAndTrackCount() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAlbumsWithArtistsAndTrackCount, []),
+            returnValue:
+                _i5.Future<
+                  _i2.IList<(_i3.VkAlbum, _i2.IList<String>, int)>
+                >.value(
+                  _FakeIList_0<(_i3.VkAlbum, _i2.IList<String>, int)>(
+                    this,
+                    Invocation.method(#getAlbumsWithArtistsAndTrackCount, []),
+                  ),
+                ),
+          )
+          as _i5.Future<_i2.IList<(_i3.VkAlbum, _i2.IList<String>, int)>>);
+
+  @override
+  _i5.Future<_i2.IList<({String genre, int songCount, int totalDuration})>>
+  getGenreStats() =>
+      (super.noSuchMethod(
+            Invocation.method(#getGenreStats, []),
+            returnValue:
+                _i5.Future<
+                  _i2.IList<({String genre, int songCount, int totalDuration})>
+                >.value(
+                  _FakeIList_0<
+                    ({String genre, int songCount, int totalDuration})
+                  >(this, Invocation.method(#getGenreStats, [])),
+                ),
+          )
+          as _i5.Future<
+            _i2.IList<({String genre, int songCount, int totalDuration})>
+          >);
+
+  @override
+  _i5.Future<int> getUniqueAlbumsCount() =>
+      (super.noSuchMethod(
+            Invocation.method(#getUniqueAlbumsCount, []),
+            returnValue: _i5.Future<int>.value(0),
+          )
+          as _i5.Future<int>);
+
+  @override
+  _i5.Future<int> getUniqueGenresCount() =>
+      (super.noSuchMethod(
+            Invocation.method(#getUniqueGenresCount, []),
+            returnValue: _i5.Future<int>.value(0),
+          )
+          as _i5.Future<int>);
+
+  @override
+  _i5.Future<
+    _i2.IList<
+      ({String title, int totalDuration, int totalPlayCount, int trackCount})
+    >
+  >
+  getTracksWithSameTitle() =>
+      (super.noSuchMethod(
+            Invocation.method(#getTracksWithSameTitle, []),
+            returnValue:
+                _i5.Future<
+                  _i2.IList<
+                    ({
+                      String title,
+                      int totalDuration,
+                      int totalPlayCount,
+                      int trackCount,
+                    })
+                  >
+                >.value(
+                  _FakeIList_0<
+                    ({
+                      String title,
+                      int totalDuration,
+                      int totalPlayCount,
+                      int trackCount,
+                    })
+                  >(this, Invocation.method(#getTracksWithSameTitle, [])),
+                ),
+          )
+          as _i5.Future<
+            _i2.IList<
+              ({
+                String title,
+                int totalDuration,
+                int totalPlayCount,
+                int trackCount,
+              })
+            >
+          >);
 }
