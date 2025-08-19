@@ -7,7 +7,7 @@ import 'package:front/domain/entities/track_session.dart';
 import 'package:front/domain/exceptions/app_exception.dart';
 import 'package:injectable/injectable.dart';
 
-@injectable
+@lazySingleton
 class AudioRepository {
   final VkService _vkApiService;
   final AudioStorage _trackStorage;
@@ -92,6 +92,22 @@ class AudioRepository {
             }
           }
         }
+
+        // Если в result.errors есть только VkAudioUnavailableException, не пробрасываем ошибку
+        // Если есть другие ошибки (AppException), пробрасываем их
+        if (result != null) {
+          final hasNonUnavailableErrors = result.errors.any(
+            (error) => error is! VkAudioUnavailableException,
+          );
+          if (hasNonUnavailableErrors) {
+            rethrow;
+          }
+        } else {
+          // Если result == null, значит ошибка произошла до получения результата
+          // (например, NoTokenException), пробрасываем её
+          rethrow;
+        }
+
         tracks = localTracks;
       }
 
@@ -104,6 +120,16 @@ class AudioRepository {
         // Логируем проблему для отладки
         print(
           '[WARNING] Found ${missingSessionTracks.length} sessions without corresponding tracks: ${missingSessionTracks.take(5).join(', ')}',
+        );
+
+        // Дополнительная отладочная информация
+        print('[DEBUG] Total tracks loaded: ${tracks.length}');
+        print('[DEBUG] Total sessions: ${sessions.length}');
+        print(
+          '[DEBUG] Sample track IDs: ${tracks.take(3).map((t) => t.fullId).join(', ')}',
+        );
+        print(
+          '[DEBUG] Sample session IDs: ${sessions.take(3).map((s) => s.fullId).join(', ')}',
         );
       }
     } else {
@@ -173,7 +199,7 @@ class AudioRepository {
     return await _vkApiService.getArtistById(artistId);
   }
 
-  /// Получает артистов с заполненными фотографиями из VK API
+  /// Получает артистов с заполненными фотографиями из VK API с кешированием
   Future<IList<VkArtist>> getArtistsWithPhotos() async {
     final tracks = await getListenedAudio();
     final artistIds = <String>{};
@@ -187,45 +213,169 @@ class AudioRepository {
       }
     }
 
-    // Получаем информацию об артистах из VK API и создаем VkArtist с фотографиями
     final artistsWithPhotos = <VkArtist>[];
+
     for (final artistId in artistIds) {
       try {
-        final artistInfo = await getArtistInfoById(artistId);
-
-        // Извлекаем URL лучшего фото
-        String? photoUrl;
-        if (artistInfo.photos != null && artistInfo.photos!.isNotEmpty) {
-          final cropPhoto = artistInfo.photos!.firstWhere(
-            (photo) => photo.type == 'crop',
-            orElse: () => artistInfo.photos!.first,
-          );
-
-          if (cropPhoto.photo.isNotEmpty) {
-            // Выбираем лучшее качество фото
-            final bestPhoto = cropPhoto.photo.reduce(
-              (a, b) => a.width > b.width ? a : b,
-            );
-            photoUrl = bestPhoto.url;
-          }
+        // Сначала проверяем кеш
+        final cachedArtist = await _trackStorage.getCachedArtist(artistId);
+        if (cachedArtist != null) {
+          artistsWithPhotos.add(cachedArtist);
+          continue;
         }
 
-        // Создаем VkArtist с фотографией
-        final artist = VkArtist(
-          id: artistInfo.id.hashCode,
-          name: artistInfo.name,
-          domain: artistInfo.domain,
-          photo: photoUrl,
-        );
+        // Если артист не в кеше и не проверялся, загружаем из API
+        if (!await _trackStorage.isArtistPhotoChecked(artistId)) {
+          final artistInfo = await getArtistInfoById(artistId);
 
-        artistsWithPhotos.add(artist);
+          // Извлекаем URL лучшего фото
+          String? photoUrl;
+          if (artistInfo.photos != null && artistInfo.photos!.isNotEmpty) {
+            final cropPhoto = artistInfo.photos!.firstWhere(
+              (photo) => photo.type == 'crop',
+              orElse: () => artistInfo.photos!.first,
+            );
+
+            if (cropPhoto.photo.isNotEmpty) {
+              // Выбираем лучшее качество фото
+              final bestPhoto = cropPhoto.photo.reduce(
+                (a, b) => a.width > b.width ? a : b,
+              );
+              photoUrl = bestPhoto.url;
+            }
+          }
+
+          // Создаем VkArtist с фотографией
+          final artist = VkArtist(
+            id: artistInfo.id.hashCode,
+            name: artistInfo.name,
+            domain: artistInfo.domain,
+            photo: photoUrl,
+          );
+
+          // Сохраняем в кеш
+          await _trackStorage.saveCachedArtist(artist);
+          artistsWithPhotos.add(artist);
+        } else {
+          // Артист уже проверялся, но нет в кеше - значит у него нет фото
+          // Создаем артиста без фото из mainArtists
+          final mainArtist = tracks
+              .expand((track) => track.mainArtists ?? [])
+              .firstWhere((artist) => artist.id == artistId);
+
+          final artist = VkArtist(
+            id: mainArtist.id.hashCode,
+            name: mainArtist.name,
+            domain: mainArtist.domain,
+            photo: null,
+          );
+
+          artistsWithPhotos.add(artist);
+        }
       } catch (e, _) {
-        // Логируем ошибку, но продолжаем загрузку других артистов
+        // Помечаем артиста как проверенного, но без фото
+        await _trackStorage.markArtistPhotoChecked(artistId, false);
         print('[WARNING] Failed to load artist info for $artistId: $e');
+
+        // Создаем артиста без фото из mainArtists
+        try {
+          final mainArtist = tracks
+              .expand((track) => track.mainArtists ?? [])
+              .firstWhere((artist) => artist.id == artistId);
+
+          final artist = VkArtist(
+            id: mainArtist.id.hashCode,
+            name: mainArtist.name,
+            domain: mainArtist.domain,
+            photo: null,
+          );
+
+          artistsWithPhotos.add(artist);
+        } catch (_) {
+          // Если не можем найти артиста в mainArtists, пропускаем
+        }
       }
     }
 
     return artistsWithPhotos.toIList();
+  }
+
+  /// Обновляет фотографии артистов, которые еще не были проверены
+  /// Используется при первом запуске после обновления приложения
+  Future<void> updateArtistPhotosInBackground() async {
+    try {
+      final artistsToUpdate = await _trackStorage.getArtistsToUpdate();
+
+      if (artistsToUpdate.isEmpty) {
+        print('[INFO] All artists photos are up to date');
+        return;
+      }
+
+      print(
+        '[INFO] Updating photos for ${artistsToUpdate.length} artists in background',
+      );
+
+      // Обрабатываем по 5 артистов за раз, чтобы не перегружать API
+      const batchSize = 5;
+      for (int i = 0; i < artistsToUpdate.length; i += batchSize) {
+        final batch = artistsToUpdate.skip(i).take(batchSize);
+
+        await Future.wait(
+          batch.map((artistId) async {
+            try {
+              // Проверяем, не обработали ли уже этого артиста
+              if (await _trackStorage.isArtistPhotoChecked(artistId)) {
+                return;
+              }
+
+              final artistInfo = await getArtistInfoById(artistId);
+
+              // Извлекаем URL лучшего фото
+              String? photoUrl;
+              if (artistInfo.photos != null && artistInfo.photos!.isNotEmpty) {
+                final cropPhoto = artistInfo.photos!.firstWhere(
+                  (photo) => photo.type == 'crop',
+                  orElse: () => artistInfo.photos!.first,
+                );
+
+                if (cropPhoto.photo.isNotEmpty) {
+                  final bestPhoto = cropPhoto.photo.reduce(
+                    (a, b) => a.width > b.width ? a : b,
+                  );
+                  photoUrl = bestPhoto.url;
+                }
+              }
+
+              // Создаем и сохраняем артиста
+              final artist = VkArtist(
+                id: artistInfo.id.hashCode,
+                name: artistInfo.name,
+                domain: artistInfo.domain,
+                photo: photoUrl,
+              );
+
+              await _trackStorage.saveCachedArtist(artist);
+              print('[DEBUG] Updated photo for artist: ${artist.name}');
+            } catch (e, _) {
+              // Помечаем как проверенного, но без фото
+              await _trackStorage.markArtistPhotoChecked(artistId, false);
+              print(
+                '[WARNING] Failed to update artist photo for $artistId: $e',
+              );
+            }
+          }),
+        );
+
+        // Небольшая пауза между батчами, чтобы не перегружать API
+        if (i + batchSize < artistsToUpdate.length) {
+          await Future.delayed(const Duration(milliseconds: 500));
+        }
+      }
+
+      print('[INFO] Finished updating artist photos in background');
+    } catch (e, _) {
+      print('[ERROR] Failed to update artist photos in background: $e');
+    }
   }
 
   /// Получает артистов с количеством их песен

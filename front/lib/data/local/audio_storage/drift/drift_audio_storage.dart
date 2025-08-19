@@ -288,4 +288,121 @@ class DriftAudioStorage implements AudioStorage {
   Future<void> clearUnavailableTracks() async {
     await _database.delete(_database.unavailableTracks).go();
   }
+
+  @override
+  /// Получает кешированного артиста по ID
+  Future<VkArtist?> getCachedArtist(String artistId) async {
+    final artist = await (_database.select(
+      _database.cachedArtists,
+    )..where((a) => a.artistId.equals(artistId))).getSingleOrNull();
+
+    if (artist == null) return null;
+
+    return VkArtist(
+      id: artist.artistId.hashCode,
+      name: artist.name,
+      domain: artist.domain,
+      photo: artist.photoUrl,
+    );
+  }
+
+  @override
+  /// Сохраняет артиста в кеш
+  Future<void> saveCachedArtist(VkArtist artist) async {
+    await _database
+        .into(_database.cachedArtists)
+        .insert(
+          CachedArtistsCompanion.insert(
+            artistId: artist.id.toString(),
+            name: artist.name,
+            domain: Value(artist.domain),
+            photoUrl: Value(artist.photo),
+            lastUpdated: DateTime.now(),
+            photoChecked: const Value(true),
+          ),
+          mode: InsertMode.insertOrReplace,
+        );
+  }
+
+  @override
+  /// Получает всех кешированных артистов
+  Future<IList<VkArtist>> getAllCachedArtists() async {
+    final artists = await _database.select(_database.cachedArtists).get();
+
+    return artists
+        .map(
+          (artist) => VkArtist(
+            id: artist.artistId.hashCode,
+            name: artist.name,
+            domain: artist.domain,
+            photo: artist.photoUrl,
+          ),
+        )
+        .toIList();
+  }
+
+  @override
+  /// Проверяет, была ли уже проверена фотография артиста
+  Future<bool> isArtistPhotoChecked(String artistId) async {
+    final artist = await (_database.select(
+      _database.cachedArtists,
+    )..where((a) => a.artistId.equals(artistId))).getSingleOrNull();
+
+    return artist?.photoChecked ?? false;
+  }
+
+  @override
+  /// Помечает что фотография артиста была проверена
+  Future<void> markArtistPhotoChecked(String artistId, bool hasPhoto) async {
+    final existing = await (_database.select(
+      _database.cachedArtists,
+    )..where((a) => a.artistId.equals(artistId))).getSingleOrNull();
+
+    if (existing != null) {
+      await (_database.update(
+        _database.cachedArtists,
+      )..where((a) => a.artistId.equals(artistId))).write(
+        CachedArtistsCompanion(
+          photoChecked: const Value(true),
+          lastUpdated: Value(DateTime.now()),
+        ),
+      );
+    } else {
+      // Создаем новую запись если артиста еще нет в кеше
+      await _database
+          .into(_database.cachedArtists)
+          .insert(
+            CachedArtistsCompanion.insert(
+              artistId: artistId,
+              name: '', // Имя будет обновлено позже
+              photoChecked: const Value(true),
+              lastUpdated: DateTime.now(),
+            ),
+          );
+    }
+  }
+
+  @override
+  /// Получает артистов, которые нужно обновить (без фото и не проверенных)
+  Future<IList<String>> getArtistsToUpdate() async {
+    // Получаем всех уникальных артистов из mainArtists
+    final query = _database.selectOnly(_database.mainArtists, distinct: true);
+    query.addColumns([_database.mainArtists.artistId]);
+    final allArtistIds = await query.get();
+
+    final artistIds = allArtistIds
+        .map((row) => row.read(_database.mainArtists.artistId)!)
+        .toList();
+
+    // Фильтруем тех, кто еще не проверен или не имеет фото
+    final uncheckedArtists = <String>[];
+    for (final artistId in artistIds) {
+      final cached = await getCachedArtist(artistId);
+      if (cached == null || !await isArtistPhotoChecked(artistId)) {
+        uncheckedArtists.add(artistId);
+      }
+    }
+
+    return uncheckedArtists.toIList();
+  }
 }

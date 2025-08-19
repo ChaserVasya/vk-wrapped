@@ -26,7 +26,7 @@ class _Providers extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<ArtistsCubit>()..init(),
+      create: (context) => getIt<ArtistsCubit>()..initWithPhotos(),
       child: child,
     );
   }
@@ -88,7 +88,7 @@ class _View extends StatelessWidget {
           ),
         );
       },
-      onRefreshRequested: () => context.read<ArtistsCubit>().init(),
+      onRefreshRequested: () => context.read<ArtistsCubit>().initWithPhotos(),
     );
   }
 }

@@ -201,29 +201,40 @@ class _TopArtistsPage extends StatelessWidget {
           const SizedBox(height: 32),
           Expanded(
             child: ListView.builder(
-              itemCount: data.topArtists.length,
+              itemCount: data.topArtistsWithPhotos.length,
               itemBuilder: (context, index) {
-                final artist = data.topArtists[index];
+                final artistWithStats = data.topArtistsWithPhotos[index];
                 return Card(
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: Colors.blue,
-                      child: Text(
-                        '${index + 1}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      radius: 25,
+                      backgroundColor: Colors.grey[300],
+                      child: artistWithStats.artist.photo != null
+                          ? ClipOval(
+                              child: Image.network(
+                                artistWithStats.artist.photo!,
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return _buildFallbackAvatar(index + 1);
+                                },
+                              ),
+                            )
+                          : _buildFallbackAvatar(index + 1),
                     ),
                     title: Text(
-                      artist.name,
+                      artistWithStats.artist.name,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    subtitle: Text('${artist.playCount} прослушиваний'),
+                    subtitle: Text(
+                      '${artistWithStats.playCount} прослушиваний',
+                    ),
                     trailing: Text(
-                      _formatDuration(Duration(seconds: artist.totalDuration)),
+                      _formatDuration(
+                        Duration(seconds: artistWithStats.totalDuration),
+                      ),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
@@ -235,6 +246,27 @@ class _TopArtistsPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFallbackAvatar(int number) {
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: const BoxDecoration(
+        color: Colors.blue,
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Text(
+          '$number',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
       ),
     );
   }

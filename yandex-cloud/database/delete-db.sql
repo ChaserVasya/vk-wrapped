@@ -1,8 +1,6 @@
 -- Скрипт для удаления таблиц в Yandex Database
--- Удаляет таблицы для VK Wrapped
+-- Удаляет все таблицы VK Wrapped
 
--- Удаляем таблицу завершенных сессий прослушивания
 DROP TABLE IF EXISTS completed_sessions;
-
--- Удаляем таблицу активных сессий прослушивания
-DROP TABLE IF EXISTS current_sessions; 
+DROP TABLE IF EXISTS current_sessions;
+DROP TABLE IF EXISTS meme_likes; 

@@ -95,7 +95,22 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
   ) async {
     await _doIfData((data, emit) async {
       await _cacheService.clear();
-      emit(CommonStates.data(data.copyWith(isCacheCleared: true)));
+
+      // Обновляем состояние токена после очистки кэша
+      final hasToken = _authStorage.getToken() != null;
+      final currentToken = _authStorage.getToken();
+      final tokenExpiresAt = _authStorage.getTokenExpiry();
+
+      emit(
+        CommonStates.data(
+          data.copyWith(
+            isCacheCleared: true,
+            hasToken: hasToken,
+            currentToken: currentToken,
+            tokenExpiresAt: tokenExpiresAt,
+          ),
+        ),
+      );
       emitEffect(const SettingsEffect.cacheCleared());
     }, emit);
   }
@@ -112,7 +127,7 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
         return;
       }
 
-      await _exportService.shareData(tracks);
+      await _exportService.shareAllData();
       emitEffect(const SettingsEffect.dataExported());
       emit(CommonStates.data(data));
     }, emit);

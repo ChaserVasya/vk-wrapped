@@ -105,6 +105,12 @@ class VkService {
         // Успешный ответ - добавляем треки
         if (res.response != null) {
           allTracks.addAll(res.response!);
+          print(
+            '[DEBUG] VkService: Loaded ${res.response!.length} tracks from batch ${i ~/ _maxBatchSize + 1}',
+          );
+          print(
+            '[DEBUG] VkService: Sample loaded track IDs: ${res.response!.take(3).map((t) => t.fullId).join(', ')}',
+          );
 
           // Определяем недоступные треки через сравнение
           final receivedIds = res.response!
@@ -123,9 +129,17 @@ class VkService {
             print(
               '[INFO] Audio tracks are unavailable in batch ${i ~/ _maxBatchSize + 1}: ${unavailableIds.length} tracks',
             );
+            print(
+              '[DEBUG] VkService: Unavailable track IDs: ${unavailableIds.take(5).join(', ')}',
+            );
           }
         }
       } catch (e) {
+        // Проверяем, является ли это ошибкой токена - если да, пробрасываем как есть
+        if (e is NoTokenException || e is VkAuthFailedException) {
+          rethrow;
+        }
+
         // Сетевые или другие ошибки - создаем AppException для каждого ID в batch
         for (final audioId in batch) {
           errors.add(

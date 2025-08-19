@@ -23,4 +23,22 @@ abstract interface class AudioStorage {
 
   /// Очищает список недоступных треков
   Future<void> clearUnavailableTracks();
+
+  /// Получает кешированного артиста по ID
+  Future<VkArtist?> getCachedArtist(String artistId);
+
+  /// Сохраняет артиста в кеш
+  Future<void> saveCachedArtist(VkArtist artist);
+
+  /// Получает всех кешированных артистов
+  Future<IList<VkArtist>> getAllCachedArtists();
+
+  /// Проверяет, была ли уже проверена фотография артиста
+  Future<bool> isArtistPhotoChecked(String artistId);
+
+  /// Помечает что фотография артиста была проверена
+  Future<void> markArtistPhotoChecked(String artistId, bool hasPhoto);
+
+  /// Получает артистов, которые нужно обновить (без фото и не проверенных)
+  Future<IList<String>> getArtistsToUpdate();
 }

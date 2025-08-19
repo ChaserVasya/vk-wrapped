@@ -17,6 +17,16 @@ export interface TrackSession {
   last_seen: Date;
 }
 
+export interface MemeLike {
+  meme_id: string;
+}
+
+export interface MemeResponse {
+  meme_id: string;
+  url: string;
+  is_liked: boolean;
+}
+
 // Простые валидаторы для runtime проверки
 export class DataValidator {
   static validateAudioStatus(data: unknown): data is AudioStatus {
@@ -46,6 +56,17 @@ export class DataValidator {
       !isNaN(session.first_observed.getTime()) &&
       session.last_seen instanceof Date &&
       !isNaN(session.last_seen.getTime())
+    );
+  }
+
+  static validateMemeLike(data: unknown): data is MemeLike {
+    if (!data || typeof data !== 'object') return false;
+
+    const memeLike = data as Record<string, unknown>;
+
+    return (
+      typeof memeLike.meme_id === 'string' &&
+      memeLike.meme_id.trim() !== ''
     );
   }
 } 

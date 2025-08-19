@@ -1,0 +1,8 @@
+{
+  "intro_emoji": {
+    "defaultValue": {
+      "value": "😭"
+    },
+    "description": "Эмоджи для отображения в intro screen"
+  }
+}

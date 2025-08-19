@@ -18,4 +18,10 @@ CREATE TABLE current_sessions (
     PRIMARY KEY (full_id)
 ); 
 
+-- Таблица лайков мемов
+CREATE TABLE meme_likes (
+    meme_id String,              -- ID мема (например: "1", "2", "25")
+    PRIMARY KEY (meme_id)
+); 
+
 

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:front/data/local/audio_storage/audio_storage.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:front/domain/entities/track_session.dart';
+import 'package:front/domain/repositories/audio_repository.dart';
 import 'package:front/domain/services/statistics_service.dart';
 import 'package:front/ui/blocs/statistics_bloc/statistics_state.dart';
 import 'package:mockito/annotations.dart';
@@ -10,15 +11,17 @@ import 'package:mockito/mockito.dart';
 
 import 'statistics_service_test.mocks.dart';
 
-@GenerateMocks([AudioStorage])
+@GenerateMocks([AudioStorage, AudioRepository])
 void main() {
   group('StatisticsService', () {
     late MockAudioStorage mockAudioStorage;
+    late MockAudioRepository mockAudioRepository;
     late StatisticsService statisticsService;
 
     setUp(() {
       mockAudioStorage = MockAudioStorage();
-      statisticsService = StatisticsService(mockAudioStorage);
+      mockAudioRepository = MockAudioRepository();
+      statisticsService = StatisticsService(mockAudioStorage, mockAudioRepository);
     });
 
     group('createStatistics', () {
@@ -46,6 +49,10 @@ void main() {
         when(
           mockAudioStorage.getUnavailableTracksCount(),
         ).thenAnswer((_) async => 5);
+        
+        when(
+          mockAudioRepository.getArtistsWithPhotos(),
+        ).thenAnswer((_) async => IList([]));
 
         // Вызываем метод
         final result = await statisticsService.createStatistics(
@@ -82,6 +89,10 @@ void main() {
         when(
           mockAudioStorage.getUnavailableTracksCount(),
         ).thenAnswer((_) async => 0);
+        
+        when(
+          mockAudioRepository.getArtistsWithPhotos(),
+        ).thenAnswer((_) async => IList([]));
 
         // Вызываем метод
         final result = await statisticsService.createStatistics(
@@ -119,6 +130,10 @@ void main() {
           when(
             mockAudioStorage.getUnavailableTracksCount(),
           ).thenAnswer((_) async => 3);
+          
+          when(
+            mockAudioRepository.getArtistsWithPhotos(),
+          ).thenAnswer((_) async => IList([]));
 
           // Вызываем метод
           final result = await statisticsService.createStatistics(

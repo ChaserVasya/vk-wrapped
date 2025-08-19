@@ -402,5 +402,234 @@ void main() {
         },
       );
     });
+
+    group('Cached artists functionality', () {
+      test('Should save and retrieve cached artist', () async {
+        final artist = VkArtist(
+          id: 123,
+          name: 'Test Artist',
+          domain: 'test_artist',
+          photo: 'https://example.com/photo.jpg',
+        );
+
+        // Сохраняем артиста в кеш
+        await storage.saveCachedArtist(artist);
+
+        // Получаем артиста из кеша
+        final cachedArtist = await storage.getCachedArtist('123');
+
+        expect(cachedArtist, isNotNull);
+        expect(cachedArtist!.id, equals('123'.hashCode));
+        expect(cachedArtist.name, equals('Test Artist'));
+        expect(cachedArtist.domain, equals('test_artist'));
+        expect(cachedArtist.photo, equals('https://example.com/photo.jpg'));
+      });
+
+      test('Should return null for non-existent cached artist', () async {
+        final cachedArtist = await storage.getCachedArtist('non_existent');
+        expect(cachedArtist, isNull);
+      });
+
+      test('Should update existing cached artist', () async {
+        final artist1 = VkArtist(
+          id: 123,
+          name: 'Original Artist',
+          domain: 'original_artist',
+          photo: 'https://example.com/photo1.jpg',
+        );
+
+        final artist2 = VkArtist(
+          id: 123,
+          name: 'Updated Artist',
+          domain: 'updated_artist',
+          photo: 'https://example.com/photo2.jpg',
+        );
+
+        // Сохраняем первого артиста
+        await storage.saveCachedArtist(artist1);
+
+        // Обновляем артиста
+        await storage.saveCachedArtist(artist2);
+
+        // Получаем обновленного артиста
+        final cachedArtist = await storage.getCachedArtist('123');
+
+        expect(cachedArtist, isNotNull);
+        expect(cachedArtist!.name, equals('Updated Artist'));
+        expect(cachedArtist.domain, equals('updated_artist'));
+        expect(cachedArtist.photo, equals('https://example.com/photo2.jpg'));
+      });
+
+      test('Should get all cached artists', () async {
+        final artist1 = VkArtist(
+          id: 123,
+          name: 'Artist 1',
+          domain: 'artist1',
+          photo: 'https://example.com/photo1.jpg',
+        );
+
+        final artist2 = VkArtist(
+          id: 456,
+          name: 'Artist 2',
+          domain: 'artist2',
+          photo: 'https://example.com/photo2.jpg',
+        );
+
+        final artist3 = VkArtist(
+          id: 789,
+          name: 'Artist 3',
+          domain: null,
+          photo: null,
+        );
+
+        // Сохраняем артистов
+        await storage.saveCachedArtist(artist1);
+        await storage.saveCachedArtist(artist2);
+        await storage.saveCachedArtist(artist3);
+
+        // Получаем всех артистов
+        final allArtists = await storage.getAllCachedArtists();
+
+        expect(allArtists.length, equals(3));
+
+        // Проверяем первого артиста
+        final cachedArtist1 = allArtists.firstWhere(
+          (a) => a.id == '123'.hashCode,
+        );
+        expect(cachedArtist1.name, equals('Artist 1'));
+        expect(cachedArtist1.domain, equals('artist1'));
+        expect(cachedArtist1.photo, equals('https://example.com/photo1.jpg'));
+
+        // Проверяем второго артиста
+        final cachedArtist2 = allArtists.firstWhere(
+          (a) => a.id == '456'.hashCode,
+        );
+        expect(cachedArtist2.name, equals('Artist 2'));
+        expect(cachedArtist2.domain, equals('artist2'));
+        expect(cachedArtist2.photo, equals('https://example.com/photo2.jpg'));
+
+        // Проверяем третьего артиста (без фото и домена)
+        final cachedArtist3 = allArtists.firstWhere(
+          (a) => a.id == '789'.hashCode,
+        );
+        expect(cachedArtist3.name, equals('Artist 3'));
+        expect(cachedArtist3.domain, isNull);
+        expect(cachedArtist3.photo, isNull);
+      });
+
+      test('Should check if artist photo was checked', () async {
+        final artist = VkArtist(
+          id: 123,
+          name: 'Test Artist',
+          domain: 'test_artist',
+          photo: 'https://example.com/photo.jpg',
+        );
+
+        // Изначально артист не проверен
+        final isCheckedBefore = await storage.isArtistPhotoChecked('123');
+        expect(isCheckedBefore, isFalse);
+
+        // Сохраняем артиста (это автоматически помечает его как проверенного)
+        await storage.saveCachedArtist(artist);
+
+        // Теперь артист проверен
+        final isCheckedAfter = await storage.isArtistPhotoChecked('123');
+        expect(isCheckedAfter, isTrue);
+      });
+
+      test('Should mark artist as photo checked', () async {
+        // Изначально артист не проверен
+        final isCheckedBefore = await storage.isArtistPhotoChecked('123');
+        expect(isCheckedBefore, isFalse);
+
+        // Помечаем артиста как проверенного
+        await storage.markArtistPhotoChecked('123', true);
+
+        // Проверяем что артист помечен как проверенный
+        final isCheckedAfter = await storage.isArtistPhotoChecked('123');
+        expect(isCheckedAfter, isTrue);
+      });
+
+      test('Should mark artist as photo checked when not in cache', () async {
+        // Помечаем несуществующего артиста как проверенного
+        await storage.markArtistPhotoChecked('new_artist', false);
+
+        // Проверяем что артист создан и помечен как проверенный
+        final isChecked = await storage.isArtistPhotoChecked('new_artist');
+        expect(isChecked, isTrue);
+
+        // Проверяем что артист создан в кеше
+        final cachedArtist = await storage.getCachedArtist('new_artist');
+        expect(cachedArtist, isNotNull);
+        expect(cachedArtist!.name, equals('')); // Пустое имя для нового артиста
+      });
+
+      test('Should get artists to update', () async {
+        // Создаем треки с артистами
+        const track1 = VkAudioTrack(
+          id: 1,
+          ownerId: 100,
+          title: 'Track 1',
+          artist: 'Artist 1',
+          duration: 120,
+          url: 'https://example.com/track1.mp3',
+          mainArtists: [
+            VkMainArtist(name: 'Artist 1', domain: 'artist1', id: 'artist_1'),
+            VkMainArtist(name: 'Artist 2', domain: 'artist2', id: 'artist_2'),
+          ],
+        );
+
+        const track2 = VkAudioTrack(
+          id: 2,
+          ownerId: 100,
+          title: 'Track 2',
+          artist: 'Artist 3',
+          duration: 180,
+          url: 'https://example.com/track2.mp3',
+          mainArtists: [
+            VkMainArtist(name: 'Artist 2', domain: 'artist2', id: 'artist_2'),
+            VkMainArtist(name: 'Artist 3', domain: 'artist3', id: 'artist_3'),
+          ],
+        );
+
+        await storage.updateTracks(IList([track1, track2]));
+
+        // Изначально все артисты должны быть в списке для обновления
+        final artistsToUpdate = await storage.getArtistsToUpdate();
+        expect(artistsToUpdate.length, equals(3));
+        expect(artistsToUpdate.contains('artist_1'), isTrue);
+        expect(artistsToUpdate.contains('artist_2'), isTrue);
+        expect(artistsToUpdate.contains('artist_3'), isTrue);
+
+        // Проверяем что все артисты изначально в списке для обновления
+        expect(artistsToUpdate.length, equals(3));
+        expect(artistsToUpdate.contains('artist_1'), isTrue);
+        expect(artistsToUpdate.contains('artist_2'), isTrue);
+        expect(artistsToUpdate.contains('artist_3'), isTrue);
+      });
+
+      test('Should handle empty artists to update', () async {
+        // Если нет треков, список должен быть пуст
+        final artistsToUpdate = await storage.getArtistsToUpdate();
+        expect(artistsToUpdate.length, equals(0));
+      });
+
+      test('Should handle tracks without main artists', () async {
+        const track = VkAudioTrack(
+          id: 1,
+          ownerId: 100,
+          title: 'Track without artists',
+          artist: 'Simple Artist',
+          duration: 120,
+          url: 'https://example.com/track.mp3',
+        );
+
+        await storage.updateTracks(IList([track]));
+
+        // Если нет main artists, список должен быть пуст
+        final artistsToUpdate = await storage.getArtistsToUpdate();
+        expect(artistsToUpdate.length, equals(0));
+      });
+    });
   });
 }
