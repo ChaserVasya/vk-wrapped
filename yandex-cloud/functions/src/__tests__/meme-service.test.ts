@@ -6,6 +6,24 @@ import { MemeService } from '../services/meme-service';
 jest.mock('../services/database');
 jest.mock('../services/auth-factory');
 
+// Мокаем AWS SDK
+jest.mock('aws-sdk', () => {
+    return {
+        S3: jest.fn().mockImplementation(() => ({
+            getSignedUrlPromise: jest.fn().mockResolvedValue('https://storage.yandexcloud.net/vk-wrapped/memes/1.jpg'),
+            listObjectsV2: jest.fn().mockReturnValue({
+                promise: jest.fn().mockResolvedValue({
+                    Contents: [
+                        { Key: 'memes/1.jpg' },
+                        { Key: 'memes/2.jpg' },
+                        { Key: 'memes/3.jpg' }
+                    ]
+                })
+            })
+        }))
+    };
+});
+
 describe('MemeService', () => {
     let memeService: MemeService;
     let mockDatabaseService: jest.Mocked<DatabaseService>;
