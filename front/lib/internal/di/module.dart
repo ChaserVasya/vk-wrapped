@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:front/data/local/prefs_storage.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
+import 'package:front/domain/config/vk_config.dart';
 import 'package:front/domain/exceptions/app_exception.dart';
 import 'package:front/domain/services/app_info_service.dart';
 import 'package:injectable/injectable.dart';
@@ -81,7 +82,7 @@ final _errorMappingInterceptor = InterceptorsWrapper(
 final _vkResponseErrorInterceptor = InterceptorsWrapper(
   onResponse: (response, handler) {
     final baseUrl = response.requestOptions.baseUrl;
-    final isVk = baseUrl.contains('api.vk.com');
+    final isVk = baseUrl.contains(VkConfig.apiDomain);
     final data = response.data;
 
     if (isVk && data is Map) {

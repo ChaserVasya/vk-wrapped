@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:front/domain/config/vk_config.dart';
 import 'package:injectable/injectable.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -8,7 +9,7 @@ part 'generated/vk_api_client.g.dart';
 part 'generated/vk_api_client.freezed.dart';
 
 @lazySingleton
-@RestApi(baseUrl: 'https://api.vk.com/method')
+@RestApi(baseUrl: VkConfig.apiBaseUrl)
 abstract class VkApiClient {
   @factoryMethod
   factory VkApiClient(Dio dio) = _VkApiClient;
@@ -17,14 +18,14 @@ abstract class VkApiClient {
   Future<VkAudioResponse> getAudioById({
     @Query('audios') required String audios,
     @Query('access_token') required String accessToken,
-    @Query('v') String version = '5.131',
+    @Query('v') String version = VkConfig.apiVersion,
   });
 
   @GET('/audio.getArtistById')
   Future<VkArtistResponse> getArtistById({
     @Query('artist_id') required String artistId,
     @Query('access_token') required String accessToken,
-    @Query('v') String version = '5.131',
+    @Query('v') String version = VkConfig.apiVersion,
   });
 }
 

@@ -130,6 +130,66 @@ class MockAudioStorage extends _i1.Mock implements _i4.AudioStorage {
             returnValueForMissingStub: _i5.Future<void>.value(),
           )
           as _i5.Future<void>);
+
+  @override
+  _i5.Future<_i3.VkArtist?> getCachedArtist(String? artistId) =>
+      (super.noSuchMethod(
+            Invocation.method(#getCachedArtist, [artistId]),
+            returnValue: _i5.Future<_i3.VkArtist?>.value(),
+          )
+          as _i5.Future<_i3.VkArtist?>);
+
+  @override
+  _i5.Future<void> saveCachedArtist(_i3.VkArtist? artist) =>
+      (super.noSuchMethod(
+            Invocation.method(#saveCachedArtist, [artist]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<_i2.IList<_i3.VkArtist>> getAllCachedArtists() =>
+      (super.noSuchMethod(
+            Invocation.method(#getAllCachedArtists, []),
+            returnValue: _i5.Future<_i2.IList<_i3.VkArtist>>.value(
+              _FakeIList_0<_i3.VkArtist>(
+                this,
+                Invocation.method(#getAllCachedArtists, []),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.IList<_i3.VkArtist>>);
+
+  @override
+  _i5.Future<bool> isArtistPhotoChecked(String? artistId) =>
+      (super.noSuchMethod(
+            Invocation.method(#isArtistPhotoChecked, [artistId]),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
+
+  @override
+  _i5.Future<void> markArtistPhotoChecked(String? artistId, bool? hasPhoto) =>
+      (super.noSuchMethod(
+            Invocation.method(#markArtistPhotoChecked, [artistId, hasPhoto]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<_i2.IList<String>> getArtistsToUpdate() =>
+      (super.noSuchMethod(
+            Invocation.method(#getArtistsToUpdate, []),
+            returnValue: _i5.Future<_i2.IList<String>>.value(
+              _FakeIList_0<String>(
+                this,
+                Invocation.method(#getArtistsToUpdate, []),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.IList<String>>);
 }
 
 /// A class which mocks [AudioRepository].
@@ -240,6 +300,15 @@ class MockAudioRepository extends _i1.Mock implements _i7.AudioRepository {
             ),
           )
           as _i5.Future<_i2.IList<_i3.VkArtist>>);
+
+  @override
+  _i5.Future<void> updateArtistPhotosInBackground() =>
+      (super.noSuchMethod(
+            Invocation.method(#updateArtistPhotosInBackground, []),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 
   @override
   _i5.Future<_i2.IList<(_i3.VkArtist, int)>> getArtistsWithSongCount() =>
