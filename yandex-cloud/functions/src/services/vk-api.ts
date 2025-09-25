@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { CONFIG } from '../config';
+import { VK_CONFIG } from '../config/vk-config';
 import { VKStatus } from '../types';
 import { LoggerService } from './logger';
 
@@ -8,7 +9,7 @@ export class VKApiService {
   async getStatus(): Promise<VKStatus> {
 
     try {
-      const response = await axios.get('https://api.vk.com/method/users.get', {
+      const response = await axios.get(`${VK_CONFIG.API_BASE_URL}/users.get`, {
         params: {
           user_ids: CONFIG.USER_ID,
           fields: CONFIG.VK_API_FIELDS,
