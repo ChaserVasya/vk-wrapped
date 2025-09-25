@@ -209,7 +209,7 @@ Map<String, dynamic> _$VkArtistPhotoSizeToJson(VkArtistPhotoSize instance) =>
 
 class _VkApiClient implements VkApiClient {
   _VkApiClient(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'https://api.vk.com/method';
+    baseUrl ??= 'https://api.vk.ru/method';
   }
 
   final Dio _dio;
@@ -222,7 +222,7 @@ class _VkApiClient implements VkApiClient {
   Future<VkAudioResponse> getAudioById({
     required String audios,
     required String accessToken,
-    String version = '5.131',
+    String version = VkConfig.apiVersion,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
@@ -257,7 +257,7 @@ class _VkApiClient implements VkApiClient {
   Future<VkArtistResponse> getArtistById({
     required String artistId,
     required String accessToken,
-    String version = '5.131',
+    String version = VkConfig.apiVersion,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{

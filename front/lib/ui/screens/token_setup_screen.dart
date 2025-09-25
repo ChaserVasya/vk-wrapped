@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:front/domain/config/vk_config.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/blocs/token_setup_bloc/token_setup_bloc.dart';
@@ -142,7 +143,7 @@ class _ViewState extends State<_View> {
                           controller: _tokenRequestUrlController,
                           decoration: InputDecoration(
                             hintText:
-                                'https://oauth.vk.com/blank.html#access_token=vk1.a.skY...',
+                                '${VkConfig.oauthRedirectUri}#access_token=vk1.a.skY...',
                             border: const OutlineInputBorder(),
                             suffixIcon:
                                 _tokenRequestUrlController.text.isNotEmpty

@@ -1,5 +1,6 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:injectable/injectable.dart';
+import 'package:front/domain/config/vk_config.dart';
 
 /// Генератор VK Personal Token
 @lazySingleton
@@ -7,16 +8,14 @@ class TokenGenerator {
   static const IListConst<String> _scopes = IListConst(['audio', 'offline']);
 
   String generateAuthUrl(String clientId) {
-    const redirectUri = 'https://oauth.vk.com/blank.html';
-
     final scopesParam = _scopes.join(',');
-    return 'https://oauth.vk.com/authorize?'
+    return '${VkConfig.oauthAuthorizeUrl}?'
         'client_id=$clientId&'
         'display=page&'
-        'redirect_uri=$redirectUri&'
+        'redirect_uri=${VkConfig.oauthRedirectUri}&'
         'scope=$scopesParam&'
         'response_type=token&'
-        'v=5.131';
+        'v=${VkConfig.apiVersion}';
   }
 
   String? extractTokenFromUrl(String url) {
