@@ -26,12 +26,12 @@ dependencies:
   injectable:
     git:
       url: https://github.com/ChaserVasya/injectable
-      ref: synced-with-retrofit-1
+      ref: v3
       path: injectable
   retrofit:
     git:
       url: https://github.com/ChaserVasya/retrofit.dart
-      ref: synced-with-injectable-1.2
+      ref: fork-v3
       path: retrofit
   get_it: ^8.0.3
   auto_route: ^10.1.0+1
@@ -46,11 +46,10 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.20
   path: ^1.9.1
   pretty_dio_logger: ^1.4.0
-  flutter_native_splash: ^2.4.0
+  flutter_native_splash: ^2.4.7
   package_info_plus: ^8.0.2
   firebase_core: ^3.6.0
   firebase_remote_config: ^5.1.0
-  firebase_analytics: ^11.3.3
 
 dev_dependencies:
   flutter_test:
@@ -66,12 +65,12 @@ dev_dependencies:
   injectable_generator:
     git:
       url: https://github.com/ChaserVasya/injectable
-      ref: synced-with-retrofit-1
+      ref: v3
       path: injectable_generator
   retrofit_generator:
     git:
       url: https://github.com/ChaserVasya/retrofit.dart
-      ref: synced-with-injectable-1.2
+      ref: fork-v3
       path: generator
   build_runner: ^2.4.15
   auto_route_generator: ^10.1.0
