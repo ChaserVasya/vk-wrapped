@@ -14,47 +14,6 @@ const FIELDS = {
   LAST_SEEN: 'last_seen'
 } as const;
 
-// Приватный класс для курсора пагинации
-class PaginationCursor {
-  constructor(
-    public readonly lastSeenTimestamp: number,
-    public readonly fullId: string,
-    public readonly firstObserved: number
-  ) {}
-
-  /**
-   * Создает курсор пагинации из сессии
-   */
-  static fromSession(session: TrackSession): PaginationCursor {
-    return new PaginationCursor(
-      Math.floor(session.last_seen.getTime() / 1000),
-      session.full_id,
-      Math.floor(session.first_observed.getTime() / 1000)
-    );
-  }
-
-  /**
-   * Проверяет, равны ли два курсора
-   */
-  equals(other: PaginationCursor | null): boolean {
-    if (other === null) {
-      return false;
-    }
-    return this.lastSeenTimestamp === other.lastSeenTimestamp &&
-           this.fullId === other.fullId &&
-           this.firstObserved === other.firstObserved;
-  }
-
-  /**
-   * Генерирует WHERE условие для SQL запроса на основе курсора
-   */
-  buildWhereClause(): string {
-    return `${FIELDS.LAST_SEEN} < ${this.lastSeenTimestamp}
-               OR (${FIELDS.LAST_SEEN} = ${this.lastSeenTimestamp} AND ${FIELDS.FULL_ID} < "${this.fullId}")
-               OR (${FIELDS.LAST_SEEN} = ${this.lastSeenTimestamp} AND ${FIELDS.FULL_ID} = "${this.fullId}" AND ${FIELDS.FIRST_OBSERVED} < ${this.firstObserved})`;
-  }
-}
-
 export class DatabaseService {
   private driver: Driver;
 
@@ -68,10 +27,11 @@ export class DatabaseService {
   }
 
   /**
- * Преобразует строку YDB в TrackSession
- * @param row - строка из YDB с полями full_id, first_observed, last_seen
- * @returns TrackSession или null если данные некорректны
- */
+   * Преобразует строку YDB Table Service в TrackSession
+   * Table Service возвращает данные в формате items с bytesValue и uint32Value
+   * @param row - строка из YDB Table Service с полями full_id, first_observed, last_seen
+   * @returns TrackSession или null если данные некорректны
+   */
   private mapRowToTrackSession(row: unknown): TrackSession | null {
     try {
       // Приводим к типу с items
@@ -81,7 +41,7 @@ export class DatabaseService {
         return null;
       }
 
-      // YDB возвращает данные в формате items с bytesValue и uint32Value
+      // YDB Table Service возвращает данные в формате items с bytesValue и uint32Value
       const fullIdItem = typedRow.items[0] as { bytesValue?: string };
       const firstObservedItem = typedRow.items[1] as { uint32Value?: number };
       const lastSeenItem = typedRow.items[2] as { uint32Value?: number };
@@ -106,6 +66,61 @@ export class DatabaseService {
       };
     } catch (error) {
       LoggerService.error('Failed to map row to TrackSession', error);
+      return null;
+    }
+  }
+
+  /**
+   * Преобразует строку YDB Query Service в TrackSession
+   * Query Service с rowMode: Native возвращает данные в формате объекта с camelCase ключами
+   * @param row - строка из YDB Query Service с полями fullId (Buffer), firstObserved, lastSeen
+   * @returns TrackSession или null если данные некорректны
+   */
+  private mapQueryServiceRowToTrackSession(row: unknown): TrackSession | null {
+    try {
+      // Query Service с rowMode: Native возвращает объект с camelCase ключами
+      const typedRow = row as { 
+        fullId?: string | Buffer;
+        firstObserved?: number;
+        lastSeen?: number;
+      };
+
+      if (!typedRow.fullId || !typedRow.firstObserved || !typedRow.lastSeen) {
+        LoggerService.debug('Invalid Query Service row data', { 
+          hasFullId: !!typedRow.fullId,
+          hasFirstObserved: !!typedRow.firstObserved,
+          hasLastSeen: !!typedRow.lastSeen
+        });
+        return null;
+      }
+
+      // fullId может быть Buffer или string - конвертируем в string
+      let fullId: string;
+      if (Buffer.isBuffer(typedRow.fullId)) {
+        fullId = typedRow.fullId.toString('utf-8');
+      } else if (typeof typedRow.fullId === 'string') {
+        fullId = typedRow.fullId;
+      } else {
+        LoggerService.debug('Invalid fullId type', { type: typeof typedRow.fullId });
+        return null;
+      }
+
+      if (!fullId) {
+        LoggerService.debug('Empty fullId after conversion');
+        return null;
+      }
+
+      // Query Service возвращает timestamp в секундах (Uint32)
+      const firstObserved = new Date(typedRow.firstObserved * 1000);
+      const lastSeen = new Date(typedRow.lastSeen * 1000);
+
+      return {
+        full_id: fullId,
+        first_observed: firstObserved,
+        last_seen: lastSeen
+      };
+    } catch (error) {
+      LoggerService.error('Failed to map Query Service row to TrackSession', error);
       return null;
     }
   }
@@ -328,96 +343,47 @@ export class DatabaseService {
         throw new Error(`Driver has not become ready in ${timeout}ms!`);
       }
 
-      // Постраничное чтение всей таблицы
+      // Используем Query Service, который не имеет ограничения в 1000 строк
+      // https://ydb.tech/docs/ru/concepts/limits-ydb?version=v25.2
+      const query: string = `
+        SELECT ${FIELDS.FULL_ID}, ${FIELDS.FIRST_OBSERVED}, ${FIELDS.LAST_SEEN}
+        FROM ${TABLES.COMPLETED_SESSIONS}
+        ORDER BY ${FIELDS.LAST_SEEN} DESC, ${FIELDS.FULL_ID} DESC, ${FIELDS.FIRST_OBSERVED} DESC
+      `;
 
-      //https://ydb.tech/docs/ru/faq/yql?version=v25.2#result-rows-limit
-      const pageSize = 1000;
-      
-      const allSessions: TrackSession[] = [];
-      let cursor: PaginationCursor | null = null;
-      let hasMoreData = true;
+      const allRows: unknown[] = [];
 
-      while (hasMoreData) {
-        let query: string;
-        
-        if (cursor === null) {
-          // Первая страница
-          query = `
-            SELECT ${FIELDS.FULL_ID}, ${FIELDS.FIRST_OBSERVED}, ${FIELDS.LAST_SEEN}
-            FROM ${TABLES.COMPLETED_SESSIONS}
-            ORDER BY ${FIELDS.LAST_SEEN} DESC, ${FIELDS.FULL_ID} DESC, ${FIELDS.FIRST_OBSERVED} DESC
-            LIMIT ${pageSize}
-          `;
-        } else {
-          // Последующие страницы - используем комбинированный курсор с учетом PRIMARY KEY (full_id, first_observed)
-          // Это гарантирует корректную пагинацию даже при дублирующихся значениях last_seen и full_id
-          query = `
-            SELECT ${FIELDS.FULL_ID}, ${FIELDS.FIRST_OBSERVED}, ${FIELDS.LAST_SEEN}
-            FROM ${TABLES.COMPLETED_SESSIONS}
-            WHERE ${cursor.buildWhereClause()}
-            ORDER BY ${FIELDS.LAST_SEEN} DESC, ${FIELDS.FULL_ID} DESC, ${FIELDS.FIRST_OBSERVED} DESC
-            LIMIT ${pageSize}
-          `;
-        }
-
-        const result = await this.driver.tableClient.withSession(async (session) => {
-          return await session.executeQuery(query);
-        });
-
-        if (!result.resultSets || result.resultSets.length === 0) {
-          LoggerService.debug(`No result sets for ${operation} page`);
-          hasMoreData = false;
-          break;
-        }
-
-        const rows = result.resultSets[0].rows;
-        LoggerService.debug(`Rows count for ${operation} page`, { rowsCount: rows?.length || 0 });
-
-        if (!rows || rows.length === 0) {
-          LoggerService.debug(`No rows found for ${operation} page`);
-          hasMoreData = false;
-          break;
-        }
-
-        const pageSessions: TrackSession[] = rows
-          .map((row: unknown) => this.mapRowToTrackSession(row))
-          .filter((session): session is TrackSession => session !== null);
-
-        allSessions.push(...pageSessions);
-
-        // Если БД вернула меньше строк, чем запросили, значит достигли конца таблицы
-        if (rows.length < pageSize) {
-          hasMoreData = false;
-        } else if (pageSessions.length === 0) {
-          // Если все строки отфильтрованы (все вернули null из mapRowToTrackSession),
-          // значит в БД есть некорректные данные. Останавливаемся, чтобы избежать бесконечного цикла.
-          LoggerService.debug(`All rows filtered out (all invalid), stopping pagination`);
-          hasMoreData = false;
-        } else {
-          // Обновляем курсор - берем последние значения из текущей страницы
-          const lastSession = pageSessions[pageSessions.length - 1];
-          const newCursor = PaginationCursor.fromSession(lastSession);
-          
-          // Защита от бесконечного цикла - если курсор не изменился, останавливаемся
-          if (cursor !== null && cursor.equals(newCursor)) {
-            LoggerService.debug(`Cursor unchanged, possible infinite loop detected. Stopping pagination.`, newCursor);
-            hasMoreData = false;
-            break;
-          }
-          
-          cursor = newCursor;
-          
-          LoggerService.debug(`Fetched page for ${operation}`, { 
-            validSessionsCount: pageSessions.length, 
-            rawRowsCount: rows.length,
-            totalFetched: allSessions.length,
-            cursor
+      await this.driver.queryClient.do({
+        fn: async (session) => {
+          const result = await session.execute({
+            text: query,
+            rowMode: 0 // RowType.Native - конвертация в нативный JS формат
           });
+
+          for await (const resultSet of result.resultSets) {
+            for await (const row of resultSet.rows) {
+              allRows.push(row);
+            }
+          }
+
+          // Ждем завершения операции
+          await result.opFinished;
         }
+      });
+
+      LoggerService.debug(`Rows count for ${operation}`, { rowsCount: allRows.length });
+
+      if (allRows.length === 0) {
+        LoggerService.debug(`No rows found for ${operation}`);
+        return [];
       }
 
-      LoggerService.debug(`Created completed sessions for ${operation}`, { count: allSessions.length });
-      return allSessions;
+      const sessions: TrackSession[] = allRows
+        .map((row: unknown) => this.mapQueryServiceRowToTrackSession(row))
+        .filter((session): session is TrackSession => session !== null);
+
+      LoggerService.debug(`Created completed sessions for ${operation}`, { count: sessions.length });
+      return sessions;
 
     } catch (error: unknown) {
       LoggerService.error(`Database error in ${operation}`, error);
