@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: "Dart DI: always use getIt<T>() instead of GetIt.instance<T>()"
+alwaysApply: false
 ---
 
 # Правило использования GetIt в проекте

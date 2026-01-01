@@ -1,4 +1,5 @@
 ---
+description: "Extract Flutter build parameters from Android Studio .run.xml configuration files"
 alwaysApply: true
 ---
 
