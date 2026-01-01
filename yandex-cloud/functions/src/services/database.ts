@@ -14,6 +14,47 @@ const FIELDS = {
   LAST_SEEN: 'last_seen'
 } as const;
 
+// Приватный класс для курсора пагинации
+class PaginationCursor {
+  constructor(
+    public readonly lastSeenTimestamp: number,
+    public readonly fullId: string,
+    public readonly firstObserved: number
+  ) {}
+
+  /**
+   * Создает курсор пагинации из сессии
+   */
+  static fromSession(session: TrackSession): PaginationCursor {
+    return new PaginationCursor(
+      Math.floor(session.last_seen.getTime() / 1000),
+      session.full_id,
+      Math.floor(session.first_observed.getTime() / 1000)
+    );
+  }
+
+  /**
+   * Проверяет, равны ли два курсора
+   */
+  equals(other: PaginationCursor | null): boolean {
+    if (other === null) {
+      return false;
+    }
+    return this.lastSeenTimestamp === other.lastSeenTimestamp &&
+           this.fullId === other.fullId &&
+           this.firstObserved === other.firstObserved;
+  }
+
+  /**
+   * Генерирует WHERE условие для SQL запроса на основе курсора
+   */
+  buildWhereClause(): string {
+    return `${FIELDS.LAST_SEEN} < ${this.lastSeenTimestamp}
+               OR (${FIELDS.LAST_SEEN} = ${this.lastSeenTimestamp} AND ${FIELDS.FULL_ID} < "${this.fullId}")
+               OR (${FIELDS.LAST_SEEN} = ${this.lastSeenTimestamp} AND ${FIELDS.FULL_ID} = "${this.fullId}" AND ${FIELDS.FIRST_OBSERVED} < ${this.firstObserved})`;
+  }
+}
+
 export class DatabaseService {
   private driver: Driver;
 
@@ -277,7 +318,7 @@ export class DatabaseService {
   }
 
   // Получение завершенных сессий
-  async getCompletedSessions(limit?: number): Promise<TrackSession[]> {
+  async getCompletedSessions(): Promise<TrackSession[]> {
     const operation = 'get_completed_sessions';
     LoggerService.debug(`Starting ${operation}`);
 
@@ -287,37 +328,96 @@ export class DatabaseService {
         throw new Error(`Driver has not become ready in ${timeout}ms!`);
       }
 
-      const limitClause = limit ? `LIMIT ${limit}` : '';
-      const query: string = `
-        SELECT ${FIELDS.FULL_ID}, ${FIELDS.FIRST_OBSERVED}, ${FIELDS.LAST_SEEN}
-        FROM ${TABLES.COMPLETED_SESSIONS}
-        ORDER BY ${FIELDS.LAST_SEEN} DESC
-        ${limitClause}
-      `;
+      // Постраничное чтение всей таблицы
 
-      const result = await this.driver.tableClient.withSession(async (session) => {
-        return await session.executeQuery(query);
-      });
+      //https://ydb.tech/docs/ru/faq/yql?version=v25.2#result-rows-limit
+      const pageSize = 1000;
+      
+      const allSessions: TrackSession[] = [];
+      let cursor: PaginationCursor | null = null;
+      let hasMoreData = true;
 
-      if (!result.resultSets || result.resultSets.length === 0) {
-        LoggerService.debug(`No result sets for ${operation}`);
-        return [];
+      while (hasMoreData) {
+        let query: string;
+        
+        if (cursor === null) {
+          // Первая страница
+          query = `
+            SELECT ${FIELDS.FULL_ID}, ${FIELDS.FIRST_OBSERVED}, ${FIELDS.LAST_SEEN}
+            FROM ${TABLES.COMPLETED_SESSIONS}
+            ORDER BY ${FIELDS.LAST_SEEN} DESC, ${FIELDS.FULL_ID} DESC, ${FIELDS.FIRST_OBSERVED} DESC
+            LIMIT ${pageSize}
+          `;
+        } else {
+          // Последующие страницы - используем комбинированный курсор с учетом PRIMARY KEY (full_id, first_observed)
+          // Это гарантирует корректную пагинацию даже при дублирующихся значениях last_seen и full_id
+          query = `
+            SELECT ${FIELDS.FULL_ID}, ${FIELDS.FIRST_OBSERVED}, ${FIELDS.LAST_SEEN}
+            FROM ${TABLES.COMPLETED_SESSIONS}
+            WHERE ${cursor.buildWhereClause()}
+            ORDER BY ${FIELDS.LAST_SEEN} DESC, ${FIELDS.FULL_ID} DESC, ${FIELDS.FIRST_OBSERVED} DESC
+            LIMIT ${pageSize}
+          `;
+        }
+
+        const result = await this.driver.tableClient.withSession(async (session) => {
+          return await session.executeQuery(query);
+        });
+
+        if (!result.resultSets || result.resultSets.length === 0) {
+          LoggerService.debug(`No result sets for ${operation} page`);
+          hasMoreData = false;
+          break;
+        }
+
+        const rows = result.resultSets[0].rows;
+        LoggerService.debug(`Rows count for ${operation} page`, { rowsCount: rows?.length || 0 });
+
+        if (!rows || rows.length === 0) {
+          LoggerService.debug(`No rows found for ${operation} page`);
+          hasMoreData = false;
+          break;
+        }
+
+        const pageSessions: TrackSession[] = rows
+          .map((row: unknown) => this.mapRowToTrackSession(row))
+          .filter((session): session is TrackSession => session !== null);
+
+        allSessions.push(...pageSessions);
+
+        // Если БД вернула меньше строк, чем запросили, значит достигли конца таблицы
+        if (rows.length < pageSize) {
+          hasMoreData = false;
+        } else if (pageSessions.length === 0) {
+          // Если все строки отфильтрованы (все вернули null из mapRowToTrackSession),
+          // значит в БД есть некорректные данные. Останавливаемся, чтобы избежать бесконечного цикла.
+          LoggerService.debug(`All rows filtered out (all invalid), stopping pagination`);
+          hasMoreData = false;
+        } else {
+          // Обновляем курсор - берем последние значения из текущей страницы
+          const lastSession = pageSessions[pageSessions.length - 1];
+          const newCursor = PaginationCursor.fromSession(lastSession);
+          
+          // Защита от бесконечного цикла - если курсор не изменился, останавливаемся
+          if (cursor !== null && cursor.equals(newCursor)) {
+            LoggerService.debug(`Cursor unchanged, possible infinite loop detected. Stopping pagination.`, newCursor);
+            hasMoreData = false;
+            break;
+          }
+          
+          cursor = newCursor;
+          
+          LoggerService.debug(`Fetched page for ${operation}`, { 
+            validSessionsCount: pageSessions.length, 
+            rawRowsCount: rows.length,
+            totalFetched: allSessions.length,
+            cursor
+          });
+        }
       }
 
-      const rows = result.resultSets[0].rows;
-      LoggerService.debug(`Rows count for ${operation}`, { rowsCount: rows?.length || 0 });
-
-      if (!rows || rows.length === 0) {
-        LoggerService.debug(`No rows found for ${operation}`);
-        return [];
-      }
-
-      const sessions: TrackSession[] = rows
-        .map((row: unknown) => this.mapRowToTrackSession(row))
-        .filter((session): session is TrackSession => session !== null);
-
-      LoggerService.debug(`Created completed sessions for ${operation}`, { count: sessions.length });
-      return sessions;
+      LoggerService.debug(`Created completed sessions for ${operation}`, { count: allSessions.length });
+      return allSessions;
 
     } catch (error: unknown) {
       LoggerService.error(`Database error in ${operation}`, error);
