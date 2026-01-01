@@ -12,18 +12,21 @@ dependencies {
 
 android {
     namespace = "com.example.front"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+    compileSdk = 36
+    // Force NDK r28+ for 16 KB page size support (Google requirement)
+    //todo: remove when flutter.ndkVersion value will be 28+
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
         isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11.toString()
+        jvmTarget = "21"
     }
+
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
@@ -31,7 +34,8 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = flutter.targetSdkVersion
+        //todo https://yt.mobifitness.ru/youtrack/issue/TRN-1155/Podderzhat-rezhim-ot-kraya-do-kraya#focus=Comments-4-105114.0-0
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
