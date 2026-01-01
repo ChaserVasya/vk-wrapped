@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: "Dart Disposable interface for resource cleanup in injectable classes"
+alwaysApply: false
 ---
 
 # Правило использования интерфейса Disposable

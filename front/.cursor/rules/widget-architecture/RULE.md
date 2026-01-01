@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: "Flutter widget architecture: separate widget classes, Gap usage, button styles, Flutter Gen assets"
+alwaysApply: false
 ---
 
 # Правило архитектуры виджетов

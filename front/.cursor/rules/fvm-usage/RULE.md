@@ -1,6 +1,8 @@
 ---
+description: "Always use FVM prefix for Flutter/Dart commands when .fvmrc or .fvm/ directory exists"
 alwaysApply: true
 ---
+
 # Правило использования FVM для Flutter проектов
 
 ## Основное требование

@@ -1,12 +1,14 @@
 ---
-alwaysApply: true
+description: "Dart dependency injection: choosing @injectable, @lazySingleton, or @singleton annotations"
+alwaysApply: false
 ---
-
 # Правило использования аннотаций DI в Mobi Trainer Client
 
 ## Основные принципы
 
 ### @lazySingleton
+
+
 
 **Использовать для классов с внутренним состоянием:**
 

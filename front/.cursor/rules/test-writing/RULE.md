@@ -1,6 +1,8 @@
 ---
-alwaysApply: true
+description: "Dart testing rules: when to write tests and mandatory cleanup of unused code"
+alwaysApply: false
 ---
+
 # Правило написания тестов и удаления неиспользуемого кода
 
 ## Основные принципы

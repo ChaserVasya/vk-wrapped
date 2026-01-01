@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: "Dart/Flutter Bloc error handling rules using EffectBloc and ShowErrorSafeListener"
+alwaysApply: false
 ---
 
 # Правило управления эффектами в Bloc

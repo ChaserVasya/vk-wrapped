@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+description: "Dart/Flutter code style: const/final usage, $ naming conventions, and Bloc patterns"
+alwaysApply: false
 ---
 
 # Code Style Guidelines for Mobi Trainer Client
