@@ -8,11 +8,12 @@ import 'dart:async' as _i5;
 import 'package:fast_immutable_collections/fast_immutable_collections.dart'
     as _i4;
 import 'package:front/data/local/audio_storage/audio_storage.dart' as _i6;
-import 'package:front/data/local/audio_storage/drift/database.dart' as _i7;
-import 'package:front/data/remote/api/track_sessions_client.dart' as _i8;
+import 'package:front/data/local/audio_storage/drift/database.dart' as _i8;
+import 'package:front/data/remote/api/filtered_track_sessions_client.dart'
+    as _i9;
 import 'package:front/data/remote/api/vk_api_client.dart' as _i3;
 import 'package:front/data/remote/services/vk_service.dart' as _i2;
-import 'package:front/domain/entities/track_session.dart' as _i9;
+import 'package:front/domain/entities/track_session.dart' as _i7;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -28,6 +29,7 @@ import 'package:mockito/mockito.dart' as _i1;
 // ignore_for_file: unnecessary_parenthesis
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
+// ignore_for_file: invalid_use_of_internal_member
 
 class _FakeVkAudioResult_0 extends _i1.SmartFake implements _i2.VkAudioResult {
   _FakeVkAudioResult_0(Object parent, Invocation parentInvocation)
@@ -143,25 +145,29 @@ class MockAudioStorage extends _i1.Mock implements _i6.AudioStorage {
           as _i5.Future<void>);
 
   @override
-  _i5.Future<int> getUnavailableTracksCount() =>
+  _i5.Future<int> getUnavailableTracksCount({
+    _i4.IList<_i7.TrackSession>? sessions,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#getUnavailableTracksCount, []),
+            Invocation.method(#getUnavailableTracksCount, [], {
+              #sessions: sessions,
+            }),
             returnValue: _i5.Future<int>.value(0),
           )
           as _i5.Future<int>);
 
   @override
-  _i5.Future<_i4.IList<_i7.UnavailableTrack>> getUnavailableTracks() =>
+  _i5.Future<_i4.IList<_i8.UnavailableTrack>> getUnavailableTracks() =>
       (super.noSuchMethod(
             Invocation.method(#getUnavailableTracks, []),
-            returnValue: _i5.Future<_i4.IList<_i7.UnavailableTrack>>.value(
-              _FakeIList_2<_i7.UnavailableTrack>(
+            returnValue: _i5.Future<_i4.IList<_i8.UnavailableTrack>>.value(
+              _FakeIList_2<_i8.UnavailableTrack>(
                 this,
                 Invocation.method(#getUnavailableTracks, []),
               ),
             ),
           )
-          as _i5.Future<_i4.IList<_i7.UnavailableTrack>>);
+          as _i5.Future<_i4.IList<_i8.UnavailableTrack>>);
 
   @override
   _i5.Future<void> clearUnavailableTracks() =>
@@ -181,9 +187,9 @@ class MockAudioStorage extends _i1.Mock implements _i6.AudioStorage {
           as _i5.Future<_i3.VkArtist?>);
 
   @override
-  _i5.Future<void> saveCachedArtist(_i3.VkArtist? artist) =>
+  _i5.Future<void> saveCachedArtist(_i3.VkArtist? artist, String? artistId) =>
       (super.noSuchMethod(
-            Invocation.method(#saveCachedArtist, [artist]),
+            Invocation.method(#saveCachedArtist, [artist, artistId]),
             returnValue: _i5.Future<void>.value(),
             returnValueForMissingStub: _i5.Future<void>.value(),
           )
@@ -233,22 +239,25 @@ class MockAudioStorage extends _i1.Mock implements _i6.AudioStorage {
           as _i5.Future<_i4.IList<String>>);
 }
 
-/// A class which mocks [TrackSessionsClient].
+/// A class which mocks [FilteredTrackSessionsClient].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTrackSessionsClient extends _i1.Mock
-    implements _i8.TrackSessionsClient {
-  MockTrackSessionsClient() {
+class MockFilteredTrackSessionsClient extends _i1.Mock
+    implements _i9.FilteredTrackSessionsClient {
+  MockFilteredTrackSessionsClient() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<List<_i9.TrackSession>> getSessions() =>
+  _i5.Future<_i4.IList<_i7.TrackSession>> getSessions() =>
       (super.noSuchMethod(
             Invocation.method(#getSessions, []),
-            returnValue: _i5.Future<List<_i9.TrackSession>>.value(
-              <_i9.TrackSession>[],
+            returnValue: _i5.Future<_i4.IList<_i7.TrackSession>>.value(
+              _FakeIList_2<_i7.TrackSession>(
+                this,
+                Invocation.method(#getSessions, []),
+              ),
             ),
           )
-          as _i5.Future<List<_i9.TrackSession>>);
+          as _i5.Future<_i4.IList<_i7.TrackSession>>);
 }

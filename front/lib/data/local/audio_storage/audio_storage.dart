@@ -1,6 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:front/data/local/audio_storage/drift/database.dart';
+import 'package:front/domain/entities/track_session.dart';
 
 abstract interface class AudioStorage {
   Future<IList<VkAudioTrack>> getTracks();
@@ -16,7 +17,8 @@ abstract interface class AudioStorage {
   Future<void> markTrackAsUnavailable(int id, int ownerId, String fullId);
 
   /// Получает количество недоступных треков
-  Future<int> getUnavailableTracksCount();
+  /// Если [sessions] передан, считает только треки из этих сессий
+  Future<int> getUnavailableTracksCount({IList<TrackSession>? sessions});
 
   /// Получает список недоступных треков
   Future<IList<UnavailableTrack>> getUnavailableTracks();
@@ -28,7 +30,8 @@ abstract interface class AudioStorage {
   Future<VkArtist?> getCachedArtist(String artistId);
 
   /// Сохраняет артиста в кеш
-  Future<void> saveCachedArtist(VkArtist artist);
+  /// [artistId] - оригинальный ID артиста (String) из VK API
+  Future<void> saveCachedArtist(VkArtist artist, String artistId);
 
   /// Получает всех кешированных артистов
   Future<IList<VkArtist>> getAllCachedArtists();

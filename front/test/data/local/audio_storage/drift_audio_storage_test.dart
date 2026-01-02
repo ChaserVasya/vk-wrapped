@@ -413,7 +413,7 @@ void main() {
         );
 
         // Сохраняем артиста в кеш
-        await storage.saveCachedArtist(artist);
+        await storage.saveCachedArtist(artist, '123');
 
         // Получаем артиста из кеша
         final cachedArtist = await storage.getCachedArtist('123');
@@ -446,10 +446,10 @@ void main() {
         );
 
         // Сохраняем первого артиста
-        await storage.saveCachedArtist(artist1);
+        await storage.saveCachedArtist(artist1, '123');
 
         // Обновляем артиста
-        await storage.saveCachedArtist(artist2);
+        await storage.saveCachedArtist(artist2, '123');
 
         // Получаем обновленного артиста
         final cachedArtist = await storage.getCachedArtist('123');
@@ -483,9 +483,9 @@ void main() {
         );
 
         // Сохраняем артистов
-        await storage.saveCachedArtist(artist1);
-        await storage.saveCachedArtist(artist2);
-        await storage.saveCachedArtist(artist3);
+        await storage.saveCachedArtist(artist1, '123');
+        await storage.saveCachedArtist(artist2, '456');
+        await storage.saveCachedArtist(artist3, '789');
 
         // Получаем всех артистов
         final allArtists = await storage.getAllCachedArtists();
@@ -530,7 +530,7 @@ void main() {
         expect(isCheckedBefore, isFalse);
 
         // Сохраняем артиста (это автоматически помечает его как проверенного)
-        await storage.saveCachedArtist(artist);
+        await storage.saveCachedArtist(artist, '123');
 
         // Теперь артист проверен
         final isCheckedAfter = await storage.isArtistPhotoChecked('123');

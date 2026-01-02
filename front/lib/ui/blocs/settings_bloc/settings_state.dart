@@ -8,6 +8,7 @@ abstract class SettingsData with _$SettingsData {
     DateTime? tokenExpiresAt,
     required String clientId,
     required bool isCacheCleared,
+    DateRangeFilter? dateRangeFilter,
   }) = _SettingsData;
 }
 

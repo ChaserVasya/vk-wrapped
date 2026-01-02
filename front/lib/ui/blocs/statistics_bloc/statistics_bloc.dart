@@ -1,3 +1,4 @@
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:front/domain/exceptions/app_exception.dart';
 import 'package:front/domain/repositories/audio_repository.dart';
@@ -27,9 +28,17 @@ class StatisticsBloc extends EffectBloc<StatisticsEvent, StatisticsState> {
     emit(const StatisticsState.loading());
 
     try {
-      final (tracks, sessions) = await _audioRepository.getAudioData();
+      // Получаем треки и сессии за один запрос
+      final (allTracks, sessions) = await _audioRepository.getAudioData();
+
+      // Фильтруем треки по сессиям - возвращаем только те, что прослушивались
+      final sessionTrackIds = sessions.map((s) => s.fullId).toSet();
+      final filteredTracks = allTracks
+          .where((track) => sessionTrackIds.contains(track.fullId))
+          .toIList();
+
       final statistic = await _statisticsService.createStatistics(
-        tracks,
+        filteredTracks,
         sessions,
       );
 

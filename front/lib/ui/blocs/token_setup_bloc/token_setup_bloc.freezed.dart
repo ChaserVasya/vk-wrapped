@@ -1,6 +1,5 @@
-// dart format width=80
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -35,6 +34,155 @@ class $TokenSetupEffectCopyWith<$Res> {
     TokenSetupEffect _,
     $Res Function(TokenSetupEffect) __,
   );
+}
+
+/// Adds pattern-matching-related methods to [TokenSetupEffect].
+extension TokenSetupEffectPatterns on TokenSetupEffect {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(TokenSetupEffect$Finish value)? finish,
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case TokenSetupEffect$Finish() when finish != null:
+        return finish(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(TokenSetupEffect$Finish value) finish,
+  }) {
+    final _that = this;
+    switch (_that) {
+      case TokenSetupEffect$Finish():
+        return finish(_that);
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(TokenSetupEffect$Finish value)? finish,
+  }) {
+    final _that = this;
+    switch (_that) {
+      case TokenSetupEffect$Finish() when finish != null:
+        return finish(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? finish,
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case TokenSetupEffect$Finish() when finish != null:
+        return finish();
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({required TResult Function() finish}) {
+    final _that = this;
+    switch (_that) {
+      case TokenSetupEffect$Finish():
+        return finish();
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({TResult? Function()? finish}) {
+    final _that = this;
+    switch (_that) {
+      case TokenSetupEffect$Finish() when finish != null:
+        return finish();
+      case _:
+        return null;
+    }
+  }
 }
 
 /// @nodoc
@@ -80,6 +228,178 @@ class $TokenSetupEventCopyWith<$Res> {
     TokenSetupEvent _,
     $Res Function(TokenSetupEvent) __,
   );
+}
+
+/// Adds pattern-matching-related methods to [TokenSetupEvent].
+extension TokenSetupEventPatterns on TokenSetupEvent {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_VkTokenResponseProvided value)? vkTokenResponseProvided,
+    TResult Function(_VkAppIdSaved value)? vkAppIdSaved,
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _VkTokenResponseProvided() when vkTokenResponseProvided != null:
+        return vkTokenResponseProvided(_that);
+      case _VkAppIdSaved() when vkAppIdSaved != null:
+        return vkAppIdSaved(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_VkTokenResponseProvided value)
+    vkTokenResponseProvided,
+    required TResult Function(_VkAppIdSaved value) vkAppIdSaved,
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _VkTokenResponseProvided():
+        return vkTokenResponseProvided(_that);
+      case _VkAppIdSaved():
+        return vkAppIdSaved(_that);
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_VkTokenResponseProvided value)? vkTokenResponseProvided,
+    TResult? Function(_VkAppIdSaved value)? vkAppIdSaved,
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _VkTokenResponseProvided() when vkTokenResponseProvided != null:
+        return vkTokenResponseProvided(_that);
+      case _VkAppIdSaved() when vkAppIdSaved != null:
+        return vkAppIdSaved(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(String url)? vkTokenResponseProvided,
+    TResult Function(String vkAppId)? vkAppIdSaved,
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _VkTokenResponseProvided() when vkTokenResponseProvided != null:
+        return vkTokenResponseProvided(_that.url);
+      case _VkAppIdSaved() when vkAppIdSaved != null:
+        return vkAppIdSaved(_that.vkAppId);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(String url) vkTokenResponseProvided,
+    required TResult Function(String vkAppId) vkAppIdSaved,
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _VkTokenResponseProvided():
+        return vkTokenResponseProvided(_that.url);
+      case _VkAppIdSaved():
+        return vkAppIdSaved(_that.vkAppId);
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(String url)? vkTokenResponseProvided,
+    TResult? Function(String vkAppId)? vkAppIdSaved,
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _VkTokenResponseProvided() when vkTokenResponseProvided != null:
+        return vkTokenResponseProvided(_that.url);
+      case _VkAppIdSaved() when vkAppIdSaved != null:
+        return vkAppIdSaved(_that.vkAppId);
+      case _:
+        return null;
+    }
+  }
 }
 
 /// @nodoc
@@ -296,6 +616,190 @@ class _$TokenSetupStateCopyWithImpl<$Res>
                   as String?,
       ),
     );
+  }
+}
+
+/// Adds pattern-matching-related methods to [TokenSetupState].
+extension TokenSetupStatePatterns on TokenSetupState {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(TokenSetupState$DataLoaded value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case TokenSetupState$DataLoaded() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(TokenSetupState$DataLoaded value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case TokenSetupState$DataLoaded():
+        return $default(_that);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(TokenSetupState$DataLoaded value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case TokenSetupState$DataLoaded() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(
+      String vkAppId,
+      String? currentToken,
+      String? tokenGenerationUrl,
+    )?
+    $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case TokenSetupState$DataLoaded() when $default != null:
+        return $default(
+          _that.vkAppId,
+          _that.currentToken,
+          _that.tokenGenerationUrl,
+        );
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(
+      String vkAppId,
+      String? currentToken,
+      String? tokenGenerationUrl,
+    )
+    $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case TokenSetupState$DataLoaded():
+        return $default(
+          _that.vkAppId,
+          _that.currentToken,
+          _that.tokenGenerationUrl,
+        );
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(
+      String vkAppId,
+      String? currentToken,
+      String? tokenGenerationUrl,
+    )?
+    $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case TokenSetupState$DataLoaded() when $default != null:
+        return $default(
+          _that.vkAppId,
+          _that.currentToken,
+          _that.tokenGenerationUrl,
+        );
+      case _:
+        return null;
+    }
   }
 }
 

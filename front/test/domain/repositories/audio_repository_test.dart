@@ -1,7 +1,7 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:front/data/local/audio_storage/audio_storage.dart';
-import 'package:front/data/remote/api/track_sessions_client.dart';
+import 'package:front/data/remote/api/filtered_track_sessions_client.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:front/data/remote/services/vk_service.dart';
 import 'package:front/domain/entities/track_session.dart';
@@ -15,18 +15,18 @@ import 'audio_repository_test.mocks.dart';
 // Dummy объект для тестов
 final _dummyArtist = VkArtist(id: 0, name: 'dummy', domain: null, photo: null);
 
-@GenerateMocks([VkService, AudioStorage, TrackSessionsClient])
+@GenerateMocks([VkService, AudioStorage, FilteredTrackSessionsClient])
 void main() {
   group('AudioRepository', () {
     late MockVkService mockVkService;
     late MockAudioStorage mockAudioStorage;
-    late MockTrackSessionsClient mockSessionsClient;
+    late MockFilteredTrackSessionsClient mockSessionsClient;
     late AudioRepository audioRepository;
 
     setUp(() {
       mockVkService = MockVkService();
       mockAudioStorage = MockAudioStorage();
-      mockSessionsClient = MockTrackSessionsClient();
+      mockSessionsClient = MockFilteredTrackSessionsClient();
       audioRepository = AudioRepository(
         mockVkService,
         mockAudioStorage,
@@ -74,7 +74,7 @@ void main() {
         ).thenAnswer((_) async => IListConst([localTrack]));
         when(
           mockSessionsClient.getSessions(),
-        ).thenAnswer((_) async => sessions);
+        ).thenAnswer((_) async => sessions.toIList());
 
         // Настраиваем проверку недоступных треков
         when(
@@ -139,7 +139,7 @@ void main() {
           ).thenAnswer((_) async => IListConst([localTrack]));
           when(
             mockSessionsClient.getSessions(),
-          ).thenAnswer((_) async => sessions);
+          ).thenAnswer((_) async => sessions.toIList());
           when(
             mockAudioStorage.isTrackUnavailable(2, 200),
           ).thenAnswer((_) async => false); // 2_200 доступен в базе
@@ -202,7 +202,7 @@ void main() {
           ).thenAnswer((_) async => IListConst([localTrack]));
           when(
             mockSessionsClient.getSessions(),
-          ).thenAnswer((_) async => sessions);
+          ).thenAnswer((_) async => sessions.toIList());
           when(
             mockAudioStorage.isTrackUnavailable(2, 200),
           ).thenAnswer((_) async => false);
@@ -253,7 +253,7 @@ void main() {
         ).thenAnswer((_) async => IList([localTrack]));
         when(
           mockSessionsClient.getSessions(),
-        ).thenAnswer((_) async => sessions);
+        ).thenAnswer((_) async => sessions.toIList());
 
         // Вызываем метод
         final (tracks, resultSessions) = await audioRepository.getAudioData();
@@ -291,7 +291,7 @@ void main() {
         ).thenAnswer((_) async => IList([localTrack]));
         when(
           mockSessionsClient.getSessions(),
-        ).thenAnswer((_) async => sessions);
+        ).thenAnswer((_) async => sessions.toIList());
         when(
           mockVkService.getAudioById(const IListConst(['invalid_format'])),
         ).thenAnswer(
@@ -346,7 +346,7 @@ void main() {
         ).thenAnswer((_) async => IListConst([localTrack]));
         when(
           mockSessionsClient.getSessions(),
-        ).thenAnswer((_) async => sessions);
+        ).thenAnswer((_) async => sessions.toIList());
         when(
           mockAudioStorage.isTrackUnavailable(18173818, 456242589),
         ).thenAnswer((_) async => false);
@@ -415,7 +415,7 @@ void main() {
         ).thenAnswer((_) async => IListConst([localTrack]));
         when(
           mockSessionsClient.getSessions(),
-        ).thenAnswer((_) async => sessions);
+        ).thenAnswer((_) async => sessions.toIList());
 
         // Вызываем метод
         final (tracks, resultSessions) = await audioRepository.getAudioData();
@@ -469,7 +469,7 @@ void main() {
         ).thenAnswer((_) async => IListConst([localTrack1, localTrack2]));
         when(
           mockSessionsClient.getSessions(),
-        ).thenAnswer((_) async => sessions);
+        ).thenAnswer((_) async => sessions.toIList());
 
         // Вызываем метод
         final (tracks, resultSessions) = await audioRepository.getAudioData();
@@ -506,7 +506,7 @@ void main() {
         ).thenAnswer((_) async => IList([track]));
         when(
           mockSessionsClient.getSessions(),
-        ).thenAnswer((_) async => <TrackSession>[]);
+        ).thenAnswer((_) async => <TrackSession>[].toIList());
 
         // Вызываем метод
         final result = await audioRepository.getListenedAudio();
@@ -543,7 +543,7 @@ void main() {
         ).thenAnswer((_) async => IList([localTrack]));
         when(
           mockSessionsClient.getSessions(),
-        ).thenAnswer((_) async => sessions);
+        ).thenAnswer((_) async => sessions.toIList());
         when(
           mockAudioStorage.isTrackUnavailable(1, 100),
         ).thenAnswer((_) async => false);
@@ -588,7 +588,9 @@ void main() {
       when(
         mockAudioStorage.getTracks(),
       ).thenAnswer((_) async => IListConst([localTrack]));
-      when(mockSessionsClient.getSessions()).thenAnswer((_) async => sessions);
+      when(
+        mockSessionsClient.getSessions(),
+      ).thenAnswer((_) async => sessions.toIList());
       when(
         mockAudioStorage.isTrackUnavailable(2, 200),
       ).thenAnswer((_) async => false);
@@ -703,7 +705,7 @@ void main() {
             mockVkService.getArtistById('artist_1'),
           ).thenAnswer((_) async => artistInfo);
           when(
-            mockAudioStorage.saveCachedArtist(_dummyArtist),
+            mockAudioStorage.saveCachedArtist(_dummyArtist, 'artist_1'),
           ).thenAnswer((_) async {});
 
           // Вызываем метод
@@ -716,7 +718,9 @@ void main() {
           expect(result.first.photo, equals('https://example.com/photo1.jpg'));
 
           // Проверяем что артист был сохранен в кеш
-          verify(mockAudioStorage.saveCachedArtist(_dummyArtist)).called(1);
+          verify(
+            mockAudioStorage.saveCachedArtist(_dummyArtist, 'artist_1'),
+          ).called(1);
         },
       );
 
@@ -905,7 +909,7 @@ void main() {
           mockVkService.getArtistById('artist_2'),
         ).thenAnswer((_) async => artistInfo2);
         when(
-          mockAudioStorage.saveCachedArtist(_dummyArtist),
+          mockAudioStorage.saveCachedArtist(_dummyArtist, 'artist_2'),
         ).thenAnswer((_) async {});
 
         // Вызываем метод
@@ -925,7 +929,9 @@ void main() {
         expect(artist2.photo, equals('https://example.com/photo2.jpg'));
 
         // Проверяем что второй артист был сохранен в кеш
-        verify(mockAudioStorage.saveCachedArtist(_dummyArtist)).called(1);
+        verify(
+          mockAudioStorage.saveCachedArtist(_dummyArtist, 'artist_2'),
+        ).called(1);
       });
     });
 
@@ -968,14 +974,16 @@ void main() {
           mockVkService.getArtistById('artist_1'),
         ).thenAnswer((_) async => artistInfo);
         when(
-          mockAudioStorage.saveCachedArtist(_dummyArtist),
+          mockAudioStorage.saveCachedArtist(_dummyArtist, 'artist_1'),
         ).thenAnswer((_) async {});
 
         // Вызываем метод
         await audioRepository.updateArtistPhotosInBackground();
 
         // Проверяем что артист был сохранен в кеш
-        verify(mockAudioStorage.saveCachedArtist(_dummyArtist)).called(1);
+        verify(
+          mockAudioStorage.saveCachedArtist(_dummyArtist, 'artist_1'),
+        ).called(1);
       });
 
       test('Should handle API errors in background update', () async {

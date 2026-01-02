@@ -105,7 +105,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -119,6 +119,12 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 3) {
         // Создаем таблицу CachedArtists при обновлении с версии 2 до 3
+        await m.createTable(cachedArtists);
+      }
+      if (from < 4) {
+        // Очищаем таблицу CachedArtists из-за исправления бага с ID
+        // Старые записи содержали hashCode вместо оригинального artistId
+        await m.deleteTable('cached_artists');
         await m.createTable(cachedArtists);
       }
     },

@@ -15,24 +15,8 @@ class ArtistsCubit extends Cubit<CommonStates<IList<(VkArtist, int)>>> {
   Future<void> init() async {
     try {
       emit(const CommonStates.loading());
-      final artistsWithCount = await _audioRepository.getArtistsWithSongCount();
-      emit(CommonStates.data(artistsWithCount));
-    } catch (e, s) {
-      emit(CommonStates.error(AppException.from(e, st: s)));
-    }
-  }
-
-  /// Инициализирует с артистами, которые имеют фотографии из VK API
-  Future<void> initWithPhotos() async {
-    try {
-      emit(const CommonStates.loading());
-      final artistsWithPhotos = await _audioRepository.getArtistsWithPhotos();
-
-      // Создаем пары (VkArtist, int) для совместимости с существующим интерфейсом
-      final artistsWithCount = artistsWithPhotos.map((artist) {
-        return (artist, 0); // Пока не считаем количество песен
-      }).toIList();
-
+      final artistsWithCount = await _audioRepository
+          .getArtistsWithPhotosAndSongCount();
       emit(CommonStates.data(artistsWithCount));
     } catch (e, s) {
       emit(CommonStates.error(AppException.from(e, st: s)));

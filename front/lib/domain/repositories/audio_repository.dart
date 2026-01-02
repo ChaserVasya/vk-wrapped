@@ -1,6 +1,6 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:front/data/local/audio_storage/audio_storage.dart';
-import 'package:front/data/remote/api/track_sessions_client.dart';
+import 'package:front/data/remote/api/filtered_track_sessions_client.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
 import 'package:front/data/remote/services/vk_service.dart';
 import 'package:front/domain/entities/track_session.dart';
@@ -11,7 +11,7 @@ import 'package:injectable/injectable.dart';
 class AudioRepository {
   final VkService _vkApiService;
   final AudioStorage _trackStorage;
-  final TrackSessionsClient _sessionsClient;
+  final FilteredTrackSessionsClient _sessionsClient;
 
   AudioRepository(this._vkApiService, this._trackStorage, this._sessionsClient);
 
@@ -140,25 +140,40 @@ class AudioRepository {
   }
 
   Future<IList<VkAudioTrack>> getListenedAudio() async {
-    final (tracks, _) = await getAudioData();
-    return tracks;
+    final (allTracks, sessions) = await getAudioData();
+
+    // Фильтруем треки по сессиям - возвращаем только те, что прослушивались в выбранном диапазоне
+    final sessionTrackIds = sessions.map((s) => s.fullId).toSet();
+    final filteredTracks = allTracks
+        .where((track) => sessionTrackIds.contains(track.fullId))
+        .toIList();
+
+    return filteredTracks;
   }
 
   /// Получает треки с количеством их прослушиваний
   Future<IList<(VkAudioTrack, int)>> getTracksWithPlayCount() async {
-    final (tracks, sessions) = await getAudioData();
+    final (allTracks, sessions) = await getAudioData();
     final trackPlayCount = <String, int>{};
     // Подсчитываем количество прослушиваний для каждого трека
     for (final session in sessions) {
-      final track = tracks.where((t) => t.fullId == session.fullId).firstOrNull;
+      final track = allTracks
+          .where((t) => t.fullId == session.fullId)
+          .firstOrNull;
       if (track == null)
         continue; // Пропускаем сессии без соответствующих треков
       final trackKey = track.fullId;
       trackPlayCount[trackKey] = (trackPlayCount[trackKey] ?? 0) + 1;
     }
 
-    // Создаем пары трек-количество прослушиваний
-    final tracksWithCount = tracks
+    // Фильтруем треки по сессиям - возвращаем только те, что прослушивались в выбранном диапазоне
+    final sessionTrackIds = sessions.map((s) => s.fullId).toSet();
+    final filteredTracks = allTracks.where(
+      (track) => sessionTrackIds.contains(track.fullId),
+    );
+
+    // Создаем пары трек-количество прослушиваний только для отфильтрованных треков
+    final tracksWithCount = filteredTracks
         .map((track) => (track, trackPlayCount[track.fullId] ?? 0))
         .toIList();
 
@@ -195,13 +210,57 @@ class AudioRepository {
   }
 
   /// Получает информацию об артисте по его ID из VK API
+  /// Проверяет кеш БД перед запросом к API
   Future<VkArtistInfo> getArtistInfoById(String artistId) async {
-    return await _vkApiService.getArtistById(artistId);
+    // Проверяем, есть ли артист в кеше БД и был ли он проверен недавно
+    final cachedArtist = await _trackStorage.getCachedArtist(artistId);
+    if (cachedArtist != null) {
+      // Если артист есть в кеше, возвращаем информацию из кеша
+      // Преобразуем VkArtist в VkArtistInfo (без photos, так как они не хранятся в кеше)
+      return VkArtistInfo(
+        id: artistId,
+        name: cachedArtist.name,
+        domain: cachedArtist.domain,
+        photos:
+            null, // Фото не хранятся в кеше, но это нормально - они уже обработаны
+      );
+    }
+
+    // Если артиста нет в кеше, делаем запрос к API
+    final artistInfo = await _vkApiService.getArtistById(artistId);
+
+    // Сохраняем в кеш для будущих запросов
+    final artist = VkArtist(
+      id: artistInfo.id.hashCode,
+      name: artistInfo.name,
+      domain: artistInfo.domain,
+      photo: artistInfo.photos != null && artistInfo.photos!.isNotEmpty
+          ? artistInfo.photos!
+                .firstWhere(
+                  (photo) => photo.type == 'crop',
+                  orElse: () => artistInfo.photos!.first,
+                )
+                .photo
+                .reduce((a, b) => a.width > b.width ? a : b)
+                .url
+          : null,
+    );
+    await _trackStorage.saveCachedArtist(artist, artistId);
+
+    return artistInfo;
   }
 
   /// Получает артистов с заполненными фотографиями из VK API с кешированием
   Future<IList<VkArtist>> getArtistsWithPhotos() async {
     final tracks = await getListenedAudio();
+    return getArtistsWithPhotosFromTracks(tracks);
+  }
+
+  /// Получает артистов с заполненными фотографиями из VK API с кешированием
+  /// Принимает треки напрямую, чтобы избежать повторных запросов
+  Future<IList<VkArtist>> getArtistsWithPhotosFromTracks(
+    IList<VkAudioTrack> tracks,
+  ) async {
     final artistIds = <String>{};
 
     // Собираем уникальные ID артистов из mainArtists
@@ -254,7 +313,7 @@ class AudioRepository {
           );
 
           // Сохраняем в кеш
-          await _trackStorage.saveCachedArtist(artist);
+          await _trackStorage.saveCachedArtist(artist, artistId);
           artistsWithPhotos.add(artist);
         } else {
           // Артист уже проверялся, но нет в кеше - значит у него нет фото
@@ -354,7 +413,7 @@ class AudioRepository {
                 photo: photoUrl,
               );
 
-              await _trackStorage.saveCachedArtist(artist);
+              await _trackStorage.saveCachedArtist(artist, artistId);
               print('[DEBUG] Updated photo for artist: ${artist.name}');
             } catch (e, _) {
               // Помечаем как проверенного, но без фото
@@ -378,33 +437,27 @@ class AudioRepository {
     }
   }
 
-  /// Получает артистов с количеством их песен
-  Future<IList<(VkArtist, int)>> getArtistsWithSongCount() async {
+  /// Получает артистов с фотографиями из VK API и подсчитывает количество их песен
+  Future<IList<(VkArtist, int)>> getArtistsWithPhotosAndSongCount() async {
+    // Получаем артистов с фотографиями из VK API
+    final artistsWithPhotos = await getArtistsWithPhotos();
+
+    // Получаем треки для подсчёта количества песен
     final tracks = await getListenedAudio();
-    final artistSongCount = <String, int>{};
 
     // Подсчитываем количество песен для каждого артиста
+    final artistSongCount = <String, int>{};
     for (final track in tracks) {
-      // Считаем каждого артиста отдельно
-      for (final artist in track.artists) {
-        artistSongCount[artist] = (artistSongCount[artist] ?? 0) + 1;
+      for (final artistName in track.artists) {
+        artistSongCount[artistName] = (artistSongCount[artistName] ?? 0) + 1;
       }
     }
 
-    // Создаем объекты VkArtist с количеством песен
-    final artistsWithCount = artistSongCount.entries
-        .map(
-          (entry) => (
-            VkArtist(
-              id: entry.key.hashCode,
-              name: entry.key,
-              domain: null,
-              photo: null,
-            ),
-            entry.value,
-          ),
-        )
-        .toIList();
+    // Создаем пары (VkArtist, int) для артистов с фотографиями
+    final artistsWithCount = artistsWithPhotos.map((artist) {
+      final songCount = artistSongCount[artist.name] ?? 0;
+      return (artist, songCount);
+    }).toIList();
 
     return artistsWithCount;
   }

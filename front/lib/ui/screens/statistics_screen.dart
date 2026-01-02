@@ -396,6 +396,15 @@ class _MonthStatsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Группируем статистику по годам
+    final statsByYear = <int, List<MonthStats>>{};
+    for (final monthStat in data.monthStats) {
+      statsByYear.putIfAbsent(monthStat.year, () => []).add(monthStat);
+    }
+
+    // Сортируем годы по возрастанию
+    final sortedYears = statsByYear.keys.toList()..sort();
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -410,29 +419,58 @@ class _MonthStatsPage extends StatelessWidget {
           const SizedBox(height: 32),
           Expanded(
             child: ListView.builder(
-              itemCount: data.monthStats.length,
-              itemBuilder: (context, index) {
-                final monthStat = data.monthStats[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
-                  child: ListTile(
-                    leading: const Icon(
-                      Icons.calendar_month,
-                      color: Colors.blue,
-                    ),
-                    title: Text(
-                      monthStat.monthLabel,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text('${monthStat.playCount} прослушиваний'),
-                    trailing: Text(
-                      '${((monthStat.playCount / data.totalPlayCount) * 100).toStringAsFixed(1)}%',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold,
+              itemCount: sortedYears.length,
+              itemBuilder: (context, yearIndex) {
+                final year = sortedYears[yearIndex];
+                final yearStats = statsByYear[year]!;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Заголовок года
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12.0,
+                        horizontal: 8.0,
+                      ),
+                      child: Text(
+                        '$year',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                       ),
                     ),
-                  ),
+                    // Статистика по месяцам для этого года
+                    ...yearStats.map((monthStat) {
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        child: ListTile(
+                          leading: const Icon(
+                            Icons.calendar_month,
+                            color: Colors.blue,
+                          ),
+                          title: Text(
+                            monthStat.monthLabel,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text(
+                            '${monthStat.playCount} прослушиваний',
+                          ),
+                          trailing: Text(
+                            '${((monthStat.playCount / data.totalPlayCount) * 100).toStringAsFixed(1)}%',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                    // Добавляем отступ между годами (кроме последнего)
+                    if (yearIndex < sortedYears.length - 1)
+                      const SizedBox(height: 16),
+                  ],
                 );
               },
             ),

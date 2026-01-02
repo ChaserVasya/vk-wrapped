@@ -1,5 +1,5 @@
-// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// dart format width=80
 
 // **************************************************************************
 // InjectableConfigGenerator
@@ -17,6 +17,8 @@ import 'package:front/data/local/audio_storage/drift/drift_audio_storage.dart'
     as _i254;
 import 'package:front/data/local/export_service.dart' as _i1056;
 import 'package:front/data/local/prefs_storage.dart' as _i34;
+import 'package:front/data/remote/api/filtered_track_sessions_client.dart'
+    as _i589;
 import 'package:front/data/remote/api/meme_api_client.dart' as _i550;
 import 'package:front/data/remote/api/track_sessions_client.dart' as _i537;
 import 'package:front/data/remote/api/vk_api_client.dart' as _i543;
@@ -53,30 +55,30 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
     gh.factory<_i562.FirstLaunchService>(() => _i562.FirstLaunchService());
+    gh.singleton<_i16.RemoteConfigService>(() => _i16.RemoteConfigService());
     await gh.singletonAsync<_i460.SharedPreferencesWithCache>(
       () => registerModule.prefs,
       preResolve: true,
     );
-    gh.singleton<_i16.RemoteConfigService>(() => _i16.RemoteConfigService());
+    gh.lazySingleton<_i458.TokenGenerator>(() => _i458.TokenGenerator());
     gh.lazySingleton<_i361.Dio>(() => registerModule.dio);
     gh.lazySingleton<_i500.QueryExecutor>(() => registerModule.drift);
     gh.lazySingleton<_i998.SharePlus>(() => registerModule.sharePlus);
     gh.lazySingleton<_i684.AppInfoService>(() => registerModule.appInfoService);
-    gh.lazySingleton<_i458.TokenGenerator>(() => _i458.TokenGenerator());
     gh.lazySingleton<_i657.AppDatabase>(
       () => _i657.AppDatabase(gh<_i500.QueryExecutor>()),
     );
     gh.lazySingleton<_i34.PrefsStorage>(
       () => registerModule.prefsStorage(gh<_i460.SharedPreferencesWithCache>()),
     );
+    gh.lazySingleton<_i550.MemeApiClient>(
+      () => _i550.MemeApiClient(gh<_i361.Dio>()),
+    );
     gh.lazySingleton<_i537.TrackSessionsClient>(
       () => _i537.TrackSessionsClient(gh<_i361.Dio>()),
     );
     gh.lazySingleton<_i543.VkApiClient>(
       () => _i543.VkApiClient(gh<_i361.Dio>()),
-    );
-    gh.lazySingleton<_i550.MemeApiClient>(
-      () => _i550.MemeApiClient(gh<_i361.Dio>()),
     );
     gh.lazySingleton<_i988.VkService>(
       () => _i988.VkService(gh<_i34.PrefsStorage>(), gh<_i543.VkApiClient>()),
@@ -86,6 +88,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i51.MemeRepository>(
       () => _i51.MemeRepository(gh<_i550.MemeApiClient>()),
+    );
+    gh.lazySingleton<_i589.FilteredTrackSessionsClient>(
+      () => _i589.FilteredTrackSessionsClient(
+        gh<_i537.TrackSessionsClient>(),
+        gh<_i34.PrefsStorage>(),
+      ),
     );
     gh.lazySingleton<_i309.AudioStorage>(
       () => _i254.DriftAudioStorage(gh<_i657.AppDatabase>()),
@@ -103,7 +111,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i693.AudioRepository(
         gh<_i988.VkService>(),
         gh<_i309.AudioStorage>(),
-        gh<_i537.TrackSessionsClient>(),
+        gh<_i589.FilteredTrackSessionsClient>(),
       ),
     );
     gh.factory<_i347.StatisticsService>(
@@ -119,20 +127,20 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i297.AuthStorage>(),
       ),
     );
+    gh.factory<_i77.AlbumsCubit>(
+      () => _i77.AlbumsCubit(gh<_i693.AudioRepository>()),
+    );
+    gh.factory<_i868.AlbumsWithArtistsCubit>(
+      () => _i868.AlbumsWithArtistsCubit(gh<_i693.AudioRepository>()),
+    );
+    gh.factory<_i567.ArtistsCubit>(
+      () => _i567.ArtistsCubit(gh<_i693.AudioRepository>()),
+    );
     gh.factory<_i977.GenresCubit>(
       () => _i977.GenresCubit(gh<_i693.AudioRepository>()),
     );
     gh.factory<_i308.TracksCubit>(
       () => _i308.TracksCubit(gh<_i693.AudioRepository>()),
-    );
-    gh.factory<_i77.AlbumsCubit>(
-      () => _i77.AlbumsCubit(gh<_i693.AudioRepository>()),
-    );
-    gh.factory<_i567.ArtistsCubit>(
-      () => _i567.ArtistsCubit(gh<_i693.AudioRepository>()),
-    );
-    gh.factory<_i868.AlbumsWithArtistsCubit>(
-      () => _i868.AlbumsWithArtistsCubit(gh<_i693.AudioRepository>()),
     );
     gh.factory<_i58.StatisticsBloc>(
       () => _i58.StatisticsBloc(

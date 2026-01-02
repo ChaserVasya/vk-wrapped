@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:front/domain/services/first_launch_service.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/routes/app_router.dart';
@@ -46,6 +47,12 @@ class _VkWrappedAppState extends State<VkWrappedApp> {
 
     return MaterialApp.router(
       title: 'VK Wrapped',
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [Locale('en', 'US'), Locale('ru', 'RU')],
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4C75A3)),

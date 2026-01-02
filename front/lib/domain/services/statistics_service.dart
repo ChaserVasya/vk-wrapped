@@ -39,7 +39,7 @@ class StatisticsService {
     final shortestTrack = _getShortestTrack(tracks, sessions);
     final totalPlayCount = _getTotalPlayCount(sessions);
     final unavailableTracksCount = await _audioStorage
-        .getUnavailableTracksCount();
+        .getUnavailableTracksCount(sessions: sessions);
 
     return StatisticStateData(
       topArtists: topArtists,
@@ -134,8 +134,9 @@ class StatisticsService {
     // Получаем топ-5 артистов
     final topArtists = sortedArtists.take(5);
 
-    // Получаем артистов с фотографиями
-    final artistsWithPhotos = await _audioRepository.getArtistsWithPhotos();
+    // Получаем артистов с фотографиями, передавая треки напрямую
+    final artistsWithPhotos = await _audioRepository
+        .getArtistsWithPhotosFromTracks(tracks);
 
     // Создаем ArtistWithPhotoStats для топ артистов
     final result = <ArtistWithPhotoStats>[];
@@ -290,21 +291,31 @@ class StatisticsService {
 
   /// Статистика по месяцам
   IList<MonthStats> _getMonthStats(IList<TrackSession> sessions) {
-    final monthStats = <int, MonthStats>{};
+    // Используем комбинацию года и месяца как ключ
+    final monthStats = <String, MonthStats>{};
 
     for (final session in sessions) {
-      final month = session.firstObservedDateTime.month;
-      if (monthStats.containsKey(month)) {
-        monthStats[month] = monthStats[month]!.copyWith(
-          playCount: monthStats[month]!.playCount + 1,
+      final dateTime = session.firstObservedDateTime;
+      final month = dateTime.month;
+      final year = dateTime.year;
+      final key = '$year-$month';
+
+      if (monthStats.containsKey(key)) {
+        monthStats[key] = monthStats[key]!.copyWith(
+          playCount: monthStats[key]!.playCount + 1,
         );
       } else {
-        monthStats[month] = MonthStats(month: month, playCount: 1);
+        monthStats[key] = MonthStats(month: month, year: year, playCount: 1);
       }
     }
 
+    // Сортируем сначала по году, затем по месяцу
     final sortedStats = monthStats.values.toList()
-      ..sort((a, b) => b.playCount.compareTo(a.playCount));
+      ..sort((a, b) {
+        final yearCompare = a.year.compareTo(b.year);
+        if (yearCompare != 0) return yearCompare;
+        return a.month.compareTo(b.month);
+      });
     return sortedStats.toIList();
   }
 
@@ -631,13 +642,19 @@ class DayOfWeekStats {
 
 class MonthStats {
   final int month;
+  final int year;
   final int playCount;
 
-  const MonthStats({required this.month, required this.playCount});
+  const MonthStats({
+    required this.month,
+    required this.year,
+    required this.playCount,
+  });
 
-  MonthStats copyWith({int? month, int? playCount}) {
+  MonthStats copyWith({int? month, int? year, int? playCount}) {
     return MonthStats(
       month: month ?? this.month,
+      year: year ?? this.year,
       playCount: playCount ?? this.playCount,
     );
   }

@@ -4,6 +4,7 @@ import 'package:front/domain/services/app_info_service.dart';
 import 'package:front/internal/di/di.dart';
 import 'package:front/ui/routes/app_router.dart';
 import 'package:gap/gap.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 @RoutePage()
 class HomeScreen extends StatelessWidget {
@@ -39,6 +40,23 @@ class _Listeners extends StatelessWidget {
 
 class _View extends StatelessWidget {
   const _View();
+
+  Future<void> _launchUrl(String url, BuildContext context) async {
+    final uri = Uri.parse(url);
+    final canLaunch = await canLaunchUrl(uri);
+    if (!context.mounted) {
+      return;
+    }
+    if (canLaunch) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Не удалось открыть ссылку')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,6 +146,21 @@ class _View extends StatelessWidget {
                 }
                 return const SizedBox.shrink();
               },
+            ),
+            const Gap(8),
+            GestureDetector(
+              onTap: () => _launchUrl(
+                'https://github.com/ChaserVasya/vk-wrapped',
+                context,
+              ),
+              child: const Text(
+                'GitHub',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.blue,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
             ),
           ],
         ),

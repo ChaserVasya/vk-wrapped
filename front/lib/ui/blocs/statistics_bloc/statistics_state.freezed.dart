@@ -1,6 +1,5 @@
-// dart format width=80
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -305,6 +304,289 @@ class _$StatisticStateDataCopyWithImpl<$Res>
     return $VkAudioTrackCopyWith<$Res>(_self.shortestTrack!, (value) {
       return _then(_self.copyWith(shortestTrack: value));
     });
+  }
+}
+
+/// Adds pattern-matching-related methods to [StatisticStateData].
+extension StatisticStateDataPatterns on StatisticStateData {
+  /// A variant of `map` that fallback to returning `orElse`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>(
+    TResult Function(_StatisticStateData value)? $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _StatisticStateData() when $default != null:
+        return $default(_that);
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// Callbacks receives the raw object, upcasted.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case final Subclass2 value:
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>(
+    TResult Function(_StatisticStateData value) $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _StatisticStateData():
+        return $default(_that);
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `map` that fallback to returning `null`.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case final Subclass value:
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>(
+    TResult? Function(_StatisticStateData value)? $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _StatisticStateData() when $default != null:
+        return $default(_that);
+      case _:
+        return null;
+    }
+  }
+
+  /// A variant of `when` that fallback to an `orElse` callback.
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return orElse();
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>(
+    TResult Function(
+      IList<ArtistStats> topArtists,
+      IList<ArtistWithPhotoStats> topArtistsWithPhotos,
+      IList<TrackWithStats> topTracks,
+      IList<
+        ({String title, int trackCount, int totalPlayCount, int totalDuration})
+      >
+      tracksWithSameTitle,
+      Duration totalListeningTime,
+      int uniqueTracksCount,
+      int uniqueArtistsCount,
+      int uniqueAlbumsCount,
+      int uniqueGenresCount,
+      Duration averageTrackDuration,
+      IList<TimeOfDayStats> timeOfDayStats,
+      IList<DayOfWeekStats> dayOfWeekStats,
+      IList<MonthStats> monthStats,
+      MostActiveDayStats? mostActiveDay,
+      VkAudioTrack? longestTrack,
+      VkAudioTrack? shortestTrack,
+      int totalPlayCount,
+      int unavailableTracksCount,
+    )?
+    $default, {
+    required TResult orElse(),
+  }) {
+    final _that = this;
+    switch (_that) {
+      case _StatisticStateData() when $default != null:
+        return $default(
+          _that.topArtists,
+          _that.topArtistsWithPhotos,
+          _that.topTracks,
+          _that.tracksWithSameTitle,
+          _that.totalListeningTime,
+          _that.uniqueTracksCount,
+          _that.uniqueArtistsCount,
+          _that.uniqueAlbumsCount,
+          _that.uniqueGenresCount,
+          _that.averageTrackDuration,
+          _that.timeOfDayStats,
+          _that.dayOfWeekStats,
+          _that.monthStats,
+          _that.mostActiveDay,
+          _that.longestTrack,
+          _that.shortestTrack,
+          _that.totalPlayCount,
+          _that.unavailableTracksCount,
+        );
+      case _:
+        return orElse();
+    }
+  }
+
+  /// A `switch`-like method, using callbacks.
+  ///
+  /// As opposed to `map`, this offers destructuring.
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case Subclass2(:final field2):
+  ///     return ...;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>(
+    TResult Function(
+      IList<ArtistStats> topArtists,
+      IList<ArtistWithPhotoStats> topArtistsWithPhotos,
+      IList<TrackWithStats> topTracks,
+      IList<
+        ({String title, int trackCount, int totalPlayCount, int totalDuration})
+      >
+      tracksWithSameTitle,
+      Duration totalListeningTime,
+      int uniqueTracksCount,
+      int uniqueArtistsCount,
+      int uniqueAlbumsCount,
+      int uniqueGenresCount,
+      Duration averageTrackDuration,
+      IList<TimeOfDayStats> timeOfDayStats,
+      IList<DayOfWeekStats> dayOfWeekStats,
+      IList<MonthStats> monthStats,
+      MostActiveDayStats? mostActiveDay,
+      VkAudioTrack? longestTrack,
+      VkAudioTrack? shortestTrack,
+      int totalPlayCount,
+      int unavailableTracksCount,
+    )
+    $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _StatisticStateData():
+        return $default(
+          _that.topArtists,
+          _that.topArtistsWithPhotos,
+          _that.topTracks,
+          _that.tracksWithSameTitle,
+          _that.totalListeningTime,
+          _that.uniqueTracksCount,
+          _that.uniqueArtistsCount,
+          _that.uniqueAlbumsCount,
+          _that.uniqueGenresCount,
+          _that.averageTrackDuration,
+          _that.timeOfDayStats,
+          _that.dayOfWeekStats,
+          _that.monthStats,
+          _that.mostActiveDay,
+          _that.longestTrack,
+          _that.shortestTrack,
+          _that.totalPlayCount,
+          _that.unavailableTracksCount,
+        );
+      case _:
+        throw StateError('Unexpected subclass');
+    }
+  }
+
+  /// A variant of `when` that fallback to returning `null`
+  ///
+  /// It is equivalent to doing:
+  /// ```dart
+  /// switch (sealedClass) {
+  ///   case Subclass(:final field):
+  ///     return ...;
+  ///   case _:
+  ///     return null;
+  /// }
+  /// ```
+
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>(
+    TResult? Function(
+      IList<ArtistStats> topArtists,
+      IList<ArtistWithPhotoStats> topArtistsWithPhotos,
+      IList<TrackWithStats> topTracks,
+      IList<
+        ({String title, int trackCount, int totalPlayCount, int totalDuration})
+      >
+      tracksWithSameTitle,
+      Duration totalListeningTime,
+      int uniqueTracksCount,
+      int uniqueArtistsCount,
+      int uniqueAlbumsCount,
+      int uniqueGenresCount,
+      Duration averageTrackDuration,
+      IList<TimeOfDayStats> timeOfDayStats,
+      IList<DayOfWeekStats> dayOfWeekStats,
+      IList<MonthStats> monthStats,
+      MostActiveDayStats? mostActiveDay,
+      VkAudioTrack? longestTrack,
+      VkAudioTrack? shortestTrack,
+      int totalPlayCount,
+      int unavailableTracksCount,
+    )?
+    $default,
+  ) {
+    final _that = this;
+    switch (_that) {
+      case _StatisticStateData() when $default != null:
+        return $default(
+          _that.topArtists,
+          _that.topArtistsWithPhotos,
+          _that.topTracks,
+          _that.tracksWithSameTitle,
+          _that.totalListeningTime,
+          _that.uniqueTracksCount,
+          _that.uniqueArtistsCount,
+          _that.uniqueAlbumsCount,
+          _that.uniqueGenresCount,
+          _that.averageTrackDuration,
+          _that.timeOfDayStats,
+          _that.dayOfWeekStats,
+          _that.monthStats,
+          _that.mostActiveDay,
+          _that.longestTrack,
+          _that.shortestTrack,
+          _that.totalPlayCount,
+          _that.unavailableTracksCount,
+        );
+      case _:
+        return null;
+    }
   }
 }
 

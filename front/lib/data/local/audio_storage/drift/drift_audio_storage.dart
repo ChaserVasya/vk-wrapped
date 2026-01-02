@@ -3,6 +3,7 @@ import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:front/data/local/audio_storage/audio_storage.dart';
 import 'package:front/data/local/audio_storage/drift/database.dart';
 import 'package:front/data/remote/api/vk_api_client.dart';
+import 'package:front/domain/entities/track_session.dart';
 import 'package:injectable/injectable.dart';
 
 @LazySingleton(as: AudioStorage)
@@ -268,12 +269,34 @@ class DriftAudioStorage implements AudioStorage {
 
   @override
   /// Получает количество недоступных треков
-  Future<int> getUnavailableTracksCount() async {
-    final result = _database.selectOnly(_database.unavailableTracks)
-      ..addColumns([_database.unavailableTracks.id.count()]);
+  /// Если [sessions] передан, считает только треки из этих сессий
+  Future<int> getUnavailableTracksCount({IList<TrackSession>? sessions}) async {
+    // Если сессии не переданы, считаем все недоступные треки
+    if (sessions == null || sessions.isEmpty) {
+      final result = _database.selectOnly(_database.unavailableTracks)
+        ..addColumns([_database.unavailableTracks.id.count()]);
 
-    final count = await result.getSingle();
-    return count.read(_database.unavailableTracks.id.count()) ?? 0;
+      final count = await result.getSingle();
+      return count.read(_database.unavailableTracks.id.count()) ?? 0;
+    }
+
+    // Получаем все недоступные треки из БД одним запросом
+    final allUnavailableTracks = await _database
+        .select(_database.unavailableTracks)
+        .get();
+    final unavailableFullIds = allUnavailableTracks
+        .map((track) => track.fullId)
+        .toSet();
+
+    // Извлекаем fullId из сессий
+    final sessionFullIds = sessions.map((s) => s.fullId).toSet();
+
+    // Пересекаем множества: считаем только те недоступные треки, которые есть в сессиях
+    final unavailableInSessions = unavailableFullIds.intersection(
+      sessionFullIds,
+    );
+
+    return unavailableInSessions.length;
   }
 
   @override
@@ -308,12 +331,13 @@ class DriftAudioStorage implements AudioStorage {
 
   @override
   /// Сохраняет артиста в кеш
-  Future<void> saveCachedArtist(VkArtist artist) async {
+  /// [artistId] - оригинальный ID артиста (String) из VK API
+  Future<void> saveCachedArtist(VkArtist artist, String artistId) async {
     await _database
         .into(_database.cachedArtists)
         .insert(
           CachedArtistsCompanion.insert(
-            artistId: artist.id.toString(),
+            artistId: artistId,
             name: artist.name,
             domain: Value(artist.domain),
             photoUrl: Value(artist.photo),

@@ -2,6 +2,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:front/domain/config/consts.dart';
+import 'package:front/domain/entities/date_range_filter.dart';
 import 'package:front/features/state_management/common_states.dart';
 import 'package:front/features/utils/bloc/safe_bloc.dart';
 import 'package:front/internal/di/di.dart';
@@ -11,6 +13,7 @@ import 'package:front/ui/widgets/extensions.dart';
 import 'package:front/ui/widgets/loading_widget.dart';
 import 'package:front/ui/widgets/safe_listeners.dart';
 import 'package:gap/gap.dart';
+import 'package:intl/intl.dart';
 
 @RoutePage()
 class SettingsScreen extends StatelessWidget {
@@ -62,12 +65,206 @@ class _Listeners extends StatelessWidget {
                 context.showSnackBar(
                   'Нет данных для экспорта. Сначала загрузите музыку.',
                 );
+              case SettingsEffect$DateRangeFilterChanged():
+                // Фильтр дат изменен, статистика обновится при следующей загрузке
+                break;
             }
           },
         ),
       ],
       child: child,
     );
+  }
+}
+
+class _DateRangeFilterCard extends StatelessWidget {
+  const _DateRangeFilterCard({required this.state});
+
+  final SettingsState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Фильтр по датам',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const Gap(8),
+            const Text(
+              'Выберите диапазон дат для фильтрации сессий прослушивания.',
+              style: TextStyle(fontSize: 14),
+            ),
+            const Gap(16),
+            _buildDateRangeFilter(context),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDateRangeFilter(BuildContext context) {
+    switch (state) {
+      case CommonStateData(data: final data):
+        final filter = data.dateRangeFilter;
+        final dateFormat = DateFormat('dd.MM.yyyy');
+
+        String filterText;
+        if (filter == null) {
+          filterText = 'Все сессии';
+        } else if (filter.startDate != null && filter.endDate != null) {
+          final start = dateFormat.format(filter.startDate!);
+          final end = dateFormat.format(filter.endDate!);
+          filterText = '$start - $end';
+        } else if (filter.startDate != null) {
+          filterText = 'С ${dateFormat.format(filter.startDate!)}';
+        } else if (filter.endDate != null) {
+          filterText = 'До ${dateFormat.format(filter.endDate!)}';
+        } else {
+          filterText = 'Все сессии';
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Текущий фильтр: $filterText',
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+            const Gap(16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showCustomDateRangeDialog(context),
+                    icon: const Icon(Icons.date_range),
+                    label: const Text('Кастомный диапазон'),
+                  ),
+                ),
+                const Gap(8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showYearPickerDialog(context),
+                    icon: const Icon(Icons.calendar_today),
+                    label: const Text('Выбрать год'),
+                  ),
+                ),
+              ],
+            ),
+            const Gap(8),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  context.read<SettingsBloc>().add(
+                    const SettingsEvent.saveDateRangeFilter(null),
+                  );
+                },
+                icon: const Icon(Icons.clear_all),
+                label: const Text('Показать всё'),
+              ),
+            ),
+          ],
+        );
+      case CommonStateLoading():
+        return const Row(
+          children: [
+            SizedBox(width: 16, height: 16, child: LoadingWidget()),
+            Gap(8),
+            Text('Загрузка...'),
+          ],
+        );
+      case CommonStateError():
+        return const Text('Ошибка загрузки фильтра');
+    }
+  }
+
+  void _showCustomDateRangeDialog(BuildContext context) async {
+    final now = DateTime.now();
+    final firstDate = Consts.minFirstObserved;
+    final lastDate = now;
+
+    final startDate = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      locale: const Locale('ru', 'RU'),
+      helpText: 'Выберите начальную дату',
+    );
+
+    if (startDate == null || !context.mounted) return;
+
+    final endDate = await showDatePicker(
+      context: context,
+      initialDate: startDate.isAfter(now) ? now : startDate,
+      firstDate: startDate,
+      lastDate: lastDate,
+      locale: const Locale('ru', 'RU'),
+      helpText: 'Выберите конечную дату',
+    );
+
+    if (endDate == null || !context.mounted) return;
+
+    // Устанавливаем время для начала дня и конца дня
+    final start = DateTime(startDate.year, startDate.month, startDate.day);
+    final end = DateTime(
+      endDate.year,
+      endDate.month,
+      endDate.day,
+      23,
+      59,
+      59,
+      999,
+    );
+
+    context.read<SettingsBloc>().add(
+      SettingsEvent.saveDateRangeFilter(
+        DateRangeFilter.custom(startDate: start, endDate: end),
+      ),
+    );
+  }
+
+  void _showYearPickerDialog(BuildContext context) async {
+    final now = DateTime.now();
+    final minYear = Consts.minFirstObserved.year;
+    final maxYear = now.year;
+    final years = List.generate(
+      maxYear - minYear + 1,
+      (index) => minYear + index,
+    );
+
+    final selectedYear = await showDialog<int>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Выберите год'),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: years.length,
+              itemBuilder: (context, index) {
+                final year = years[index];
+                return ListTile(
+                  title: Text(year.toString()),
+                  onTap: () => Navigator.of(context).pop(year),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selectedYear == null || !context.mounted) return;
+
+    final filter = DateRangeFilter.forYear(selectedYear);
+    context.read<SettingsBloc>().add(SettingsEvent.saveDateRangeFilter(filter));
   }
 }
 
@@ -410,6 +607,10 @@ class _ViewState extends State<_View> {
                       ),
                     ),
                   ),
+                  const Gap(16),
+
+                  // Секция фильтра по датам
+                  _DateRangeFilterCard(state: state),
                   const Gap(16),
 
                   // Секция экспорта

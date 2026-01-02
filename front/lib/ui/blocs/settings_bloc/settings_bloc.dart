@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:front/data/local/export_service.dart';
 import 'package:front/data/local/prefs_storage.dart';
+import 'package:front/domain/entities/date_range_filter.dart';
 import 'package:front/domain/exceptions/app_exception.dart';
 import 'package:front/domain/repositories/audio_repository.dart';
 import 'package:front/domain/storages/auth_storage.dart';
@@ -32,6 +33,7 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
     on<_ClearCache>(_onClearCache);
     on<_ExportData>(_onExportData);
     on<_LoadCurrentData>(_onLoadCurrentData);
+    on<_SaveDateRangeFilter>(_onSaveDateRangeFilter);
   }
 
   Future<void> _doIfData(
@@ -144,6 +146,7 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
       final currentToken = _authStorage.getToken();
       final tokenExpiresAt = _authStorage.getTokenExpiry();
       final clientId = _authStorage.getVkAppId();
+      final dateRangeFilter = _cacheService.getDateRangeFilter();
 
       emit(
         CommonStates.data(
@@ -153,11 +156,24 @@ class SettingsBloc extends EffectBloc<SettingsEvent, SettingsState> {
             tokenExpiresAt: tokenExpiresAt,
             clientId: clientId ?? 'Рандомный (От Vk Admin, лол)',
             isCacheCleared: false,
+            dateRangeFilter: dateRangeFilter,
           ),
         ),
       );
     } catch (e, st) {
       emit(CommonStates.error(AppException.from(e, st: st)));
     }
+  }
+
+  Future<void> _onSaveDateRangeFilter(
+    _SaveDateRangeFilter event,
+    Emitter<SettingsState> emit,
+  ) async {
+    await _doIfData((data, emit) async {
+      await _cacheService.saveDateRangeFilter(event.filter);
+
+      emit(CommonStates.data(data.copyWith(dateRangeFilter: event.filter)));
+      emitEffect(const SettingsEffect.dateRangeFilterChanged());
+    }, emit);
   }
 }
