@@ -307,6 +307,21 @@ class MockAudioRepository extends _i1.Mock implements _i8.AudioRepository {
           as _i5.Future<_i2.IList<_i3.VkArtist>>);
 
   @override
+  _i5.Future<_i2.IList<_i3.VkArtist>> getArtistsWithPhotosFromTracks(
+    _i2.IList<_i3.VkAudioTrack>? tracks,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getArtistsWithPhotosFromTracks, [tracks]),
+            returnValue: _i5.Future<_i2.IList<_i3.VkArtist>>.value(
+              _FakeIList_0<_i3.VkArtist>(
+                this,
+                Invocation.method(#getArtistsWithPhotosFromTracks, [tracks]),
+              ),
+            ),
+          )
+          as _i5.Future<_i2.IList<_i3.VkArtist>>);
+
+  @override
   _i5.Future<void> updateArtistPhotosInBackground() =>
       (super.noSuchMethod(
             Invocation.method(#updateArtistPhotosInBackground, []),
