@@ -55,10 +55,11 @@ yc serverless function version create \
   --runtime=nodejs18 \
   --entrypoint=meme-db.handler \
   --memory=128m \
-  --execution-timeout=30s \
+  --execution-timeout=10s \
   --source-path=func-meme.zip \
   --environment="$ENV_VARS" \
-  --service-account-id=ajeup5brgovjbs8ok57u
+  --service-account-id=ajeup5brgovjbs8ok57u \
+  --concurrency=1
 
 if [ $? -eq 0 ]; then
   echo "[INFO] Meme function deployment completed successfully!"

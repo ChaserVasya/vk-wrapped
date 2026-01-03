@@ -58,7 +58,9 @@ yc serverless function version create \
   --execution-timeout=30s \
   --source-path=func-read.zip \
   --environment="$ENV_VARS" \
-  --service-account-id=ajeup5brgovjbs8ok57u
+  --service-account-id=ajeup5brgovjbs8ok57u \
+  --concurrency=1
+
 
 if [ $? -eq 0 ]; then
   echo "[INFO] Read function deployment completed successfully!"
